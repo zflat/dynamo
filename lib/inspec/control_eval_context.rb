@@ -189,6 +189,18 @@ module Inspec
       @skip_file = true
     end
 
+    # Check if the given control exist in the --controls option
+    def control_exist_in_controls_list?(id)
+      id_exist_in_list = false
+      if profile_config_exist?
+        id_exist_in_list = @conf["profile"].include_controls_list.any? do |inclusion|
+          # Try to see if the inclusion is a regex, and if it matches
+          inclusion == id || (inclusion.is_a?(Regexp) && inclusion =~ id)
+        end
+      end
+      id_exist_in_list
+    end
+
     private
 
     def block_location(block, alternate_caller)
@@ -216,18 +228,6 @@ module Inspec
 
     def tags_list_empty?
       !@conf.empty? && @conf.key?("profile") && @conf["profile"].include_tags_list.empty? || @conf.empty?
-    end
-
-    # Check if the given control exist in the --controls option
-    def control_exist_in_controls_list?(id)
-      id_exist_in_list = false
-      if profile_config_exist?
-        id_exist_in_list = @conf["profile"].include_controls_list.any? do |inclusion|
-          # Try to see if the inclusion is a regex, and if it matches
-          inclusion == id || (inclusion.is_a?(Regexp) && inclusion =~ id)
-        end
-      end
-      id_exist_in_list
     end
 
     # Check if the given control exist in the --tags option
