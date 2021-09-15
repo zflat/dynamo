@@ -1,4 +1,0 @@
-source "https://www.rubygems.org"
-
-gem "kitchen-docker"
-gem "test-kitchen"

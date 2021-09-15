@@ -1,6 +1,6 @@
 source "https://rubygems.org"
 
-gem "inspec", path: "."
+gem "inspec-core", path: "."
 
 # This dependency is NOT used for normal gem deployment
 # - instead, inspec-bin gemspec-depends on inspec
