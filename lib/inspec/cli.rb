@@ -2,8 +2,6 @@
 
 require "inspec/utils/deprecation/deprecator"
 require "inspec/dist"
-require "inspec/backend"
-require "inspec/dependencies/cache"
 require "inspec/utils/json_profile_summary"
 
 module Inspec # TODO: move this somewhere "better"?
@@ -26,7 +24,6 @@ module Inspec # TODO: move this somewhere "better"?
   autoload :Shell,         "inspec/shell"
   autoload :SourceReader,  "inspec/source_reader"
   autoload :Telemetry,     "inspec/utils/telemetry"
-  autoload :V1,            "inspec/plugin/v1"
   autoload :V2,            "inspec/plugin/v2"
   autoload :VERSION,       "inspec/version"
 end
@@ -458,7 +455,6 @@ end
 # Plugin Loading
 #---------------------------------------------------------------------#
 require "inspec/plugin/v2"
-require "inspec/plugin/v1"
 
 begin
   # Load v2 plugins.  Manually check for plugin disablement.
@@ -469,20 +465,6 @@ begin
   v2_loader.exit_on_load_error
   v2_loader.activate_mentioned_cli_plugins
 
-  # Load v1 plugins on startup
-  ctl = Inspec::PluginCtl.new
-  ctl.list.each { |x| ctl.load(x) }
-
-  # load v1 CLI plugins before the InSpec CLI has been started
-  Inspec::Plugins::CLI.subcommands.each do |_subcommand, params|
-    Inspec::InspecCLI.register(
-      params[:klass],
-      params[:subcommand_name],
-      params[:usage],
-      params[:description],
-      params[:options]
-    )
-  end
 rescue Inspec::Plugin::V2::Exception => v2ex
   Inspec::Log.error v2ex.message
 
