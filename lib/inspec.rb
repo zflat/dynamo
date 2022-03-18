@@ -26,3 +26,5 @@ require "inspec/cli"
 #require "inspec/input_registry"
 #require "inspec/fetcher"
 #require "inspec/source_reader"
+
+# also anything using train or train-core
