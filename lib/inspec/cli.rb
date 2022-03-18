@@ -54,9 +54,6 @@ class Inspec::InspecCLI < Inspec::BaseCLI
   class_option :enable_telemetry, type: :boolean,
     desc: "Allow or disable telemetry", default: false
 
-  require "license_acceptance/cli_flags/thor"
-  include LicenseAcceptance::CLIFlags::Thor
-
   desc "json PATH", "read all tests in PATH and generate a JSON summary"
   option :output, aliases: :o, type: :string,
     desc: "Save the created profile to a path"
@@ -211,7 +208,6 @@ class Inspec::InspecCLI < Inspec::BaseCLI
         3  Fatal deprecation encountered
       100  Normal exit, at least one test failed
       101  Normal exit, at least one test skipped but none failed
-      172  Chef License not accepted
     ```
 
     Below are some examples of using `exec` with different test LOCATIONS:

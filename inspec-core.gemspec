@@ -24,7 +24,6 @@ Gem::Specification.new do |spec|
 
   # Implementation dependencies
   spec.add_dependency "chef-telemetry",     "~> 1.0", ">= 1.0.8" # 1.0.8+ removes the http dep
-  spec.add_dependency "license-acceptance", ">= 0.2.13", "< 3.0"
   spec.add_dependency "thor",               ">= 0.20", "< 2.0"
   spec.add_dependency "method_source",      ">= 0.8", "< 2.0"
   spec.add_dependency "rubyzip",            ">= 1.2.2", "< 3.0"
