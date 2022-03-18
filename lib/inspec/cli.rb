@@ -51,34 +51,12 @@ class Inspec::InspecCLI < Inspec::BaseCLI
   class_option :disable_user_plugins, type: :string, banner: "",
     desc: "Disable loading all plugins that the user installed."
 
-  desc "vendor PATH", "Download all dependencies and generate a lockfile in a `vendor` directory"
-  option :overwrite, type: :boolean, default: false,
-    desc: "Overwrite existing vendored dependencies and lockfile."
-  def vendor(path = nil)
-    o = config
-    configure_logger(o)
-    o[:logger] = Logger.new($stdout)
-    o[:logger].level = get_log_level(o[:log_level])
-
-    vendor_deps(path, o)
-  end
-
   desc "env", "Output shell-appropriate completion configuration"
   def env(shell = nil)
     p = Inspec::EnvPrinter.new(self.class, shell)
     p.print_and_exit!
   rescue StandardError => e
     pretty_handle_exception(e)
-  end
-
-  desc "schema NAME", "print the JSON schema", hide: true
-  def schema(name)
-    require "inspec/schema/output_schema"
-
-    puts Inspec::Schema::OutputSchema.json(name)
-  rescue StandardError => e
-    puts e
-    puts "Valid schemas are #{Inspec::Schema::OutputSchema.names.join(", ")}"
   end
 
   desc "version", "prints the version of this tool"

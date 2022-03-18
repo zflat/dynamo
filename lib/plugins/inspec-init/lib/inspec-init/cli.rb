@@ -8,7 +8,6 @@ module InspecPlugins
 
       TEMPLATES_PATH = File.expand_path(File.join(File.dirname(__FILE__), "..", "..", "templates"))
 
-      require_relative "cli_profile"
       require_relative "cli_plugin"
     end
   end
