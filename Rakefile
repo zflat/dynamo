@@ -34,7 +34,6 @@ namespace :test do
     t.verbose = !!ENV["V"] # default to off. the test commands are _huge_.
     t.ruby_opts = ["--dev"] if defined?(JRUBY_VERSION)
   end
-  task default: [:accept_license]
 
   begin
     require "chefstyle"
@@ -129,7 +128,6 @@ namespace :test do
 
     exit 1 unless passed
   end
-  task parallel: [:accept_license] # given isolated being green, why is this needed?
 
   desc "Run test files in multiple threads"
   task :isolated do
@@ -185,26 +183,6 @@ namespace :test do
     end
   end
 
-  task :accept_license do
-    FileUtils.mkdir_p(File.join(Dir.home, ".chef", "accepted_licenses"))
-    # If the user has not accepted the license, touch the acceptance
-    # file, but also touch a marker that it is only for testing.
-    unless File.exist?(File.join(Dir.home, ".chef", "accepted_licenses", "inspec"))
-      puts "\n\nTemporarily accepting Chef user license for the duration of testing...\n"
-      FileUtils.touch(File.join(Dir.home, ".chef", "accepted_licenses", "inspec"))
-      FileUtils.touch(File.join(Dir.home, ".chef", "accepted_licenses", "inspec.for_testing"))
-    end
-
-    # Regardless of what happens, when this process exits, check for cleanup.
-    at_exit do
-      if File.exist?(File.join(Dir.home, ".chef", "accepted_licenses", "inspec.for_testing"))
-        puts "\n\nRemoving temporary Chef user license acceptance file that was placed for test duration.\n"
-        FileUtils.rm_f(File.join(Dir.home, ".chef", "accepted_licenses", "inspec"))
-        FileUtils.rm_f(File.join(Dir.home, ".chef", "accepted_licenses", "inspec.for_testing"))
-      end
-    end
-  end
-
   Rake::TestTask.new(:functional) do |t|
     t.libs << "test"
     t.test_files = Dir.glob([
@@ -215,8 +193,6 @@ namespace :test do
     t.verbose = !!ENV["V"] # default to off. the test commands are _huge_.
     t.ruby_opts = ["--dev"] if defined?(JRUBY_VERSION)
   end
-  # Inject a prerequisite task
-  task functional: [:accept_license]
 
   Rake::TestTask.new(:unit) do |t|
     t.libs << "test"
@@ -228,8 +204,6 @@ namespace :test do
     t.verbose = !!ENV["V"] # default to off. the test commands are _huge_.
     t.ruby_opts = ["--dev"] if defined?(JRUBY_VERSION)
   end
-  # Inject a prerequisite task
-  task unit: [:accept_license]
 
   task :kitchen, [:os] do |task, args|
     concurrency = ENV["CONCURRENCY"] || 1
@@ -237,8 +211,6 @@ namespace :test do
     ENV["DOCKER"] = "true" if ENV["docker"].nil?
     sh("bundle exec kitchen test -c #{concurrency} #{os}")
   end
-  # Inject a prerequisite task
-  task kitchen: [:accept_license]
 
   task :ssh, [:target] do |_t, args|
     tests_path = File.join(File.dirname(__FILE__), "test", "integration", "test", "integration", "default")
