@@ -1,7 +1,5 @@
-require "inspec/input_registry"
 require "inspec/plugin/v2"
 require "rspec/core/example_group"
-require "inspec/input_dsl_helpers"
 
 # Any additions to RSpec::Core::ExampleGroup (the RSpec class behind describe blocks) should go here.
 
@@ -82,7 +80,6 @@ module Inspec
 end
 
 class RSpec::Core::ExampleGroup
-  include Inspec::InputDslHelpers
 
   # This DSL method allows us to access the values of inputs within InSpec tests
   def input(input_name, options = {})
@@ -114,15 +111,3 @@ class RSpec::Core::ExampleGroup
   # So, we use prepend.
   prepend Inspec::TestDslLazyLoader
 end
-
-class ResourceInspector < RSpec::Support::ObjectFormatter::BaseInspector
-  def self.can_inspect?(object)
-    Inspec::Resource === object
-  end
-
-  def inspect # do NOT use default inspect in rspec w/ resources
-    object.to_s
-  end
-end
-
-RSpec::Support::ObjectFormatter::INSPECTOR_CLASSES.unshift ResourceInspector
