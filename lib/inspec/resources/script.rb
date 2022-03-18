@@ -1,1 +1,0 @@
-require "inspec/resources/powershell"

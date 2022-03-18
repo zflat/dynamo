@@ -458,6 +458,7 @@ end
 # Plugin Loading
 #---------------------------------------------------------------------#
 require "inspec/plugin/v2"
+require "inspec/plugin/v1"
 
 begin
   # Load v2 plugins.  Manually check for plugin disablement.

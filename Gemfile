@@ -2,13 +2,6 @@ source "https://rubygems.org"
 
 gem "inspec-core", path: "."
 
-# This dependency is NOT used for normal gem deployment
-# - instead, inspec-bin gemspec-depends on inspec
-#
-# However, AppBundler requires a top-level Gemfile.lock with inspec-bin
-# in it in order to package the executable. Hence the odd backwards dependency.
-gem "inspec-bin", path: "./inspec-bin"
-
 gem "ffi", ">= 1.9.14", "!= 1.13.0", "!= 1.14.2"
 
 if Gem.ruby_version.to_s.start_with?("2.5")
@@ -53,16 +46,3 @@ group :deploy do
   gem "inquirer"
 end
 
-# Only include Test Kitchen support if we are on Ruby 2.7 or higher
-# as chef-zero support requires Ruby 2.6
-# See https://github.com/inspec/inspec/pull/5341
-if Gem.ruby_version >= Gem::Version.new("2.7.0")
-  group :kitchen do
-    gem "berkshelf"
-    gem "chef", ">= 16.0" # Required to allow net-ssh > 6
-    gem "test-kitchen", ">= 2.8"
-    gem "kitchen-inspec", ">= 2.0"
-    gem "kitchen-dokken", ">= 2.11"
-    gem "git"
-  end
-end
