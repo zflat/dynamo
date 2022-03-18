@@ -1,3 +1,4 @@
+# coding: utf-8
 require_relative "renderer"
 
 module InspecPlugins
@@ -59,16 +60,16 @@ module InspecPlugins
       private
 
       def determine_plugin_type(plugin_name)
-        plugin_type = plugin_name.match(/^(inspec|train)\-/)
+        plugin_type = plugin_name.match(/^(dynamo)\-/)
         unless plugin_type
-          ui.error("Plugin names must begin with either " + ui.emphasis("inspec") + " or " + ui.emphasis("train") + " - saw " + ui.emphasis(plugin_name))
+          ui.error("Plugin names must begin with " + ui.emphasis("dyanmo") + " " + ui.emphasis(plugin_name))
           ui.exit(:usage_error)
         end
         options[:plugin_name] = plugin_name
 
         plugin_type = plugin_type[1]
-        unless plugin_type == "inspec"
-          ui.error("Sorry, only InSpec (inspec-) plugins are supported at this time: Train (train-) support is not implemented yet.")
+        unless plugin_type == "dynamo"
+          ui.error("Sorry, only (dynamo-) plugins are supported.")
           ui.exit(:usage_error)
         end
         plugin_type
@@ -92,7 +93,7 @@ module InspecPlugins
 
       def plugin_vars_from_opts
         # Set dynamic default - module name is straightforward.  Copyright, homepage, and license_text depend on other prompted vars.
-        options[:module_name] ||= options[:plugin_name].sub(/^(inspec|train)\-/, "").split("-").map(&:capitalize).join("")
+        options[:module_name] ||= options[:plugin_name].sub(/^(dyanmo)\-/, "").split("-").map(&:capitalize).join("")
 
         if options[:prompt] && ui.interactive?
           vars = options.dup.merge(vars_from_prompts)

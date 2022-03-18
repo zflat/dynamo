@@ -74,18 +74,16 @@ module Inspec::Plugin::V2
     end
 
     def inspec_plugin_name?(name)
-      valid_plugin_name?(name, :inspec)
+      valid_plugin_name?(name, :daynamo)
     end
 
-    def valid_plugin_name?(name, kind = :either)
+    def valid_plugin_name?(name, kind = :dyanmo)
       # Must have a permitted prefix.
       return false unless case kind
-      when :inspec
-        name.to_s.start_with?("inspec-")
-      when :train
-        name.to_s.start_with?("train-")
-      when :either
-        name.to_s.match(/^(inspec|train)-/)
+      when :dynamo
+        name.to_s.start_with?("dynamo-")
+      when :all
+        name.to_s.match(/^(dynamo)-/)
       else false
       end # rubocop: disable Layout/EndAlignment
 
