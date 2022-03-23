@@ -3,7 +3,6 @@
 require "bundler"
 require "bundler/gem_helper"
 require "rake/testtask"
-require "train"
 require "fileutils"
 
 Bundler::GemHelper.install_tasks name: "inspec-core"

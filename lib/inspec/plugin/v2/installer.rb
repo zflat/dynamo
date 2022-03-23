@@ -177,8 +177,8 @@ module Inspec::Plugin::V2
     # its goal is to check for several subtle combinations of params, and raise an error if needed. It's
     # straightforward to understand, but has to handle many cases.
     def validate_installation_opts(plugin_name, opts)
-      unless plugin_name =~ /^(inspec|train)-/
-        raise InstallError, "All inspec plugins must begin with either 'inspec-' or 'train-' - refusing to install #{plugin_name}"
+      unless plugin_name =~ /^(inspec)-/
+        raise InstallError, "All inspec plugins must begin with either 'inspec-' or other configured prefix - refusing to install #{plugin_name}"
       end
 
       if opts.key?(:gem_file) && opts.key?(:path)
@@ -221,8 +221,8 @@ module Inspec::Plugin::V2
 
     def validate_update_opts(plugin_name, opts)
       # Only update plugins we know about
-      unless plugin_name =~ /^(inspec|train)-/
-        raise UpdateError, "All inspec plugins must begin with either 'inspec-' or 'train-' - refusing to update #{plugin_name}"
+      unless plugin_name =~ /^(inspec)-/
+        raise UpdateError, "All inspec plugins must begin with either 'inspec-' or other configured prefix - refusing to update #{plugin_name}"
       end
       unless registry.known_plugin?(plugin_name.to_sym)
         raise UpdateError, "'#{plugin_name}' is not installed - use 'inspec plugin install' to install it"
@@ -243,8 +243,8 @@ module Inspec::Plugin::V2
 
     def validate_uninstall_opts(plugin_name, _opts)
       # Only uninstall plugins we know about
-      unless plugin_name =~ /^(inspec|train)-/
-        raise UnInstallError, "All inspec plugins must begin with either 'inspec-' or 'train-' - refusing to uninstall #{plugin_name}"
+      unless plugin_name =~ /^(inspec)-/
+        raise UnInstallError, "All inspec plugins must begin with either 'inspec-' or other configured prefix - refusing to uninstall #{plugin_name}"
       end
       unless registry.known_plugin?(plugin_name.to_sym)
         raise UnInstallError, "'#{plugin_name}' is not installed, refusing to uninstall."
@@ -252,8 +252,8 @@ module Inspec::Plugin::V2
     end
 
     def validate_search_opts(search_term, opts)
-      unless search_term =~ /^(inspec|train)-/
-        raise SearchError, "All inspec plugins must begin with either 'inspec-' or 'train-'."
+      unless search_term =~ /^(inspec)-/
+        raise SearchError, "All inspec plugins must begin with either 'inspec-' or other configured prefix."
       end
 
       opts[:scope] ||= :released

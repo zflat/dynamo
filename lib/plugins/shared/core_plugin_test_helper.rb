@@ -20,23 +20,6 @@ class Module
   include Minitest::Spec::DSL # TODO: NO! remove this!
 end
 
-# module Inspec
-#   class FuncTestRunResult
-#     attr_reader :train_result
-#     attr_reader :payload
-#
-#     extend Forwardable
-#     def_delegator :train_result, :stdout
-#     def_delegator :train_result, :stderr
-#     def_delegator :train_result, :exit_status
-#
-#     def initialize(train_result)
-#       @train_result = train_result
-#       @payload = OpenStruct.new
-#     end
-#   end
-# end
-
 # TODO: remove me! There's no need!
 module CorePluginBaseHelper
   let(:mock_path) { File.join(repo_path, "test", "fixtures", "mock") }
@@ -97,7 +80,7 @@ module CorePluginFunctionalHelper
     # We want:
     # /Users/cwolfe/sandbox/inspec-resource-lister/lib/inspec-resource-lister.rb
     cursor = caller_path
-    until cursor.basename.to_s == "test" && cursor.parent.basename.to_s =~ /^(inspec|train)-/
+    until cursor.basename.to_s == "test" && cursor.parent.basename.to_s =~ /^(inspec)-/
       cursor = cursor.parent
       break if cursor.nil?
     end

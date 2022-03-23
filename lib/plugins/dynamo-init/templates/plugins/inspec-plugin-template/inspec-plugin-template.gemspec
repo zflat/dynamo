@@ -10,7 +10,7 @@ require "<%= plugin_name %>/version"
 
 Gem::Specification.new do |spec|
   # Importantly, all InSpec plugins must be prefixed with `inspec-` (most
-  # plugins) or `train-` (plugins which add new connectivity features).
+  # plugins) or other configured prefix.
   spec.name          = "<%= plugin_name %>"
 
   # It is polite to namespace your plugin under InspecPlugins::YourPluginInCamelCase

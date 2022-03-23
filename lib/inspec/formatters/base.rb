@@ -200,17 +200,11 @@ module Inspec::Formatters
     end
 
     # This formatter runs for all reports and we cannot error on missing fields.
-    # Return nil if not found or Train error. If needed, we will raise an error inside
+    # Return nil if not found or known error. If needed, we will raise an error inside
     # the proper report.
     def platform(field)
       return nil if @backend.nil?
-
-      begin
-        @backend.platform[field]
-      rescue Train::Error => e
-        Inspec::Log.warn(e.message)
-        nil
-      end
+      @backend.platform[field]
     end
 
     def backend_target

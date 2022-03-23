@@ -12,19 +12,9 @@ require "inspec/formatters"
 require "inspec/reporters"
 require "inspec/rspec_extensions"
 require "inspec/globals"
-require "inspec/impact"
 require "inspec/utils/telemetry"
 require "inspec/utils/telemetry/global_methods"
 
 require "inspec/plugin/v2"
 
 require "inspec/cli"
-
-# More things to strip away
-#require "inspec/rule"
-#require "inspec/runner"
-#require "inspec/input_registry"
-#require "inspec/fetcher"
-#require "inspec/source_reader"
-
-# also anything using train or train-core

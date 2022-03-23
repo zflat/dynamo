@@ -70,7 +70,6 @@ module Inspec
       return unless self[:diagnose]
 
       puts "InSpec version: #{Inspec::VERSION}"
-      puts "Train version: #{Train::VERSION}"
       puts "Command line configuration:"
       pp @cli_opts
       puts "JSON configuration file:"
@@ -84,47 +83,6 @@ module Inspec
     # @return [Hash]
     def telemetry_options
       final_options.select { |key, _| key.include?("telemetry") }
-    end
-
-    #-----------------------------------------------------------------------#
-    #                      Train Credential Handling
-    #-----------------------------------------------------------------------#
-
-    # Returns a Hash with Symbol keys as follows:
-    #   backend: machine name of the Train transport needed
-    #   If present, any of the GENERIC_CREDENTIALS.
-    #   All other keys are specific to the backend.
-    #
-    # The credentials are gleaned from:
-    #  * the Train transport defaults. Train handles this on transport creation,
-    #      so this method doesn't load defaults.
-    #  * individual InSpec CLI options (which in many cases may have the
-    #      transport name prefixed, which is stripped before being added
-    #      to the creds hash)
-    #  * the --target CLI option, which is interpreted:
-    #     - as a transport://credset format, which looks up the creds in
-    #       the config file in the credentials section
-    #     - as an arbitrary URI, which is parsed by Train.unpack_target_from_uri
-
-    def unpack_train_credentials
-      # Internally, use indifferent access while we build the creds
-      credentials = Thor::CoreExt::HashWithIndifferentAccess.new({})
-
-      # Helper methods prefixed with _utc_ (Unpack Train Credentials)
-
-      credentials.merge!(_utc_generic_credentials)
-
-      _utc_determine_backend(credentials)
-      transport_name = credentials[:backend].to_s
-
-      _utc_merge_credset(credentials, transport_name)
-      _utc_merge_transport_options(credentials, transport_name)
-
-      # Convert to all-Symbol keys
-      credentials.each_with_object({}) do |(option, value), creds|
-        creds[option.to_sym] = value
-        creds
-      end
     end
 
     #-----------------------------------------------------------------------#
@@ -153,77 +111,6 @@ module Inspec
     end
 
     private
-
-    def _utc_merge_transport_options(credentials, transport_name)
-      # Ask Train for the names of the transport options
-      transport_options = Train.options(transport_name).keys.map(&:to_s)
-
-      # If there are any options with those (unprefixed) names, merge them in.
-      unprefixed_transport_options = final_options.select do |option_name, _value|
-        transport_options.include? option_name # e.g., 'host'
-      end
-      credentials.merge!(unprefixed_transport_options)
-
-      # If there are any prefixed options, merge them in, stripping the prefix.
-      transport_prefix = transport_name.downcase.tr("-", "_") + "_"
-      transport_options.each do |bare_option_name|
-        prefixed_option_name = transport_prefix + bare_option_name.to_s
-        if final_options.key?(prefixed_option_name)
-          credentials[bare_option_name.to_s] = final_options[prefixed_option_name]
-        end
-      end
-    end
-
-    # fetch any info that applies to all transports (like sudo information)
-    def _utc_generic_credentials
-      @final_options.select { |option, _value| GENERIC_CREDENTIALS.include?(option) }
-    end
-
-    def _utc_determine_backend(credentials)
-      return if credentials.key?(:backend)
-
-      # Default to local
-      unless @final_options.key?(:target)
-        credentials[:backend] = "local"
-        return
-      end
-
-      # Look into target
-      %r{^(?<transport_name>[a-z_\-0-9]+)://.*$} =~ final_options[:target]
-      unless transport_name
-        raise ArgumentError, "Could not recognize a backend from the target #{final_options[:target]} - use a URI format with the backend name as the URI schema.  Example: 'ssh://somehost.com' or 'transport://credset' or 'transport://' if credentials are provided outside of InSpec."
-      end
-
-      credentials[:backend] = transport_name.to_s # these are indeed stored in Train as Strings.
-    end
-
-    def _utc_merge_credset(credentials, transport_name)
-      # Look for Config File credentials/transport_name/credset
-      credset_name = _utc_find_credset_name(credentials, transport_name)
-
-      if credset_name
-        credset = @cfg_file_contents.dig("credentials", transport_name, credset_name)
-        if credset
-          credentials.merge!(credset)
-        else
-          # OK, we had a target that looked like transport://something
-          # But we don't know what that something is - there was no
-          # matching credset with it.  Let train parse it.
-          credentials.merge!(Train.unpack_target_from_uri(final_options[:target]))
-        end
-      elsif final_options.key?(:target)
-        # Not sure what target looked like at all!
-        # Let train parse it.
-        credentials.merge!(Train.unpack_target_from_uri(final_options[:target]))
-      end
-    end
-
-    def _utc_find_credset_name(_credentials, transport_name)
-      return unless final_options[:target]
-
-      match = final_options[:target].match(%r{^#{transport_name}://(?<credset_name>[\w\-]+)$})
-      match ? match[:credset_name] : nil
-    end
 
     #-----------------------------------------------------------------------#
     #                         Reading Config Files
@@ -404,9 +291,9 @@ module Inspec
       end
 
       data.each do |plugin_name, plugin_settings|
-        # Enforce that every key is a valid inspec or train plugin name
+        # Enforce that every key is a valid plugin name
         unless valid_plugin_name?(plugin_name)
-          raise Inspec::ConfigError::Invalid, "Plugin settings should ne named after the the InSpec or Train plugin. Valid names must begin with inspec- or train-, not '#{plugin_name}' "
+          raise Inspec::ConfigError::Invalid, "Plugin settings should ne named after the the InSpec plugin. Valid names must begin with inspec-, not '#{plugin_name}' "
         end
 
         # Enforce that every entry is hash-valued
