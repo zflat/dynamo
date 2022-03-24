@@ -1,8 +1,0 @@
-name: license-proprietary
-title: InSpec Profile
-maintainer: The Authors
-copyright: The Authors
-copyright_email: you@example.com
-license: Proprietary, All rights reserved
-summary: An InSpec Compliance Profile
-version: 0.1.0

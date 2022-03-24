@@ -1,8 +1,0 @@
-name: input-scoping
-title: Profile to test reading attributes in a variety of scopes
-maintainer: Chef InSpec team
-copyright: Chef InSpec team
-copyright_email: inspec@chef.io
-license: Apache-2.0
-summary: Profile to test reading attributes in a variety of scopes
-version: 0.1.0

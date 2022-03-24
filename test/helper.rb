@@ -52,7 +52,6 @@ require "webmock/minitest"
 require "mocha/minitest"
 require "inspec/log"
 require "helpers/mock_loader"
-require "helpers/resources"
 
 TMP_CACHE = {} # rubocop: disable Style/MutableConstant
 

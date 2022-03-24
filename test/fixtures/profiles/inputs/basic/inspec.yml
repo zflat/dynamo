@@ -1,9 +1,0 @@
-name: inputs
-version: 1.0.0
-maintainer: inspec@chef.io
-title: Inputs
-license: Apache-2.0
-supports:
-  - linux
-  - darwin
-  - windows

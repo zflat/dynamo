@@ -1,3 +1,0 @@
-inspec_version: '>= 99.0.0'
-supports:
-  - os-family: unsupported_inspec

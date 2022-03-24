@@ -1,6 +1,0 @@
-name: skippy
-title: skip-like functionality
-version: 1.0.0
-supports:
-- os-family: definitely_not_supported
-- os-name: definitely_also_not_supported
