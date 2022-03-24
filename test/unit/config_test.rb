@@ -140,7 +140,7 @@ describe "Inspec::Config" do
       it "should complain about the bad plugin name" do
         ex = _ { cfg }.must_raise(Inspec::ConfigError::Invalid)
         _(ex.message).must_include "names must begin with"
-        _(ex.message).must_include "inspec- or train-"
+        _(ex.message).must_include "inspec-"
       end
     end
 
@@ -323,140 +323,8 @@ describe "Inspec::Config" do
       @mock_logger.verify
     end
 
-    it "calls `Compliance::API.login` if `opts[:compliance] is passed`" do
-      InspecPlugins::Compliance::API.expects(:login)
-      cfg_io = StringIO.new(ConfigTestHelper.fixture("with_compliance"))
-      Inspec::Config.new({ backend: "mock" }, cfg_io)
-    end
   end
-  # ========================================================================== #
-  #                           Fetching Credentials
-  # ========================================================================== #
-  describe "when fetching creds" do
-    let(:cfg) { Inspec::Config.new(cli_opts, cfg_io) }
-    let(:cfg_io) { StringIO.new(ConfigTestHelper.fixture(file_fixture_name)) }
-    let(:seen_fields) { creds.keys.sort }
-    let(:creds) { cfg.unpack_train_credentials }
-
-    describe "when generic creds are present on the cli" do
-      let(:cfg_io) { nil }
-      let(:cli_opts) { { sudo: true, 'shell_command': "ksh" } }
-      it "should pass the credentials as-is" do
-        expected = %i{backend sudo shell_command}.sort
-        _(seen_fields).must_equal expected
-        _(creds[:sudo]).must_equal true
-        _(creds[:shell_command]).must_equal "ksh"
-        _(creds[:backend]).must_equal "local" # Checking for default
-      end
-    end
-
-    describe "when creds are specified on the CLI with a backend and transport prefixes" do
-      let(:cfg_io) { nil }
-      let(:cli_opts) { { backend: "ssh", ssh_host: "example.com", ssh_key_files: "mykey" } }
-      it "should read the backend and strip prefixes" do
-        expected = %i{backend host key_files}.sort
-        _(seen_fields).must_equal expected
-        _(creds[:backend]).must_equal "ssh"
-        _(creds[:host]).must_equal "example.com"
-        _(creds[:key_files]).must_equal "mykey"
-      end
-    end
-
-    describe "when creds are specified with a credset target_uri in a 1.1 file without transport prefixes" do
-      let(:file_fixture_name) { :basic }
-      let(:cli_opts) { { target: "ssh://set1" } }
-      it "should use the credset to lookup the creds in the file" do
-        expected = %i{backend host user}.sort
-        _(seen_fields).must_equal expected
-        _(creds[:backend]).must_equal "ssh"
-        _(creds[:host]).must_equal "some.host"
-        _(creds[:user]).must_equal "some_user"
-      end
-    end
-
-    describe "when creds are specified with a credset that contains odd characters" do
-      let(:file_fixture_name) { :match_checks_in_credset_names }
-      [
-        "ssh://TitleCase",
-        "ssh://snake_case",
-        "ssh://conta1nsnumeral5",
-      ].each do |target_uri|
-        it "should be able to unpack #{target_uri}" do
-          # let() caching breaks things here
-          cfg_io = StringIO.new(ConfigTestHelper.fixture(file_fixture_name))
-          cfg = Inspec::Config.new({ target: target_uri }, cfg_io)
-          creds = cfg.unpack_train_credentials
-          _(creds.count).must_equal 2
-          _(creds[:backend]).must_equal "ssh"
-          _(creds[:found]).must_equal "yes"
-        end
-      end
-
-      [
-        "ssh://contains.dots",
-      ].each do |target_uri|
-        it "should handoff unpacking #{target_uri} to train" do
-          # let() caching breaks things here
-          cfg_io = StringIO.new(ConfigTestHelper.fixture(file_fixture_name))
-          cfg = Inspec::Config.new({ target: target_uri }, cfg_io)
-          creds = cfg.unpack_train_credentials
-
-          _(creds.count).must_equal 2
-          _(creds[:backend]).must_equal "ssh"
-          _(creds[:host]).must_equal "contains.dots"
-        end
-      end
-
-      [
-        "ssh://contains spaces",
-      ].each do |target_uri|
-        it "should be not able to unpack #{target_uri}" do
-          # let() caching breaks things here
-          cfg_io = StringIO.new(ConfigTestHelper.fixture(file_fixture_name))
-          cfg = Inspec::Config.new({ target: target_uri }, cfg_io)
-
-          assert_raises(Train::UserError) { cfg.unpack_train_credentials }
-        end
-      end
-    end
-
-    describe "when creds are specified with a credset target_uri in a 1.1 file and a prefixed override on the CLI" do
-      let(:file_fixture_name) { :basic }
-      let(:cli_opts) { { target: "ssh://set1", ssh_user: "bob" } }
-      it "should use the credset to lookup the creds in the file then override the single value" do
-        expected = %i{backend host user}.sort
-        _(seen_fields).must_equal expected
-        _(creds[:backend]).must_equal "ssh"
-        _(creds[:host]).must_equal "some.host"
-        _(creds[:user]).must_equal "bob"
-      end
-    end
-
-    describe "when creds are specified with a non-credset target_uri" do
-      let(:cfg_io) { nil }
-      let(:cli_opts) { { target: "ssh://bob@somehost" } }
-      it "should unpack the options using the URI parser" do
-        expected = %i{backend host user}.sort
-        _(seen_fields).must_equal expected
-        _(creds[:backend]).must_equal "ssh"
-        _(creds[:host]).must_equal "somehost"
-        _(creds[:user]).must_equal "bob"
-      end
-    end
-
-    describe "when backcompat creds are specified on the CLI without a transport prefix" do
-      let(:cfg_io) { nil }
-      let(:cli_opts) { { target: "ssh://some.host", user: "bob" } }
-      it "should assign the options correctly" do
-        expected = %i{backend host user}.sort
-        _(seen_fields).must_equal expected
-        _(creds[:backend]).must_equal "ssh"
-        _(creds[:host]).must_equal "some.host"
-        _(creds[:user]).must_equal "bob"
-      end
-    end
-  end
-
+  
   # ========================================================================== #
   #                        Handling Plugin Config
   # ========================================================================== #

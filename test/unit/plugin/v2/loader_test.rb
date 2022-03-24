@@ -26,15 +26,9 @@ class PluginLoaderTests < Minitest::Test
     reset_globals
 
     @config_dir_path = File.expand_path "test/fixtures/config_dirs"
-    @bundled_plugins = [
-      :'inspec-supermarket',
-     ]
+    @bundled_plugins = []
     @core_plugins = %i{
-     inspec-artifact
-     inspec-compliance
-     inspec-habitat
      inspec-init
-     inspec-reporter-html2
     }
     @system_plugins = []
   end

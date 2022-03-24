@@ -24,18 +24,6 @@ describe "command tests" do
     end
   end
 
-  describe "check" do
-    it "verifies that a profile is ok" do
-      out = inspec("check " + example_profile)
-
-      _(out.stdout).must_match(/Valid.*true/)
-
-      _(out.stderr).must_equal ""
-
-      assert_exit_code 0, out
-    end
-  end
-
   describe "help" do
     let(:outputs) do
       [
@@ -53,19 +41,13 @@ describe "command tests" do
       commands = %w{
         archive
         artifact
-        check
-        compliance
-        automate
-        detect
         env
         exec
-        habitat
         help
         init
         json
         plugin
         shell
-        supermarket
         vendor
         version
       }
@@ -78,13 +60,7 @@ describe "command tests" do
 
     it "has an About section" do
       outputs.each do |output|
-        _(output).must_include("About Chef InSpec")
-      end
-    end
-
-    it "mentions Chef's patents" do
-      outputs.each do |output|
-        _(output).must_include("Patents: chef.io/patents")
+        _(output).must_include("About")
       end
     end
   end
