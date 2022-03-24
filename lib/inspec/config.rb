@@ -434,7 +434,6 @@ module Inspec
           "reporter" => ["cli"],
           "show_progress" => false,
           "color" => true,
-          "create_lockfile" => true,
           "backend_cache" => true,
         },
         shell: {

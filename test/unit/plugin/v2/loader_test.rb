@@ -3,8 +3,6 @@
 require "helper"
 require "inspec/plugin/v2"
 
-require "train" # Needed for Train plugin testing
-
 class Inspec::Plugin::V2::Loader
   public :detect_system_plugins
 end
@@ -38,9 +36,7 @@ class PluginLoaderTests < Minitest::Test
      inspec-init
      inspec-reporter-html2
     }
-    @system_plugins = [
-      "train-habitat",
-    ]
+    @system_plugins = []
   end
 
   def teardown
@@ -232,29 +228,6 @@ class PluginLoaderTests < Minitest::Test
     assert_equal :'inspec-meaning-of-life', Inspec::Plugin::V2::PluginBase.find_name_by_implementation_class(impl_class), "find_name_by_implementation_class should work"
   end
 
-  #====================================================================#
-  #                       Train Plugin Special Handling                #
-  #====================================================================#
-  def test_when_a_train_plugin_is_installed_via_gem_and_required
-    ENV["INSPEC_CONFIG_DIR"] = File.join(@config_dir_path, "train-test-fixture")
-
-    reg = Inspec::Plugin::V2::Registry.instance
-    assert_silent { Inspec::Plugin::V2::Loader.new }
-
-    plugin_name = :'train-test-fixture'
-    assert(reg.known_plugin?(plugin_name), "The train plugin should be known after loader init")
-
-    status = reg[plugin_name]
-    assert_equal(:'train-1', status.api_generation, "It should have a special value for api gen (:'train-1')")
-    refute(reg.loaded_plugin?(plugin_name), "It should not be loaded until needed")
-
-    # 'Requiring' the gem name should succeed
-
-    require "train-test-fixture"
-    assert_includes(Train::Plugins.registry.keys, "test-fixture", "After requiring the gem, the Train Registry should know the plugin is loaded")
-    assert(reg.loaded_plugin?(plugin_name), "After requiring, InSpec Registry should know the the plugin is loaded")
-  end
-
   REG_INST = Inspec::Plugin::V2::Registry.instance
 
   def with_empty_registry
@@ -322,7 +295,7 @@ class PluginLoaderTests < Minitest::Test
     skip "not valid in this env" unless using_bundler?
 
     with_empty_registry do
-      exp = %i{ train-aws train-habitat train-winrm }
+      exp = %i{}
       exp_err = ""
 
       assert_detect_system_plugins exp, exp_err do |loader|

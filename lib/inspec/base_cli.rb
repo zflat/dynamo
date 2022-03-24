@@ -163,23 +163,6 @@ module Inspec
       end
     end
 
-    def vendor_deps(path, opts)
-      require "inspec/profile_vendor"
-
-      profile_path = path || Dir.pwd
-      profile_vendor = Inspec::ProfileVendor.new(profile_path)
-
-      if (profile_vendor.cache_path.exist? || profile_vendor.lockfile.exist?) && !opts[:overwrite]
-        puts "Profile is already vendored. Use --overwrite."
-        return false
-      end
-
-      profile_vendor.vendor!(opts)
-      puts "Dependencies for profile #{profile_path} successfully vendored to #{profile_vendor.cache_path}"
-    rescue StandardError => e
-      pretty_handle_exception(e)
-    end
-
     def configure_logger(o)
       #
       # TODO(ssd): This is a bit gross, but this configures the

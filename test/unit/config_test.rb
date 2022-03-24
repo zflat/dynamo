@@ -2,7 +2,6 @@ require "helper"
 require "stringio"
 
 require "inspec/config"
-require "plugins/inspec-compliance/lib/inspec-compliance/api"
 require "thor" # For Thor::CoreExt::HashWithIndifferentAccess
 
 describe "Inspec::Config" do
@@ -73,7 +72,7 @@ describe "Inspec::Config" do
     describe "when the file is a valid v1.1 file" do
       let(:fixture_name) { "basic" }
       it "should read the file successfully" do
-        expected = %w{create_lockfile reporter type}.sort
+        expected = %w{reporter type}.sort
         _(seen_fields).must_equal expected
       end
     end
@@ -81,7 +80,7 @@ describe "Inspec::Config" do
     describe "when the file is a valid v1.2 file" do
       let(:fixture_name) { "basic_1_2" }
       it "should read the file successfully" do
-        expected = %w{create_lockfile reporter type}.sort # No new top-level key - API only
+        expected = %w{reporter type}.sort # No new top-level key - API only
         _(seen_fields).must_equal expected
       end
     end
@@ -166,14 +165,13 @@ describe "Inspec::Config" do
     describe "when the exec command is used" do
       let(:command) { :exec }
       it "should have the correct defaults" do
-        expected = %w{color create_lockfile backend_cache reporter show_progress type}.sort
+        expected = %w{color backend_cache reporter show_progress type}.sort
         _(seen_fields).must_equal expected
         _(final_options["reporter"]).must_be_kind_of Hash
         _(final_options["reporter"].count).must_equal 1
         _(final_options["reporter"].keys).must_include "cli"
         _(final_options["show_progress"]).must_equal false
         _(final_options["color"]).must_equal true
-        _(final_options["create_lockfile"]).must_equal true
         _(final_options["backend_cache"]).must_equal true
       end
     end
@@ -633,7 +631,6 @@ module ConfigTestHelper
         {
           "version": "1.1",
           "cli_options": {
-            "create_lockfile": "false"
           },
           "reporter": {
             "automate" : {
@@ -729,7 +726,6 @@ module ConfigTestHelper
         {
           "version": "1.2",
           "cli_options": {
-            "create_lockfile": "false"
           },
           "reporter": {
             "automate" : {
