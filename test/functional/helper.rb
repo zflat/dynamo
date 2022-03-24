@@ -1,9 +1,5 @@
+# coding: utf-8
 require "helper"
-require "train"
-
-ENV["CHEF_LICENSE"] = "accept-no-persist"
-
-CMD = Train.create("local", command_runner: :generic).connection
 
 class Module
   include Minitest::Spec::DSL
@@ -51,18 +47,6 @@ module FunctionalHelper
 
   root_dir = windows? ? "C:" : "/etc"
   ROOT_LICENSE_PATH = "#{root_dir}/chef/accepted_licenses/inspec".freeze
-
-  def without_license
-    ENV.delete "CHEF_LICENSE"
-
-    FileUtils.rm_f ROOT_LICENSE_PATH
-
-    yield
-
-    FileUtils.rm_f ROOT_LICENSE_PATH
-  ensure
-    ENV["CHEF_LICENSE"] = "accept-no-persist"
-  end
 
   def assert_exit_code(exp, cmd)
     exp = 1 if windows? && (exp != 0)
@@ -131,93 +115,12 @@ module FunctionalHelper
     FunctionalHelper.inspec_mutex
   end
 
-  def run_cmd(commandline, prefix = nil)
-    inspec_mutex.synchronize { # rubocop:disable Style/BlockDelimiters
-      inspec_cache[[commandline, prefix]] ||=
-        if is_windows?
-          invocation = "/windows/system32/cmd /C \"#{prefix} #{commandline}\""
-          # puts
-          # puts "CMD = #{invocation}"
-          result = CMD.run_command(invocation)
-          result.stdout.encode!(universal_newline: true)
-          result.stderr.encode!(universal_newline: true)
-          convert_windows_output(result.stdout)
-          # remove the CLIXML header trash in windows
-          result.stderr.gsub!("#< CLIXML\n", "")
-          result
-        else
-          invocation = "#{prefix} #{commandline}"
-          CMD.run_command(invocation)
-        end
-    }
-  end
-
   def inspec(commandline, prefix = nil)
     run_cmd "#{exec_inspec} #{commandline}", prefix
   end
 
   def inspec_with_env(commandline, env = {})
     inspec(commandline, assemble_env_prefix(env))
-  end
-
-  # This version allows additional options.
-  # @param String command_line Invocation, without the word 'inspec'
-  # @param Hash opts Additonal options, see below
-  #    :env Hash A hash of environment vars to expose to the invocation.
-  #    :prefix String A string to prefix to the invocation. Prefix + env + invocation is the order.
-  #    :cwd String A directory to change to. Implemented as 'cd CWD && ' + prefix
-  #    :lock Boolean Default false. If false, add `--no-create-lockfile`.
-  #    :json Boolean Default false. If true, add `--reporter json` and parse the output, which is stored in @json.
-  #    :tmpdir Boolean default true.  If true, wrap execution in a Dir.tmpdir block. Use pre_run and post_run to trigger actions.
-  #    :pre_run: Proc(tmp_dir_path) - optional setup block.
-  #       tmp_dir will exist and be empty.
-  #    :post_run: Proc(FuncTestRunResult, tmp_dir_path) - optional result capture block.
-  #       tmp_dir will still exist (for a moment!)
-  # @return Train::Extrans::CommandResult
-  def run_inspec_process(command_line, opts = {})
-    raise "Do not use tmpdir and cwd in the same invocation" if opts[:cwd] && opts[:tmpdir]
-
-    prefix = opts[:cwd] ? "cd " + opts[:cwd] + " && " : ""
-    prefix += opts[:prefix] || ""
-    prefix += assemble_env_prefix(opts[:env])
-    command_line += " --reporter json " if opts[:json] && command_line =~ /\bexec\b/
-    command_line += " --no-create-lockfile " if (!opts[:lock]) && command_line =~ /\bexec\b/
-
-    run_result = nil
-    if opts[:tmpdir]
-      Dir.mktmpdir do |tmp_dir|
-        opts[:pre_run].call(tmp_dir) if opts[:pre_run]
-        # Do NOT Dir.chdir here - chdir / pwd is per-process, and we are in the
-        # test harness process, which will be multithreaded because we parallelize the tests.
-        # Instead, make the spawned process change dirs using a cd prefix.
-        prefix = "cd " + tmp_dir + " && " + prefix
-        run_result = inspec(command_line, prefix)
-        opts[:post_run].call(run_result, tmp_dir) if opts[:post_run]
-      end
-    else
-      run_result = inspec(command_line, prefix)
-    end
-
-    if opts[:ignore_rspec_deprecations]
-      # RSpec keeps issuing a deprecation count to stdout when .should is called explicitly
-      # See https://github.com/inspec/inspec/pull/3560
-      run_result.stdout.sub!("\n1 deprecation warning total\n", "")
-    end
-
-    if opts[:json] && !run_result.stdout.empty?
-      begin
-        @json = JSON.parse(run_result.stdout)
-      rescue JSON::ParserError => e
-        warn "JSON PARSE ERROR: %s" % [e.message]
-        warn "OUT: <<%s>>"          % [run_result.stdout]
-        warn "ERR: <<%s>>"          % [run_result.stderr]
-        warn "XIT: %p"              % [run_result.exit_status]
-        @json = {}
-        @json_error = e
-      end
-    end
-
-    run_result
   end
 
   # Copy all examples to a temporary directory for functional tests.
