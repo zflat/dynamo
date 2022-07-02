@@ -1,5 +1,6 @@
 # coding: utf-8
 require "helper"
+require "open3"
 
 class Module
   include Minitest::Spec::DSL
@@ -15,25 +16,13 @@ module FunctionalHelper
     path.gsub!("//vboxsvr", "C:") if is_windows?
     path
   end
-  let(:inspec_path) { File.join(repo_path, "inspec-bin", "bin", "inspec") }
+  let(:inspec_path) { File.join(repo_path, "bin", "dynamo-core") }
   libdir = File.expand_path "lib"
   let(:exec_inspec) { [Gem.ruby, "-I#{libdir}", inspec_path].join " " }
   let(:mock_path) { File.join(repo_path, "test", "fixtures") }
   let(:profile_path) { File.join(mock_path, "profiles") }
   let(:examples_path) { File.join(profile_path, "old-examples") }
   let(:integration_test_path) { File.join(repo_path, "test", "integration", "default") }
-  let(:all_profiles) { Dir.glob("#{profile_path}/**/inspec.yml") }
-  let(:all_profile_folders) { all_profiles.map { |path| File.dirname(path) } }
-
-  let(:complete_profile) { "#{profile_path}/complete-profile" }
-  let(:example_profile) { File.join(examples_path, "profile") }
-  let(:meta_profile) { File.join(examples_path, "meta-profile") }
-  let(:example_control) { File.join(example_profile, "controls", "example-tmp.rb") }
-  let(:inheritance_profile) { File.join(examples_path, "inheritance") }
-  let(:shell_inheritance_profile) { File.join(repo_path, "test", "fixtures", "profiles", "dependencies", "shell-inheritance") }
-  let(:failure_control) { File.join(profile_path, "failures", "controls", "failures.rb") }
-  let(:simple_inheritance) { File.join(profile_path, "simple-inheritance") }
-  let(:sensitive_profile) { File.join(examples_path, "profile-sensitive") }
   let(:config_dir_path) { File.join(mock_path, "config_dirs") }
 
   let(:dst) do
@@ -46,7 +35,6 @@ module FunctionalHelper
   end
 
   root_dir = windows? ? "C:" : "/etc"
-  ROOT_LICENSE_PATH = "#{root_dir}/chef/accepted_licenses/inspec".freeze
 
   def assert_exit_code(exp, cmd)
     exp = 1 if windows? && (exp != 0)
@@ -115,12 +103,83 @@ module FunctionalHelper
     FunctionalHelper.inspec_mutex
   end
 
+  def run_cmd(commandline, prefix = nil)
+    inspec_mutex.synchronize { # rubocop:disable Style/BlockDelimiters
+      inspec_cache[[commandline, prefix]] ||=
+        begin
+          invocation = "#{prefix} #{commandline}"
+          out, err, st = Open3.capture3(invocation)
+          OpenStruct.new(:stdout => out, :stderr => err, :exit_status => st.exitstatus)
+        end
+    }
+  end
+
   def inspec(commandline, prefix = nil)
     run_cmd "#{exec_inspec} #{commandline}", prefix
   end
 
   def inspec_with_env(commandline, env = {})
     inspec(commandline, assemble_env_prefix(env))
+  end
+
+  # This version allows additional options.
+  # @param String command_line Invocation, without the word 'inspec'
+  # @param Hash opts Additonal options, see below
+  #    :env Hash A hash of environment vars to expose to the invocation.
+  #    :prefix String A string to prefix to the invocation. Prefix + env + invocation is the order.
+  #    :cwd String A directory to change to. Implemented as 'cd CWD && ' + prefix
+  #    :lock Boolean Default false. If false, add `--no-create-lockfile`.
+  #    :json Boolean Default false. If true, add `--reporter json` and parse the output, which is stored in @json.
+  #    :tmpdir Boolean default true.  If true, wrap execution in a Dir.tmpdir block. Use pre_run and post_run to trigger actions.
+  #    :pre_run: Proc(tmp_dir_path) - optional setup block.
+  #       tmp_dir will exist and be empty.
+  #    :post_run: Proc(FuncTestRunResult, tmp_dir_path) - optional result capture block.
+  #       tmp_dir will still exist (for a moment!)
+  # @return Train::Extrans::CommandResult
+  def run_inspec_process(command_line, opts = {})
+    raise "Do not use tmpdir and cwd in the same invocation" if opts[:cwd] && opts[:tmpdir]
+
+    prefix = opts[:cwd] ? "cd " + opts[:cwd] + " && " : ""
+    prefix += opts[:prefix] || ""
+    prefix += assemble_env_prefix(opts[:env])
+    command_line += " --reporter json " if opts[:json] && command_line =~ /\bexec\b/
+    command_line += " --no-create-lockfile " if (!opts[:lock]) && command_line =~ /\bexec\b/
+
+    run_result = nil
+    if opts[:tmpdir]
+      Dir.mktmpdir do |tmp_dir|
+        opts[:pre_run].call(tmp_dir) if opts[:pre_run]
+        # Do NOT Dir.chdir here - chdir / pwd is per-process, and we are in the
+        # test harness process, which will be multithreaded because we parallelize the tests.
+        # Instead, make the spawned process change dirs using a cd prefix.
+        prefix = "cd " + tmp_dir + " && " + prefix
+        run_result = inspec(command_line, prefix)
+        opts[:post_run].call(run_result, tmp_dir) if opts[:post_run]
+      end
+    else
+      run_result = inspec(command_line, prefix)
+    end
+
+    if opts[:ignore_rspec_deprecations]
+      # RSpec keeps issuing a deprecation count to stdout when .should is called explicitly
+      # See https://github.com/inspec/inspec/pull/3560
+      run_result.stdout.sub!("\n1 deprecation warning total\n", "")
+    end
+
+    if opts[:json] && !run_result.stdout.empty?
+      begin
+        @json = JSON.parse(run_result.stdout)
+      rescue JSON::ParserError => e
+        warn "JSON PARSE ERROR: %s" % [e.message]
+        warn "OUT: <<%s>>"          % [run_result.stdout]
+        warn "ERR: <<%s>>"          % [run_result.stderr]
+        warn "XIT: %p"              % [run_result.exit_status]
+        @json = {}
+        @json_error = e
+      end
+    end
+
+    run_result
   end
 
   # Copy all examples to a temporary directory for functional tests.
