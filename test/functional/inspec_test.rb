@@ -39,16 +39,10 @@ describe "command tests" do
 
     it "outputs both core commands and v2 CLI plugins" do
       commands = %w{
-        archive
-        artifact
         env
-        exec
         help
         init
-        json
         plugin
-        shell
-        vendor
         version
       }
       outputs.each do |output|

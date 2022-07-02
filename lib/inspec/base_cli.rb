@@ -40,7 +40,7 @@ module Inspec
 
     def self.help(*args)
       super(*args)
-      puts "\n#{Inspec::Dist::PRODUCT_NAME}: runs Thor generators"
+      puts "\nAbout #{Inspec::Dist::PRODUCT_NAME}: runs Thor generators"
     end
 
     def self.format_platform_info(params: {}, indent: 0, color: 39, enable_color: true)
