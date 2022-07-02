@@ -1,6 +1,6 @@
 source "https://rubygems.org"
 
-gem "inspec-core", path: "."
+gem "dynamo-core", path: "."
 
 gem "ffi", ">= 1.9.14", "!= 1.13.0", "!= 1.14.2"
 
@@ -9,7 +9,7 @@ if Gem.ruby_version.to_s.start_with?("2.5")
   gem "chef-utils", "< 16.7.23" # TODO: remove when we drop ruby 2.5
 end
 
-# inspec tests depend text output that changed in the 3.10 release
+# dynamo tests depend text output that changed in the 3.10 release
 # but our runtime dep is still 3.9+
 gem "rspec", ">= 3.10"
 

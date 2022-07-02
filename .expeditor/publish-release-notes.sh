@@ -2,9 +2,9 @@
 
 set -eou pipefail
 
-git clone https://x-access-token:${GITHUB_TOKEN}@github.com/inspec/inspec.wiki.git
+git clone https://x-access-token:${GITHUB_TOKEN}@github.com/dynamo/dynamo.wiki.git
 
-pushd ./inspec.wiki
+pushd ./dynamo.wiki
   # Publish release notes to S3
   aws s3 cp Pending-Release-Notes.md "s3://chef-automate-artifacts/release-notes/${EXPEDITOR_PRODUCT_KEY}/${EXPEDITOR_VERSION}.md" --acl public-read --content-type "text/plain" --profile chef-cd
   aws s3 cp Pending-Release-Notes.md "s3://chef-automate-artifacts/${EXPEDITOR_CHANNEL}/latest/${EXPEDITOR_PRODUCT_KEY}/release-notes.md" --acl public-read --content-type "text/plain" --profile chef-cd
@@ -27,4 +27,4 @@ EOH
   git push origin master
 popd
 
-rm -rf inspec.wiki
+rm -rf dynamo.wiki

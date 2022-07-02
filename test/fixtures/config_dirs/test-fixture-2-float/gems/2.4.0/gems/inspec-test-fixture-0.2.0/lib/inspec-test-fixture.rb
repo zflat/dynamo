@@ -1,2 +1,2 @@
-require 'inspec-test-fixture/version'
-require 'inspec-test-fixture/plugin'
+require 'dynamo-test-fixture/version'
+require 'dynamo-test-fixture/plugin'

@@ -7,7 +7,7 @@ checks:
     enabled: false
   identical-code:
     config:
-      threshold: 40 # Unfortunately, we have a lot of duplicate code in places like lib/inspec/control_eval_context.rb
+      threshold: 40 # Unfortunately, we have a lot of duplicate code in places like lib/dynamo/control_eval_context.rb
   method-complexity: # 'Cognitive Complexity' in the UI
     config:
       threshold: 10 # 5 Default 5 is really tight

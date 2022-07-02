@@ -11,9 +11,9 @@ require "rubygems/name_tuple"
 require "rubygems/uninstaller"
 require "rubygems/remote_fetcher"
 
-require "inspec/plugin/v2/filter"
+require "dynamo/plugin/v2/filter"
 
-module Inspec::Plugin::V2
+module Dynamo::Plugin::V2
   # Handles all actions modifying the user's plugin set:
   # * Modifying the plugins.json file
   # * Installing, updating, and removing gem-based plugins
@@ -33,8 +33,8 @@ module Inspec::Plugin::V2
     def_delegator :loader, :list_installed_plugin_gems
 
     def initialize
-      @loader = Inspec::Plugin::V2::Loader.new
-      @registry = Inspec::Plugin::V2::Registry.instance
+      @loader = Dynamo::Plugin::V2::Loader.new
+      @registry = Dynamo::Plugin::V2::Registry.instance
     end
 
     def plugin_installed?(name)
@@ -140,7 +140,7 @@ module Inspec::Plugin::V2
       else
         regex = Regexp.new("^" + plugin_query + ".*")
         matched_tuples = fetcher.detect(opts[:scope]) do |tuple|
-          tuple.name =~ regex && !Inspec::Plugin::V2::PluginFilter.exclude?(tuple.name)
+          tuple.name =~ regex && !Dynamo::Plugin::V2::PluginFilter.exclude?(tuple.name)
         end
       end
 
@@ -177,8 +177,8 @@ module Inspec::Plugin::V2
     # its goal is to check for several subtle combinations of params, and raise an error if needed. It's
     # straightforward to understand, but has to handle many cases.
     def validate_installation_opts(plugin_name, opts)
-      unless plugin_name =~ /^(inspec)-/
-        raise InstallError, "All inspec plugins must begin with either 'inspec-' or other configured prefix - refusing to install #{plugin_name}"
+      unless plugin_name =~ /^(dynamo)-/
+        raise InstallError, "All dynamo plugins must begin with either 'dynamo-' or other configured prefix - refusing to install #{plugin_name}"
       end
 
       if opts.key?(:gem_file) && opts.key?(:path)
@@ -206,11 +206,11 @@ module Inspec::Plugin::V2
         if opts.key?(:version) && plugin_version_installed?(plugin_name, opts[:version])
           raise InstallError, "#{plugin_name} version #{opts[:version]} is already installed."
         else
-          raise InstallError, "#{plugin_name} is already installed. Use 'inspec plugin update' to change version."
+          raise InstallError, "#{plugin_name} is already installed. Use 'dynamo plugin update' to change version."
         end
       end
 
-      reason = Inspec::Plugin::V2::PluginFilter.exclude?(plugin_name)
+      reason = Dynamo::Plugin::V2::PluginFilter.exclude?(plugin_name)
       if reason
         ex = PluginExcludedError.new("Refusing to install #{plugin_name}.  It is on the Plugin Exclusion List.  Rationale: #{reason.rationale}")
         ex.details = reason
@@ -221,19 +221,19 @@ module Inspec::Plugin::V2
 
     def validate_update_opts(plugin_name, opts)
       # Only update plugins we know about
-      unless plugin_name =~ /^(inspec)-/
-        raise UpdateError, "All inspec plugins must begin with either 'inspec-' or other configured prefix - refusing to update #{plugin_name}"
+      unless plugin_name =~ /^(dynamo)-/
+        raise UpdateError, "All dynamo plugins must begin with either 'dynamo-' or other configured prefix - refusing to update #{plugin_name}"
       end
       unless registry.known_plugin?(plugin_name.to_sym)
-        raise UpdateError, "'#{plugin_name}' is not installed - use 'inspec plugin install' to install it"
+        raise UpdateError, "'#{plugin_name}' is not installed - use 'dynamo plugin install' to install it"
       end
 
       # No local path support for update
       if registry[plugin_name.to_sym].installation_type == :path
-        raise UpdateError, "'inspec plugin update' will not handle path-based plugins like '#{plugin_name}'. Use 'inspec plugin uninstall' to remove the reference, then install as a gem."
+        raise UpdateError, "'dynamo plugin update' will not handle path-based plugins like '#{plugin_name}'. Use 'dynamo plugin uninstall' to remove the reference, then install as a gem."
       end
       if opts.key?(:path)
-        raise UpdateError, "'inspec plugin update' will not install from a path."
+        raise UpdateError, "'dynamo plugin update' will not install from a path."
       end
 
       if opts.key?(:version) && plugin_version_installed?(plugin_name, opts[:version])
@@ -243,8 +243,8 @@ module Inspec::Plugin::V2
 
     def validate_uninstall_opts(plugin_name, _opts)
       # Only uninstall plugins we know about
-      unless plugin_name =~ /^(inspec)-/
-        raise UnInstallError, "All inspec plugins must begin with either 'inspec-' or other configured prefix - refusing to uninstall #{plugin_name}"
+      unless plugin_name =~ /^(dynamo)-/
+        raise UnInstallError, "All dynamo plugins must begin with either 'dynamo-' or other configured prefix - refusing to uninstall #{plugin_name}"
       end
       unless registry.known_plugin?(plugin_name.to_sym)
         raise UnInstallError, "'#{plugin_name}' is not installed, refusing to uninstall."
@@ -252,8 +252,8 @@ module Inspec::Plugin::V2
     end
 
     def validate_search_opts(search_term, opts)
-      unless search_term =~ /^(inspec)-/
-        raise SearchError, "All inspec plugins must begin with either 'inspec-' or other configured prefix."
+      unless search_term =~ /^(dynamo)-/
+        raise SearchError, "All dynamo plugins must begin with either 'dynamo-' or other configured prefix."
       end
 
       opts[:scope] ||= :released
@@ -303,7 +303,7 @@ module Inspec::Plugin::V2
         install_gem_to_plugins_dir(plugin_dependency, [sources], opts[:update_mode])
       rescue Gem::RemoteFetcher::FetchError => gem_ex
         # TODO: Give a hint if the host was not resolvable or a 404 occured
-        ex = Inspec::Plugin::V2::InstallError.new(gem_ex.message)
+        ex = Dynamo::Plugin::V2::InstallError.new(gem_ex.message)
         ex.plugin_name = requested_plugin_name
         raise ex
       end
@@ -324,7 +324,7 @@ module Inspec::Plugin::V2
         solution = request_set.resolve(set_available_for_resolution)
       rescue Gem::UnsatisfiableDependencyError => gem_ex
         # TODO: use search facility to determine if the requested gem exists at all, vs if the constraints are impossible
-        ex = Inspec::Plugin::V2::InstallError.new(gem_ex.message)
+        ex = Dynamo::Plugin::V2::InstallError.new(gem_ex.message)
         ex.plugin_name = new_plugin_dependency.name
         raise ex
       end
@@ -348,7 +348,7 @@ module Inspec::Plugin::V2
           end
         end
       rescue Gem::LoadError => gem_ex
-        ex = Inspec::Plugin::V2::InstallError.new(gem_ex.message)
+        ex = Dynamo::Plugin::V2::InstallError.new(gem_ex.message)
         ex.plugin_name = new_plugin_dependency.name
         raise ex
       end
@@ -387,7 +387,7 @@ module Inspec::Plugin::V2
       # of cruft:
       #  1. All versions of the unwanted plugin gem
       #  2. All dependencies of the unwanted plugin gem (that aren't needed by something else)
-      #  3. All other gems installed under the ~/.inspec/gems area that are not needed
+      #  3. All other gems installed under the ~/.dynamo/gems area that are not needed
       #     by a plugin gem. TODO: ideally this would be a separate 'clean' operation.
 
       # Create a list of plugins dependencies, including any version constraints,
@@ -435,7 +435,7 @@ module Inspec::Plugin::V2
     #===================================================================#
 
     # This class allows us to build a Resolver set with the gems that are
-    # already included either with Ruby or with the InSpec install
+    # already included either with Ruby or with the Dynamo install
     #
     # This code is heavily based on:
     # https://github.com/hashicorp/vagrant/blob/32237377/lib/vagrant/bundler.rb#L400
@@ -485,8 +485,8 @@ module Inspec::Plugin::V2
     # Provides a RequestSet (a set of gems representing the gems that are available to
     # solve a dependency request) that represents a combination of:
     # * the gems included in the system
-    # * the gems included in the inspec install
-    # * the currently installed gems in the ~/.inspec/gems directory
+    # * the gems included in the dynamo install
+    # * the currently installed gems in the ~/.dynamo/gems directory
     # * any other sets you provide
     def build_gem_request_universe(extra_request_sets = [], gem_to_force_update = nil)
       installed_plugins_gem_set = Gem::Resolver::VendorSet.new
@@ -509,8 +509,8 @@ module Inspec::Plugin::V2
     #===================================================================#
     def update_plugin_config_file(plugin_name, opts)
       # Be careful no to initialize this until just before we write.
-      # Under testing, ENV['INSPEC_CONFIG_DIR'] may have changed.
-      @conf_file = Inspec::Plugin::V2::ConfigFile.new
+      # Under testing, ENV['DYNAMO_CONFIG_DIR'] may have changed.
+      @conf_file = Dynamo::Plugin::V2::ConfigFile.new
 
       # Remove, then optionally rebuild, the entry for the plugin being modified.
       conf_file.remove_entry(plugin_name) if conf_file.existing_entry?(plugin_name)

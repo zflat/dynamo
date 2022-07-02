@@ -12,8 +12,8 @@ class ArtifactTest < Minitest::Test
     Open3.capture3(env, cmd, opts)
   end
 
-  def assert_artifact(inspec_command)
-    stdout, stderr, status = run_cmd "inspec #{inspec_command} #{TEST_CLI_OPTS}"
+  def assert_artifact(dynamo_command)
+    stdout, stderr, status = run_cmd "dynamo #{dynamo_command} #{TEST_CLI_OPTS}"
 
     assert_empty stderr.sub(/#< CLIXML\n/, "")
     assert stdout

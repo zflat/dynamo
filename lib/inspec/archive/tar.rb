@@ -1,6 +1,6 @@
 require "rubygems/package" unless defined?(Gem::Package)
 
-module Inspec::Archive
+module Dynamo::Archive
   class TarArchiveGenerator
     def archive(base_dir, files, archive)
       File.open(archive, "wb") do |file|

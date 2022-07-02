@@ -1,10 +1,10 @@
 require_relative "utils/install_context"
 
-module Inspec
-  extend Inspec::InstallContextHelpers
+module Dynamo
+  extend Dynamo::InstallContextHelpers
 
   def self.config_dir
-    ENV["INSPEC_CONFIG_DIR"] || File.join(home_path, ".inspec")
+    ENV["DYNAMO_CONFIG_DIR"] || File.join(home_path, ".dynamo")
   end
 
   def self.src_root

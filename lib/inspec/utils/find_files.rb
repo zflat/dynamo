@@ -29,7 +29,7 @@ module FindFiles
     cmd += " -maxdepth #{depth.to_i}" if depth.to_i > 0
     cmd += quote
 
-    result = inspec.command(cmd)
+    result = dynamo.command(cmd)
     exit_status = result.exit_status
 
     unless exit_status == 0

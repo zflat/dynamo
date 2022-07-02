@@ -1,4 +1,4 @@
-require "inspec/exceptions"
+require "dynamo/exceptions"
 
 module FilterTable
   # This is used as a sentinel value in custom property filtering
@@ -14,14 +14,14 @@ module FilterTable
     # showing why the resource was skipped. This prevents the resource from
     # being added to the test collection and being evaluated.
     def resource_skipped?
-      @original_exception.is_a?(Inspec::Exceptions::ResourceSkipped)
+      @original_exception.is_a?(Dynamo::Exceptions::ResourceSkipped)
     end
 
     # This method is called via the runner and signals RSpec to output a block
     # showing why the resource failed. This prevents the resource from
     # being added to the test collection and being evaluated.
     def resource_failed?
-      @original_exception.is_a?(Inspec::Exceptions::ResourceFailed)
+      @original_exception.is_a?(Dynamo::Exceptions::ResourceFailed)
     end
 
     def resource_exception_message
@@ -379,7 +379,7 @@ module FilterTable
           # self here is the resource instance
           filter_table_instance = table_class.new(self, send(raw_data_fetcher_method_name), " with")
           filter_table_instance.send(method_name, *args, &block)
-        rescue Inspec::Exceptions::ResourceFailed, Inspec::Exceptions::ResourceSkipped => e
+        rescue Dynamo::Exceptions::ResourceFailed, Dynamo::Exceptions::ResourceSkipped => e
           FilterTable::ExceptionCatcher.new(resource_class, e)
 
         end
@@ -389,7 +389,7 @@ module FilterTable
     alias connect install_filter_methods_on_resource
 
     # TODO: This should almost certainly be privatized.  Every FilterTable client should get :entries and :where;
-    # InSpec core resources do not define anything else, other than azure_generic_resource, which is likely a mis-use.
+    # Dynamo core resources do not define anything else, other than azure_generic_resource, which is likely a mis-use.
     def register_filter_method(method_name)
       if method_name.nil?
         # TODO: @resource is never initialized

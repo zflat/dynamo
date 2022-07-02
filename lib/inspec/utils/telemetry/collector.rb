@@ -1,8 +1,8 @@
-require "inspec/config"
-require "inspec/utils/telemetry/data_series"
+require "dynamo/config"
+require "dynamo/utils/telemetry/data_series"
 require "singleton" unless defined?(Singleton)
 
-module Inspec::Telemetry
+module Dynamo::Telemetry
   # A Singleton collection of data series objects.
   class Collector
     include Singleton
@@ -16,7 +16,7 @@ module Inspec::Telemetry
     end
 
     # Allow loading a configuration, useful when testing.
-    def load_config(config = Inspec::Config.cached)
+    def load_config(config = Dynamo::Config.cached)
       @config = config
     end
 
@@ -51,11 +51,11 @@ module Inspec::Telemetry
     # Finds the data series object with the specified name and returns it.
     # If it does not exist then creates a new data series with that name
     # and returns it.
-    # @return [Inspec::Telemetry::DataSeries]
+    # @return [Dynamo::Telemetry::DataSeries]
     def find_or_create_data_series(name)
       ds = @data_series.select { |data_series| data_series.name.eql?(name) }
       if ds.empty?
-        new_data_series = Inspec::Telemetry::DataSeries.new(name)
+        new_data_series = Dynamo::Telemetry::DataSeries.new(name)
         @data_series << new_data_series
         new_data_series
       else
@@ -73,7 +73,7 @@ module Inspec::Telemetry
 
     private
 
-    # Minimize exposure of Inspec::Config interface
+    # Minimize exposure of Dynamo::Config interface
     def config_telemetry_options
       config.telemetry_options
     end

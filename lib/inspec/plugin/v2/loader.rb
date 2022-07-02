@@ -1,25 +1,25 @@
-require "inspec/log"
-require "inspec/version"
-require "inspec/plugin/v2/config_file"
-require "inspec/plugin/v2/filter"
+require "dynamo/log"
+require "dynamo/version"
+require "dynamo/plugin/v2/config_file"
+require "dynamo/plugin/v2/filter"
 
-module Inspec::Plugin::V2
+module Dynamo::Plugin::V2
   class Loader
     PREFIX = "dynamo".freeze
     attr_reader :conf_file, :registry, :options
 
-    # For {inspec}_plugin_name?
-    include Inspec::Plugin::V2::FilterPredicates
-    extend Inspec::Plugin::V2::FilterPredicates
+    # For {dynamo}_plugin_name?
+    include Dynamo::Plugin::V2::FilterPredicates
+    extend Dynamo::Plugin::V2::FilterPredicates
 
     def initialize(options = {})
       @options = options
-      @registry = Inspec::Plugin::V2::Registry.instance
+      @registry = Dynamo::Plugin::V2::Registry.instance
 
-      # User plugins are those installed by the user via `inspec plugin install`
-      # and are installed under ~/.inspec/gems
+      # User plugins are those installed by the user via `dynamo plugin install`
+      # and are installed under ~/.dynamo/gems
       unless options[:omit_user_plugins]
-        @conf_file = Inspec::Plugin::V2::ConfigFile.new
+        @conf_file = Dynamo::Plugin::V2::ConfigFile.new
         read_conf_file_into_registry
       end
 
@@ -31,7 +31,7 @@ module Inspec::Plugin::V2
       # and may be safely loaded
       detect_core_plugins unless options[:omit_core_plugins]
 
-      # Identify plugins that inspec is co-installed with
+      # Identify plugins that dynamo is co-installed with
       detect_system_plugins unless options[:omit_sys_plugins]
     end
 
@@ -69,25 +69,25 @@ module Inspec::Plugin::V2
           annotate_status_after_loading(plugin_name)
         rescue ::Exception => ex
           plugin_details.load_exception = ex
-          Inspec::Log.error "Could not load plugin #{plugin_name}: #{ex.message}"
+          Dynamo::Log.error "Could not load plugin #{plugin_name}: #{ex.message}"
         end
         # rubocop: enable Lint/RescueException
       end
     end
 
-    # This should possibly be in either lib/inspec/cli.rb or Registry
+    # This should possibly be in either lib/dynamo/cli.rb or Registry
     def exit_on_load_error
       if registry.any_load_failures?
-        Inspec::Log.error "Errors were encountered while loading plugins..."
+        Dynamo::Log.error "Errors were encountered while loading plugins..."
         registry.plugin_statuses.select(&:load_exception).each do |plugin_status|
-          Inspec::Log.error "Plugin name: " + plugin_status.name.to_s
-          Inspec::Log.error "Error: " + plugin_status.load_exception.message
+          Dynamo::Log.error "Plugin name: " + plugin_status.name.to_s
+          Dynamo::Log.error "Error: " + plugin_status.load_exception.message
           if ARGV.include?("--debug")
-            Inspec::Log.error "Exception: " + plugin_status.load_exception.class.name
-            Inspec::Log.error "Trace: " + plugin_status.load_exception.backtrace.join("\n")
+            Dynamo::Log.error "Exception: " + plugin_status.load_exception.class.name
+            Dynamo::Log.error "Trace: " + plugin_status.load_exception.backtrace.join("\n")
           end
         end
-        Inspec::Log.error("Run again with --debug for a stacktrace.") unless ARGV.include?("--debug")
+        Dynamo::Log.error("Run again with --debug for a stacktrace.") unless ARGV.include?("--debug")
         exit 2
       end
     end
@@ -102,13 +102,13 @@ module Inspec::Plugin::V2
         # all following ||= ops.
         activate_me = false
 
-        # If the user invoked `inspec help`, `inspec --help`, or only `inspec`
+        # If the user invoked `dynamo help`, `dynamo --help`, or only `dynamo`
         # then activate all CLI plugins so they can display their usage message.
         activate_me ||= ["help", "--help", nil].include?(cli_args.first)
 
         # If there is anything in the CLI args with the same name, activate it.
         # This is the expected usual activation for individual plugins.
-        # `inspec dosomething` => activate the :dosomething hook
+        # `dynamo dosomething` => activate the :dosomething hook
         activate_me ||= cli_args.include?(act.activator_name.to_s)
 
         # Only one compliance command to be activated at one time.
@@ -136,7 +136,7 @@ module Inspec::Plugin::V2
       require "rbconfig" unless defined?(RbConfig)
       ruby_abi_version = RbConfig::CONFIG["ruby_version"]
       # TODO: why are we installing under the api directory for plugins?
-      base_dir = Inspec.config_dir
+      base_dir = Dynamo.config_dir
       base_dir = File.realpath base_dir if File.exist? base_dir
       File.join(base_dir, "gems", ruby_abi_version)
     end
@@ -186,7 +186,7 @@ module Inspec::Plugin::V2
         solution = resolver.resolve
       rescue Gem::UnsatisfiableDependencyError => gem_ex
         # If you broke your install, or downgraded to a plugin with a bad gemspec, you could get here.
-        ex = Inspec::Plugin::V2::LoadError.new(gem_ex.message)
+        ex = Dynamo::Plugin::V2::LoadError.new(gem_ex.message)
         raise ex
       end
       solution.each do |activation_request|
@@ -222,7 +222,7 @@ module Inspec::Plugin::V2
       status.activators = [act]
 
       v0_subcommand_name = plugin_name.to_s.gsub("#{PREFIX}-", "")
-      status.plugin_class = Inspec::Plugins::CLI.subcommands[v0_subcommand_name][:klass]
+      status.plugin_class = Dynamo::Plugins::CLI.subcommands[v0_subcommand_name][:klass]
     end
 
     def detect_bundled_plugins
@@ -232,7 +232,7 @@ module Inspec::Plugin::V2
       ]
       Dir.glob(globs).each do |loader_file|
         name = File.basename(loader_file, ".rb").to_sym
-        status = Inspec::Plugin::V2::Status.new
+        status = Dynamo::Plugin::V2::Status.new
         status.name = name
         status.entry_point = loader_file
         status.installation_type = :bundle
@@ -246,7 +246,7 @@ module Inspec::Plugin::V2
       # These are expected to be organized as proper separate projects,
       # with lib/ dirs, etc.
       Dir.glob(File.join(core_plugins_dir, "#{PREFIX}-*")).each do |plugin_dir|
-        status = Inspec::Plugin::V2::Status.new
+        status = Dynamo::Plugin::V2::Status.new
         status.name = File.basename(plugin_dir).to_sym
         status.entry_point = File.join(plugin_dir, "lib", status.name.to_s + ".rb")
         status.installation_type = :core
@@ -257,7 +257,7 @@ module Inspec::Plugin::V2
 
     def read_conf_file_into_registry
       conf_file.each do |plugin_entry|
-        status = Inspec::Plugin::V2::Status.new
+        status = Dynamo::Plugin::V2::Status.new
         status.name = plugin_entry[:name]
         status.loaded = false
         status.installation_type = (plugin_entry[:installation_type] || :user_gem)
@@ -273,39 +273,39 @@ module Inspec::Plugin::V2
       end
     end
 
-    def find_inspec_gemspec(name, ver)
+    def find_dynamo_gemspec(name, ver)
       Gem::Specification.find_by_name(name, ver)
     rescue Gem::MissingSpecError
       nil
     end
 
     def detect_system_plugins
-      # Find the gemspec for inspec
-      inspec_gemspec =
-        find_inspec_gemspec("inspec",      "=#{Inspec::VERSION}") ||
-        find_inspec_gemspec("inspec-core", "=#{Inspec::VERSION}")
+      # Find the gemspec for dynamo
+      dynamo_gemspec =
+        find_dynamo_gemspec("dynamo",      "=#{Dynamo::VERSION}") ||
+        find_dynamo_gemspec("dynamo-core", "=#{Dynamo::VERSION}")
 
-      unless inspec_gemspec
-        Inspec::Log.warn "inspec gem not found, skipping detecting of system plugins"
+      unless dynamo_gemspec
+        Dynamo::Log.warn "dynamo gem not found, skipping detecting of system plugins"
         return
       end
 
-      # Make a RequestSet that represents the dependencies of inspec
-      inspec_deps_request_set = Gem::RequestSet.new(*inspec_gemspec.dependencies)
-      inspec_deps_request_set.remote = false
+      # Make a RequestSet that represents the dependencies of dynamo
+      dynamo_deps_request_set = Gem::RequestSet.new(*dynamo_gemspec.dependencies)
+      dynamo_deps_request_set.remote = false
 
       # Resolve the request against the installed gem universe
       gem_resolver = Gem::Resolver::CurrentSet.new
-      runtime_solution = inspec_deps_request_set.resolve(gem_resolver)
+      runtime_solution = dynamo_deps_request_set.resolve(gem_resolver)
 
-      inspec_gemspec.dependencies.each do |inspec_dep|
-        next unless inspec_plugin_name?(inspec_dep.name)
+      dynamo_gemspec.dependencies.each do |dynamo_dep|
+        next unless dynamo_plugin_name?(dynamo_dep.name)
 
-        plugin_spec = runtime_solution.detect { |s| s.name == inspec_dep.name }.spec
+        plugin_spec = runtime_solution.detect { |s| s.name == dynamo_dep.name }.spec
 
-        status = Inspec::Plugin::V2::Status.new
-        status.name = inspec_dep.name
-        status.entry_point = inspec_dep.name # gem-based, just 'require' the name
+        status = Dynamo::Plugin::V2::Status.new
+        status.name = dynamo_dep.name
+        status.entry_point = dynamo_dep.name # gem-based, just 'require' the name
         status.version = plugin_spec.version.to_s
         status.loaded = false
         status.installation_type = :system_gem

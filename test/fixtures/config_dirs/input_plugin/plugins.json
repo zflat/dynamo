@@ -2,9 +2,9 @@
   "plugins_config_version" : "1.0.0",
   "plugins": [
     {
-      "name": "inspec-input-test-fixture",
+      "name": "dynamo-input-test-fixture",
       "installation_type": "path",
-      "installation_path": "test/fixtures/plugins/inspec-input-test-fixture/lib/inspec-input-test-fixture.rb"
+      "installation_path": "test/fixtures/plugins/dynamo-input-test-fixture/lib/dynamo-input-test-fixture.rb"
     }
   ]
 }

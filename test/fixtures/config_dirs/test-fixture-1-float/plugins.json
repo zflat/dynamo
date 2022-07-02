@@ -2,13 +2,13 @@
   "plugins_config_version" : "1.0.0",
   "plugins": [
     {
-      "name": "inspec-test-fixture",
+      "name": "dynamo-test-fixture",
       "version": "0.1.0"
     },
     {
-      "name": "inspec-meaning-of-life",
+      "name": "dynamo-meaning-of-life",
       "installation_type": "path",
-      "installation_path": "test/fixtures/plugins/meaning_of_life_path_mode/inspec-meaning-of-life"
+      "installation_path": "test/fixtures/plugins/meaning_of_life_path_mode/dynamo-meaning-of-life"
     }
   ]
 }

@@ -1,12 +1,12 @@
-module InspecPlugins
+module DynamoPlugins
   module TestFixture
 
-    class Plugin < Inspec.plugin(2)
-      plugin_name :'inspec-test-fixture'
+    class Plugin < Dynamo.plugin(2)
+      plugin_name :'dynamo-test-fixture'
 
-      mock_plugin_type :'inspec-test-fixture' do
+      mock_plugin_type :'dynamo-test-fixture' do
         require_relative 'mock_plugin'
-        InspecPlugins::TestFixture
+        DynamoPlugins::TestFixture
       end
     end
   end

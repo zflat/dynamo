@@ -1,11 +1,11 @@
 lib = File.expand_path("lib", __dir__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
-require "inspec-test-fixture/version"
+require "dynamo-test-fixture/version"
 
 Gem::Specification.new do |spec|
-  spec.name          = "inspec-test-fixture"
+  spec.name          = "dynamo-test-fixture"
   spec.version       = "0.1.0"
-  spec.authors       = ["InSpec Engineering Team"]
+  spec.authors       = ["Dynamo Engineering Team"]
   spec.email         = ["hello@chef.io"]
 
   spec.summary       = %q{A simple test plugin gem for InSpec}
@@ -13,11 +13,11 @@ Gem::Specification.new do |spec|
   spec.homepage      = "https://github.com/inspec/inspec"
 
   spec.files         = [
-    "inspec-test-fixture.gemspec",
-    "lib/inspec-test-fixture.rb",
-    "lib/inspec-test-fixture/plugin.rb",
-    "lib/inspec-test-fixture/mock_plugin.rb",
-    "lib/inspec-test-fixture/version.rb",
+    "dynamo-test-fixture.gemspec",
+    "lib/dynamo-test-fixture.rb",
+    "lib/dynamo-test-fixture/plugin.rb",
+    "lib/dynamo-test-fixture/mock_plugin.rb",
+    "lib/dynamo-test-fixture/version.rb",
   ]
   spec.executables   = []
   spec.require_paths = ["lib"]

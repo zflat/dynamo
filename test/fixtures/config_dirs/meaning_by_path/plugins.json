@@ -4,7 +4,7 @@
     {
       "name": "dynamo-meaning-of-life",
       "installation_type": "path",
-      "installation_path": "test/fixtures/plugins/meaning_of_life_path_mode/inspec-meaning-of-life"
+      "installation_path": "test/fixtures/plugins/meaning_of_life_path_mode/dynamo-meaning-of-life"
     }
   ]
 }

@@ -3,7 +3,7 @@ require "pathname" unless defined?(Pathname)
 require "zlib" unless defined?(Zlib)
 require "zip" unless defined?(Zip)
 
-module Inspec
+module Dynamo
   class FileProvider
     def self.for_path(path)
       if path.is_a?(Hash)
@@ -210,7 +210,7 @@ module Inspec
       tar_file = Zlib::GzipReader.open(path)
       Gem::Package::TarReader.new(tar_file, &callback)
     rescue => e
-      raise Inspec::Error, "Error opening/processing #{path}: #{e.message}"
+      raise Dynamo::Error, "Error opening/processing #{path}: #{e.message}"
     ensure
       tar_file.close if tar_file
     end

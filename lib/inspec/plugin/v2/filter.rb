@@ -1,10 +1,10 @@
 require "singleton" unless defined?(Singleton)
 require "json" unless defined?(JSON)
-require "inspec/globals"
+require "dynamo/globals"
 
-module Inspec::Plugin; end
+module Dynamo::Plugin; end
 
-module Inspec::Plugin::V2
+module Dynamo::Plugin::V2
   Exclusion = Struct.new(:plugin_name, :rationale)
 
   class PluginFilter
@@ -29,11 +29,11 @@ module Inspec::Plugin::V2
     private
 
     def read_filter_data
-      path = File.join(Inspec.src_root, "etc", "plugin_filters.json")
+      path = File.join(Dynamo.src_root, "etc", "plugin_filters.json")
       @filter_data = JSON.parse(File.read(path))
 
       unless @filter_data["file_version"] == "1.0.0"
-        raise Inspec::Plugin::V2::ConfigError, "Unknown plugin fillter file format at #{path}"
+        raise Dynamo::Plugin::V2::ConfigError, "Unknown plugin fillter file format at #{path}"
       end
 
       validate_plugin_filter_file("1.0.0")
@@ -46,30 +46,30 @@ module Inspec::Plugin::V2
 
     def validate_plugin_filter_file(_file_version)
       unless @filter_data.key?("exclude") && @filter_data["exclude"].is_a?(Array)
-        raise Inspec::Plugin::V2::ConfigError, 'Unknown plugin fillter file format: expected "exclude" to be an array'
+        raise Dynamo::Plugin::V2::ConfigError, 'Unknown plugin fillter file format: expected "exclude" to be an array'
       end
 
       @filter_data["exclude"].each_with_index do |entry, idx|
         unless entry.is_a? Hash
-          raise Inspec::Plugin::V2::ConfigError, "Unknown plugin fillter file format: expected entry #{idx} to be a Hash / JS Object"
+          raise Dynamo::Plugin::V2::ConfigError, "Unknown plugin fillter file format: expected entry #{idx} to be a Hash / JS Object"
         end
         unless entry.key?("plugin_name")
-          raise Inspec::Plugin::V2::ConfigError, "Unknown plugin fillter file format: expected entry #{idx} to have a \"plugin_name\" field"
+          raise Dynamo::Plugin::V2::ConfigError, "Unknown plugin fillter file format: expected entry #{idx} to have a \"plugin_name\" field"
         end
         unless entry.key?("rationale")
-          raise Inspec::Plugin::V2::ConfigError, "Unknown plugin fillter file format: expected entry #{idx} to have a \"rationale\" field"
+          raise Dynamo::Plugin::V2::ConfigError, "Unknown plugin fillter file format: expected entry #{idx} to have a \"rationale\" field"
         end
       end
     end
   end
 
-  # To be a valid plugin name, the plugin must beign with inspec- or
+  # To be a valid plugin name, the plugin must beign with dynamo- or
   # other configured prefiex, AND ALSO not be on the exclusion list.
   # We maintain this exclusion list to avoid confusing users.  For
-  # example, we want to have a real gem named inspec-test-fixture, but
+  # example, we want to have a real gem named dynamo-test-fixture, but
   # we don't want the users to see that.
   module FilterPredicates
-    def inspec_plugin_name?(name)
+    def dynamo_plugin_name?(name)
       valid_plugin_name?(name, :daynamo)
     end
 
@@ -84,7 +84,7 @@ module Inspec::Plugin::V2
       end # rubocop: disable Layout/EndAlignment
 
       # And must not be on the exclusion list.
-      ! Inspec::Plugin::V2::PluginFilter.exclude?(name)
+      ! Dynamo::Plugin::V2::PluginFilter.exclude?(name)
     end
   end
 end

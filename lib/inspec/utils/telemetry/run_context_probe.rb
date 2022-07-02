@@ -1,4 +1,4 @@
-module Inspec
+module Dynamo
   module Telemetry
     # Guesses the run context of InSpec - how were we invoked?
     # All stack values here are determined experimentally

@@ -2,9 +2,9 @@
   "plugins_config_version" : "1.0.0",
   "plugins": [
     {
-      "name": "inspec-divide-by-zero",
+      "name": "dynamo-divide-by-zero",
       "installation_type": "path",
-      "installation_path": "test/fixtures/plugins/inspec-divide-by-zero/inspec-divide-by-zero"
+      "installation_path": "test/fixtures/plugins/dynamo-divide-by-zero/dynamo-divide-by-zero"
     }
   ]
 }

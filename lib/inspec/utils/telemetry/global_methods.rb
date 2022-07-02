@@ -1,13 +1,13 @@
-require "inspec/utils/telemetry/collector"
+require "dynamo/utils/telemetry/collector"
 
-module Inspec
+module Dynamo
   # A Global method to add a data series object to the Telemetry Collection.
   # `data_series_name`s are unique, so `:dependency_group` will always return
   # the same object.
   # `data_point` is optional, you may also supply a block with several data points.
   # All data points should allow #to_s
   def self.record_telemetry_data(data_series_name, data_point = nil)
-    coll = Inspec::Telemetry::Collector.instance
+    coll = Dynamo::Telemetry::Collector.instance
     return unless coll.telemetry_enabled?
 
     ds = coll.find_or_create_data_series(data_series_name)

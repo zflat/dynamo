@@ -2,9 +2,9 @@
 
 This area contains the plugins that ship with InSpec.  They are automatically detected by the plugin loader.
 
-## inspec-* directories
+## dynamo-* directories
 
-Each subdirectory here that begins with `inspec-` is intended to be a self-contained plugin project,
+Each subdirectory here that begins with `dynamo-` is intended to be a self-contained plugin project,
 with code, docs, and tests.
 
 ## shared directory

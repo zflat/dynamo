@@ -2,7 +2,7 @@ require "rubygems" unless defined?(Gem)
 require "zip" unless defined?(Zip)
 require "pathname" unless defined?(Pathname)
 
-module Inspec::Archive
+module Dynamo::Archive
   class ZipArchiveGenerator
     def archive(base_dir, files, archive)
       Zip::File.open(archive, Zip::File::CREATE) do |zipfile|

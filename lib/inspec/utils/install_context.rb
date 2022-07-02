@@ -1,4 +1,4 @@
-module Inspec
+module Dynamo
 
   # Heuristics to determine how InSpec was installed.
   module InstallContextHelpers
@@ -35,15 +35,15 @@ module Inspec
     end
 
     def habitat_install?
-      !!src_root.match(%r{hab/pkgs/chef/inspec/\d+\.\d+\.\d+/\d{14}})
+      !!src_root.match(%r{hab/pkgs/chef/dynamo/\d+\.\d+\.\d+/\d{14}})
     end
 
     def omnibus_install?
-      !!(src_root.start_with?("/opt/inspec") || src_root.start_with?("C:/opscode/inspec"))
+      !!(src_root.start_with?("/opt/dynamo") || src_root.start_with?("C:/opscode/dynamo"))
     end
 
     def rubygem_install?
-      !!src_root.match(%r{gems/inspec-\d+\.\d+\.\d+})
+      !!src_root.match(%r{gems/dynamo-\d+\.\d+\.\d+})
     end
 
     def source_install?

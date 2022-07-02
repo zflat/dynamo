@@ -1,8 +1,8 @@
-require "inspec/errors"
+require "dynamo/errors"
 
-module Inspec
+module Dynamo
   module Deprecation
-    class Error < Inspec::Error; end
+    class Error < Dynamo::Error; end
 
     class NoSuchGroupError < Error; end
 

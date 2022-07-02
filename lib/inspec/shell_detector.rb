@@ -1,7 +1,7 @@
 require "etc" unless defined?(Etc)
 require "rbconfig" unless defined?(RbConfig)
 
-module Inspec
+module Dynamo
   #
   # ShellDetector attempts to detect the shell the invoking user is
   # running by checking:

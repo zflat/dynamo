@@ -2,15 +2,15 @@
   "file_version": "1.0.0",
   "exclude": [
     {
-      "plugin_name": "inspec-core",
-      "rationale": "This gem is a stripped-down alternate packaging of InSpec. It is not a plugin."
+      "plugin_name": "dynamo-core",
+      "rationale": "This gem is a stripped-down alternate packaging of Dynamo. It is not a plugin."
     },
     {
-      "plugin_name": "inspec-bin",
+      "plugin_name": "dynamo-bin",
       "rationale": "This gem contains the CLI executable.  It is not a plugin."
     },
     {
-      "plugin_name": "inspec-core-bin",
+      "plugin_name": "dynamo-core-bin",
       "rationale": "This gem contains the executable for a lightweight CLI. It is not a plugin."
     }
   ]

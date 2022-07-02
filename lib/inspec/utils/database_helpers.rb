@@ -64,7 +64,7 @@ module DatabaseHelper
       @results.size
     end
 
-    def inspect
+    def dynamot
       to_s
     end
 

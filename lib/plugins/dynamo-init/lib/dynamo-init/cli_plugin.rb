@@ -1,13 +1,13 @@
 # coding: utf-8
 require_relative "renderer"
 
-module InspecPlugins
+module DynamoPlugins
   module Init
-    class CLI < Inspec.plugin(2, :cli_command)
+    class CLI < Dynamo.plugin(2, :cli_command)
       #-------------------------------------------------------------------#
-      #                 inspec init plugin
+      #                 dynamo init plugin
       #-------------------------------------------------------------------#
-      desc "plugin PLUGIN_NAME [options]", "Generates an InSpec plugin, which can extend the functionality of InSpec itself."
+      desc "plugin PLUGIN_NAME [options]", "Generates an Dynamo plugin, which can extend the functionality of Dynamo itself."
       # General options
       option :prompt, type: :boolean, default: true, desc: "Interactively prompt for information to put in your generated plugin."
       option :detail, type: :string, default: "full", desc: "How detailed of a plugin to generate. 'full' is a normal full gem with tests; 'core' has tests but no gemspec; 'test-fixture' is stripped down for a test fixture."
@@ -33,7 +33,7 @@ module InspecPlugins
 
         # Handle deprecation of option --hook
         unless options[:hook].nil?
-          Inspec.deprecate "cli_option_hook"
+          Dynamo.deprecate "cli_option_hook"
           options[:activator] = options.delete(:hook)
         end
 
@@ -52,7 +52,7 @@ module InspecPlugins
           skip_files: make_skip_list(template_vars["activators"].keys),
         }
 
-        renderer = InspecPlugins::Init::Renderer.new(ui, render_opts)
+        renderer = DynamoPlugins::Init::Renderer.new(ui, render_opts)
 
         renderer.render_with_values(template_path, plugin_type + " plugin", template_vars)
       end
@@ -77,14 +77,14 @@ module InspecPlugins
 
       def make_rename_map(_plugin_type, plugin_name, snake_case)
         {
-          "inspec-plugin-template.gemspec" => plugin_name + ".gemspec",
-          File.join("lib", "inspec-plugin-template") => File.join("lib", plugin_name),
-          File.join("lib", "inspec-plugin-template.erb") => File.join("lib", plugin_name + ".rb"),
-          File.join("lib", "inspec-plugin-template", "cli_command.erb") => File.join("lib", plugin_name, "cli_command.rb"),
-          File.join("lib", "inspec-plugin-template", "reporter.erb") => File.join("lib", plugin_name, "reporter.rb"),
-          File.join("lib", "inspec-plugin-template", "plugin.erb") => File.join("lib", plugin_name, "plugin.rb"),
-          File.join("lib", "inspec-plugin-template", "version.erb") => File.join("lib", plugin_name, "version.rb"),
-          File.join("test", "functional", "inspec_plugin_template_test.erb") => File.join("test", "functional", snake_case + "_test.rb"),
+          "dynamo-plugin-template.gemspec" => plugin_name + ".gemspec",
+          File.join("lib", "dynamo-plugin-template") => File.join("lib", plugin_name),
+          File.join("lib", "dynamo-plugin-template.erb") => File.join("lib", plugin_name + ".rb"),
+          File.join("lib", "dynamo-plugin-template", "cli_command.erb") => File.join("lib", plugin_name, "cli_command.rb"),
+          File.join("lib", "dynamo-plugin-template", "reporter.erb") => File.join("lib", plugin_name, "reporter.rb"),
+          File.join("lib", "dynamo-plugin-template", "plugin.erb") => File.join("lib", plugin_name, "plugin.rb"),
+          File.join("lib", "dynamo-plugin-template", "version.erb") => File.join("lib", plugin_name, "version.rb"),
+          File.join("test", "functional", "dynamo_plugin_template_test.erb") => File.join("test", "functional", snake_case + "_test.rb"),
           File.join("test", "unit", "cli_args_test.erb") => File.join("test", "unit", "cli_args_test.rb"),
           File.join("test", "unit", "plugin_def_test.erb") => File.join("test", "unit", "plugin_def_test.rb"),
           File.join("test", "helper.erb") => File.join("test", "helper.rb"),
@@ -171,7 +171,7 @@ module InspecPlugins
           type = parts.first.to_sym
           name = parts.last
           if activators_by_type.key?(type)
-            ui.error "The InSpec plugin generator can currently only generate one activator of each type"
+            ui.error "The Dynamo plugin generator can currently only generate one activator of each type"
             ui.exit(:usage_error)
           end
           activators_by_type[type] = name
@@ -229,19 +229,19 @@ module InspecPlugins
         when "core"
           skips += [
             "Gemfile",
-            "inspec-plugin-template.gemspec",
+            "dynamo-plugin-template.gemspec",
             "LICENSE",
             "Rakefile",
           ]
         when "test-fixture"
           skips += [
             "Gemfile",
-            "inspec-plugin-template.gemspec",
+            "dynamo-plugin-template.gemspec",
             "LICENSE",
             "Rakefile",
             File.join("test", "fixtures", "README.md"),
             File.join("test", "fixtures"),
-            File.join("test", "functional", "inspec_plugin_template_test.erb"),
+            File.join("test", "functional", "dynamo_plugin_template_test.erb"),
             File.join("test", "functional", "README.md"),
             File.join("test", "unit", "cli_args_test.erb"),
             File.join("test", "unit", "plugin_def_test.erb"),
@@ -258,14 +258,14 @@ module InspecPlugins
         # Remove activator-specific files
         unless requested_activators.include?(:cli_command)
           skips += [
-            File.join("lib", "inspec-plugin-template", "cli_command.erb"),
+            File.join("lib", "dynamo-plugin-template", "cli_command.erb"),
             File.join("test", "unit", "cli_args_test.erb"),
-            File.join("test", "functional", "inspec_plugin_template_test.erb"),
+            File.join("test", "functional", "dynamo_plugin_template_test.erb"),
           ]
         end
         unless requested_activators.include?(:reporter)
           skips += [
-            File.join("lib", "inspec-plugin-template", "reporter.erb"),
+            File.join("lib", "dynamo-plugin-template", "reporter.erb"),
           ]
         end
 

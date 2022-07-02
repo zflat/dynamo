@@ -1,7 +1,7 @@
-_inspec() {
-    local _inspec_top_level_commands="<%= top_level_commands.join(" ") %>"
+_dynamo() {
+    local _dynamo_top_level_commands="<%= top_level_commands.join(" ") %>"
     <% subcommands_with_commands.each do |name, subcommands| -%>
-local _inspec_<%= name %>_commands="<%= subcommands.join(" ") -%>"
+local _dynamo_<%= name %>_commands="<%= subcommands.join(" ") -%>"
     <% end -%>
 
     cur=${COMP_WORDS[COMP_CWORD]}
@@ -9,8 +9,8 @@ local _inspec_<%= name %>_commands="<%= subcommands.join(" ") -%>"
 
     if [ "$COMP_CWORD" -eq 1 ]; then
         case "$prev" in
-            inspec)
-                COMPREPLY=( $( compgen -W "$_inspec_top_level_commands" -- "$cur" ) )
+            dynamo)
+                COMPREPLY=( $( compgen -W "$_dynamo_top_level_commands" -- "$cur" ) )
                 ;;
         esac
     elif [ "$COMP_CWORD" -eq 2 ]; then
@@ -19,11 +19,11 @@ local _inspec_<%= name %>_commands="<%= subcommands.join(" ") -%>"
                 COMPREPLY=( $( compgen -f -- "$cur" ) )
                 ;;
             help)
-                COMPREPLY=( $( compgen -W "$_inspec_top_level_commands" -- "$cur" ) )
+                COMPREPLY=( $( compgen -W "$_dynamo_top_level_commands" -- "$cur" ) )
                 ;;
 <% subcommands_with_commands.each do |name, subcommands| -%>
            <%= name %>)
-                COMPREPLY=( $( compgen -W "$_inspec_<%= name %>_commands" -- "$cur" ) )
+                COMPREPLY=( $( compgen -W "$_dynamo_<%= name %>_commands" -- "$cur" ) )
                 ;;
 <% end -%>
         esac
@@ -35,11 +35,11 @@ local _inspec_<%= name %>_commands="<%= subcommands.join(" ") -%>"
                 ;;
 <% subcommands_with_commands.each do |name, subcommands| -%>
            <%= name %>-help)
-                COMPREPLY=( $( compgen -W "$_inspec_<%= name %>_commands" -- "$cur" ) )
+                COMPREPLY=( $( compgen -W "$_dynamo_<%= name %>_commands" -- "$cur" ) )
                 ;;
 <% end -%>
         esac
     fi
 }
 
-complete -F _inspec inspec
+complete -F _dynamo dynamo

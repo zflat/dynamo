@@ -19,7 +19,7 @@
     "aws_resources_in_resource_pack": {
       "comment": "See #3822",
       "action": "warn",
-      "prefix": "AWS resources shipped with core InSpec are being to moved to a resource pack for faster iteration. Please update your profiles to depend on git@github.com:inspec/inspec-aws.git ."
+      "prefix": "AWS resources shipped with core InSpec are being to moved to a resource pack for faster iteration. Please update your profiles to depend on git@github.com:dynamo/dynamo-aws.git ."
     },
     "cli_option_json_config": {
       "action": "ignore",
@@ -34,7 +34,7 @@
       "action": "fail_control",
       "suffix": "This will not be supported in InSpec 4.0."
     },
-    "inspec_ui_methods": {
+    "dynamo_ui_methods": {
       "action": "ignore",
       "suffix": "Please call `cli.ui` directly",
       "comment": "See #3715"

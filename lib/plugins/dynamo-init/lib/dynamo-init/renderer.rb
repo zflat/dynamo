@@ -1,7 +1,7 @@
 require "fileutils" unless defined?(FileUtils)
 require "erb" unless defined?(Erb)
 
-module InspecPlugins
+module DynamoPlugins
   module Init
     class Renderer
       # Creates a renderer able to render the given template type
@@ -43,7 +43,7 @@ module InspecPlugins
           ui.exit(:usage_error)
         end
 
-        ui.headline("InSpec Code Generator")
+        ui.headline("Dynamo Code Generator")
 
         ui.plain_line "Creating new #{template_type} at #{ui.emphasis(full_destination_path)}"
 

@@ -1,3 +1,3 @@
-require "inspec/utils/telemetry/collector"
-require "inspec/utils/telemetry/data_series"
-require "inspec/utils/telemetry/global_methods"
+require "dynamo/utils/telemetry/collector"
+require "dynamo/utils/telemetry/data_series"
+require "dynamo/utils/telemetry/global_methods"

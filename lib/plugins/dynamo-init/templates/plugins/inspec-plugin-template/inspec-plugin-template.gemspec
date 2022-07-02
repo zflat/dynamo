@@ -9,12 +9,12 @@ $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 require "<%= plugin_name %>/version"
 
 Gem::Specification.new do |spec|
-  # Importantly, all InSpec plugins must be prefixed with `inspec-` (most
+  # Importantly, all Dynamo plugins must be prefixed with `dynamo-` (most
   # plugins) or other configured prefix.
   spec.name          = "<%= plugin_name %>"
 
-  # It is polite to namespace your plugin under InspecPlugins::YourPluginInCamelCase
-  spec.version       = InspecPlugins::<%= module_name %>::VERSION
+  # It is polite to namespace your plugin under DynamoPlugins::YourPluginInCamelCase
+  spec.version       = DynamoPlugins::<%= module_name %>::VERSION
   spec.authors       = ["<%= author_name %>"]
   spec.email         = ["<%= author_email %>"]
   spec.summary       = "<%= summary %>"
@@ -33,11 +33,11 @@ Gem::Specification.new do |spec|
   spec.require_paths = ["lib"]
 
   # If you rely on any other gems, list them here with any constraints.
-  # This is how `inspec plugin install` is able to manage your dependencies.
+  # This is how `dynamo plugin install` is able to manage your dependencies.
   # For example, perhaps you are writing a thing that talks to AWS, and you
   # want to ensure you have `aws-sdk` in a certain version.
 
-  # All plugins should mention inspec, > 2.2.78
+  # All plugins should mention dynamo, > 2.2.78
   # 2.2.78 included the v2 Plugin API
-  spec.add_dependency "inspec", ">= 2.2.78", "< 4.0.0"
+  spec.add_dependency "dynamo", ">= 2.2.78", "< 4.0.0"
 end

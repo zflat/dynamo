@@ -1,4 +1,4 @@
-module Inspec
+module Dynamo
   class Error < StandardError; end
 
   # dependency resolution

@@ -1,5 +1,5 @@
 # This unit test performs some tests to verify that
-# the inspec-resource-lister plugin is configured correctly.
+# the dynamo-resource-lister plugin is configured correctly.
 
 # Include our test harness
 require_relative "../helper"
@@ -10,7 +10,7 @@ require "<%= plugin_name %>/plugin"
 # Because InSpec is a Spec-style test suite, we're going to use Minitest::Spec
 # here, for familiar look and feel. However, this isn't InSpec (or RSpec) code.
 
-describe InspecPlugins::<%= module_name %>::Plugin do
+describe DynamoPlugins::<%= module_name %>::Plugin do
 
   # When writing tests, you can use `let` to create variables that you
   # can reference easily.
@@ -21,7 +21,7 @@ describe InspecPlugins::<%= module_name %>::Plugin do
   # The Registry knows about all plugins that ship with InSpec by
   # default, as well as any that are installed by the user. When a
   # plugin definition is loaded, it will also self-register.
-  let(:registry) { Inspec::Plugin::V2::Registry.instance }
+  let(:registry) { Dynamo::Plugin::V2::Registry.instance }
 
   # The plugin status record tells us what the Registry knows.
   # Note that you can use previously-defined 'let's.

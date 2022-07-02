@@ -1,5 +1,5 @@
 ---
-project-name: inspec
+project-name: dynamo
 config: omnibus/omnibus.rb
 test-path: omnibus/omnibus-test.sh
 test-path-windows: omnibus/omnibus-test.ps1

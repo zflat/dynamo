@@ -1,6 +1,6 @@
 require "json" unless defined?(JSON)
 
-module Inspec::Plugin::V2
+module Dynamo::Plugin::V2
   # Represents the plugin config file on disk.
   class ConfigFile
     include Enumerable
@@ -15,9 +15,9 @@ module Inspec::Plugin::V2
     end
 
     # Returns the defaut path for a config file.
-    # This respects ENV['INSPEC_CONFIG_DIR'].
+    # This respects ENV['DYNAMO_CONFIG_DIR'].
     def self.default_path
-      File.join(Inspec.config_dir, "plugins.json")
+      File.join(Dynamo.config_dir, "plugins.json")
     end
 
     # Implement Enumerable. All Enumerable methds act
@@ -40,13 +40,13 @@ module Inspec::Plugin::V2
     # Add an entry with full validation.
     def add_entry(proposed_entry)
       unless proposed_entry.keys.all? { |field| field.is_a? Symbol }
-        raise Inspec::Plugin::V2::ConfigError, "All keys to ConfigFile#add_entry must be symbols"
+        raise Dynamo::Plugin::V2::ConfigError, "All keys to ConfigFile#add_entry must be symbols"
       end
 
       validate_entry(proposed_entry)
 
       if existing_entry?(proposed_entry[:name])
-        raise Inspec::Plugin::V2::ConfigError, "Duplicate plugin name in call to ConfigFile#add_entry: '#{proposed_entry[:name]}'"
+        raise Dynamo::Plugin::V2::ConfigError, "Duplicate plugin name in call to ConfigFile#add_entry: '#{proposed_entry[:name]}'"
       end
 
       @data[:plugins] << proposed_entry
@@ -55,7 +55,7 @@ module Inspec::Plugin::V2
     # Removes an entry specified by plugin name.
     def remove_entry(name)
       unless existing_entry?(name)
-        raise Inspec::Plugin::V2::ConfigError, "No such entry with plugin name '#{name}'"
+        raise Dynamo::Plugin::V2::ConfigError, "No such entry with plugin name '#{name}'"
       end
 
       @data[:plugins].delete_if { |entry| entry[:name] == name.to_sym }
@@ -81,33 +81,33 @@ module Inspec::Plugin::V2
       @data = JSON.parse(File.read(path), symbolize_names: true)
       validate_file
     rescue JSON::ParserError => e
-      raise Inspec::Plugin::V2::ConfigError, "Failed to load plugins JSON configuration from #{path}:\n#{e}"
+      raise Dynamo::Plugin::V2::ConfigError, "Failed to load plugins JSON configuration from #{path}:\n#{e}"
     end
 
     def validate_file # rubocop: disable Metrics/AbcSize
       unless @data[:plugins_config_version]
-        raise Inspec::Plugin::V2::ConfigError, "Missing 'plugins_config_version' entry at #{path} - currently support versions: 1.0.0"
+        raise Dynamo::Plugin::V2::ConfigError, "Missing 'plugins_config_version' entry at #{path} - currently support versions: 1.0.0"
       end
 
       unless @data[:plugins_config_version] == "1.0.0"
-        raise Inspec::Plugin::V2::ConfigError, "Unsupported plugins.json file version #{@data[:plugins_config_version]} at #{path} - currently support versions: 1.0.0"
+        raise Dynamo::Plugin::V2::ConfigError, "Unsupported plugins.json file version #{@data[:plugins_config_version]} at #{path} - currently support versions: 1.0.0"
       end
 
       plugin_entries = @data[:plugins]
       if plugin_entries.nil?
-        raise Inspec::Plugin::V2::ConfigError, "Malformed plugins.json file at #{path} - missing top-level key named 'plugins', whose value should be an array"
+        raise Dynamo::Plugin::V2::ConfigError, "Malformed plugins.json file at #{path} - missing top-level key named 'plugins', whose value should be an array"
       end
 
       unless plugin_entries.is_a?(Array)
-        raise Inspec::Plugin::V2::ConfigError, "Malformed plugins.json file at #{path} - top-level key named 'plugins' should be an array"
+        raise Dynamo::Plugin::V2::ConfigError, "Malformed plugins.json file at #{path} - top-level key named 'plugins' should be an array"
       end
 
       plugin_entries.each_with_index do |plugin_entry, idx|
         begin
           validate_entry(plugin_entry)
-        rescue Inspec::Plugin::V2::ConfigError => ex
+        rescue Dynamo::Plugin::V2::ConfigError => ex
           # append some context to the message
-          raise Inspec::Plugin::V2::ConfigError, "Malformed plugins.json file - " + ex.message + " at index #{idx}"
+          raise Dynamo::Plugin::V2::ConfigError, "Malformed plugins.json file - " + ex.message + " at index #{idx}"
         end
 
         # Check for duplicates
@@ -117,18 +117,18 @@ module Inspec::Plugin::V2
           next if plugin_entry[:name] != other_entry[:name]
 
           indices = [idx, other_idx].sort
-          raise Inspec::Plugin::V2::ConfigError, "Malformed plugins.json file - duplicate plugin entry '#{plugin_entry[:name]}' detected at index #{indices[0]} and #{indices[1]}"
+          raise Dynamo::Plugin::V2::ConfigError, "Malformed plugins.json file - duplicate plugin entry '#{plugin_entry[:name]}' detected at index #{indices[0]} and #{indices[1]}"
         end
       end
     end
 
     def validate_entry(plugin_entry)
       unless plugin_entry.is_a? Hash
-        raise Inspec::Plugin::V2::ConfigError, "each 'plugins' entry should be a Hash / JSON object"
+        raise Dynamo::Plugin::V2::ConfigError, "each 'plugins' entry should be a Hash / JSON object"
       end
 
       unless plugin_entry.key? :name
-        raise Inspec::Plugin::V2::ConfigError, "'plugins' entry missing 'name' field"
+        raise Dynamo::Plugin::V2::ConfigError, "'plugins' entry missing 'name' field"
       end
 
       # Symbolize the name.
@@ -137,13 +137,13 @@ module Inspec::Plugin::V2
       if plugin_entry.key? :installation_type
         seen_type = plugin_entry[:installation_type]
         unless %i{gem path}.include? seen_type.to_sym
-          raise Inspec::Plugin::V2::ConfigError, "'plugins' entry with unrecognized installation_type (must be one of 'gem' or 'path')"
+          raise Dynamo::Plugin::V2::ConfigError, "'plugins' entry with unrecognized installation_type (must be one of 'gem' or 'path')"
         end
 
         plugin_entry[:installation_type] = seen_type.to_sym
 
         if plugin_entry[:installation_type] == :path && !plugin_entry.key?(:installation_path)
-          raise Inspec::Plugin::V2::ConfigError, "'plugins' entry with a 'path' installation_type missing installation path"
+          raise Dynamo::Plugin::V2::ConfigError, "'plugins' entry with a 'path' installation_type missing installation path"
         end
       end
     end

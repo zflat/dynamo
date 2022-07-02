@@ -9,7 +9,7 @@ require "<%= plugin_name %>/cli_command"
 
 # Because InSpec is a Spec-style test suite, we're going to use Minitest::Spec
 # here, for familiar look and feel. However, this isn't InSpec (or RSpec) code.
-describe InspecPlugins::<%= module_name %>::CliCommand do
+describe DynamoPlugins::<%= module_name %>::CliCommand do
 
   # When writing tests, you can use `let` to create variables that you
   # can reference easily.
@@ -17,7 +17,7 @@ describe InspecPlugins::<%= module_name %>::CliCommand do
   # This is the CLI Command implementation class.
   # It is a subclass of Thor, which is a CLI framework.
   # This unit test file is mostly about verifying the Thor settings.
-  let(:cli_class) { InspecPlugins::<%= module_name %>::CliCommand }
+  let(:cli_class) { DynamoPlugins::<%= module_name %>::CliCommand }
 
   # From this point onwards, this test file assumes you did not rename
   # the provided 'do_something' subcommand.  As you implement your plugin,

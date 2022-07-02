@@ -2,13 +2,13 @@
   "plugins_config_version" : "1.0.0",
   "plugins": [
     {
-      "name": "inspec-test-fixture-00"
+      "name": "dynamo-test-fixture-00"
     },
     {
-      "name": "inspec-test-fixture-01",
+      "name": "dynamo-test-fixture-01",
       "installation_type": "gem",
       "version": "0.2.0"
     },
-    "inspec-test-fixture-03"
+    "dynamo-test-fixture-03"
   ]
 }

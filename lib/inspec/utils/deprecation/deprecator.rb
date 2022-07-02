@@ -1,13 +1,13 @@
-require "inspec/utils/deprecation/config_file"
-require "inspec/log"
+require "dynamo/utils/deprecation/config_file"
+require "dynamo/log"
 
-module Inspec
+module Dynamo
   module Deprecation
     class Deprecator
       attr_reader :config, :groups
 
       def initialize(opts = {})
-        @config = Inspec::Deprecation::ConfigFile.new(opts[:config_io])
+        @config = Dynamo::Deprecation::ConfigFile.new(opts[:config_io])
         @groups = @config.groups
       end
 
@@ -44,7 +44,7 @@ module Inspec
         # rspec-core surrounds these.
 
         # First, purge the deprecation system frames
-        stack.reject! { |frame| frame.path && frame.path =~ %r{lib/inspec/utils/deprecation} }
+        stack.reject! { |frame| frame.path && frame.path =~ %r{lib/dynamo/utils/deprecation} }
         # Next, purge all RSpec entries (at least rspec-core, rspec-support, rspec-its).
         stack.reject! { |frame| frame.path && frame.path =~ %r{rspec-.+/lib/rspec}  }
         # Now look for the frame that includes load_with_context.
@@ -84,11 +84,11 @@ module Inspec
       def handle_log_action(message, level)
         case level
         when :debug
-          Inspec::Log.debug message
+          Dynamo::Log.debug message
         when :warn
-          Inspec::Log.warn message
+          Dynamo::Log.warn message
         when :error
-          Inspec::Log.error message
+          Dynamo::Log.error message
         end
       end
 
@@ -102,7 +102,7 @@ module Inspec
 
       def handle_fail_control_action(group_name, message, group)
         if called_from_control?
-          raise Inspec::Exceptions::ResourceFailed, message
+          raise Dynamo::Exceptions::ResourceFailed, message
         else
           handle_warn_action(group_name, message, group)
         end
@@ -111,7 +111,7 @@ module Inspec
       def handle_exit_action(group_name, message, group)
         handle_error_action(group_name, message, group)
         status = group[:exit_status] || :fatal_deprecation
-        Inspec::UI.new.exit(status)
+        Dynamo::UI.new.exit(status)
       end
     end
   end

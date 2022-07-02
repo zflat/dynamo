@@ -2,9 +2,9 @@
   "plugins_config_version" : "1.0.0",
   "plugins": [
     {
-      "name": "inspec-reporter-test-fixture",
+      "name": "dynamo-reporter-test-fixture",
       "installation_type": "path",
-      "installation_path": "test/fixtures/plugins/inspec-reporter-test-fixture/lib/inspec-reporter-test-fixture.rb"
+      "installation_path": "test/fixtures/plugins/dynamo-reporter-test-fixture/lib/dynamo-reporter-test-fixture.rb"
     }
   ]
 }

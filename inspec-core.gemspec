@@ -1,14 +1,14 @@
 lib = File.expand_path("lib", __dir__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
-require "inspec/version"
+require "dynamo/version"
 
 Gem::Specification.new do |spec|
-  spec.name          = "inspec-core"
-  spec.version       = Inspec::VERSION
+  spec.name          = "dynamo-core"
+  spec.version       = Dynamo::VERSION
   spec.authors       = ["Chef InSpec Team"]
   spec.email         = ["inspec@chef.io"]
   spec.summary       = "Infrastructure and compliance testing. Core library."
-  spec.description   = "InSpec provides a framework for creating end-to-end infrastructure tests. You can use it for integration or even compliance testing. Create fully portable test profiles and use them in your workflow to ensure stability and security. Integrate InSpec in your change lifecycle for local testing, CI/CD, and deployment verification. This has local support only. See the `inspec` gem for full support."
+  spec.description   = "InSpec provides a framework for creating end-to-end infrastructure tests. You can use it for integration or even compliance testing. Create fully portable test profiles and use them in your workflow to ensure stability and security. Integrate InSpec in your change lifecycle for local testing, CI/CD, and deployment verification. This has local support only. See the `dynamo` gem for full support."
   spec.homepage      = "https://github.com/inspec/inspec"
   spec.license       = "Apache-2.0"
   spec.require_paths = ["lib"]
@@ -17,7 +17,7 @@ Gem::Specification.new do |spec|
 
   # the gemfile and gemspec are necessary for appbundler so don't remove it
   spec.files =
-    Dir.glob("{{lib,etc}/**/*,LICENSE,Gemfile,inspec-core.gemspec}")
+    Dir.glob("{{lib,etc}/**/*,LICENSE,Gemfile,dynamo-core.gemspec}")
       .grep_v(%r{lib/plugins/.*/test/})
       .reject { |f| File.directory?(f) }
 

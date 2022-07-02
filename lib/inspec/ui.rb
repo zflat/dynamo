@@ -1,4 +1,5 @@
-module Inspec
+# coding: utf-8
+module Dynamo
   # Provides simple terminal UI interaction primitives for CLI commands and plugins.
   class UI
     ANSI_CODES = {
@@ -155,7 +156,7 @@ module Inspec
     #   t << ['', '', 1]
     #  end
     def table(opts = { print: true })
-      require "inspec/ui_table_helper"
+      require "dynamo/ui_table_helper"
 
       the_table = TableHelper.new
       yield(the_table)
@@ -202,7 +203,7 @@ module Inspec
     # This simply returns a TTY::Prompt object, gated on interactivity being enabled.
     def prompt
       unless interactive?
-        raise Inspec::UserInteractionRequired, "Somthing is trying to ask the user a question, but interactivity is disabled."
+        raise Dynamo::UserInteractionRequired, "Somthing is trying to ask the user a question, but interactivity is disabled."
       end
 
       require "tty-prompt"

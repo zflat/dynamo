@@ -3,7 +3,7 @@
 set -eo pipefail
 
 export HAB_ORIGIN='ci'
-export PLAN='inspec'
+export PLAN='dynamo'
 export CHEF_LICENSE="accept-no-persist"
 export HAB_LICENSE="accept-no-persist"
 export project_root="$(git rev-parse --show-toplevel)"
@@ -53,7 +53,7 @@ chmod go-w /usr/local/bundle
 
 echo "+++ Testing $PLAN"
 
-PATH="$(hab pkg path ci/inspec)/bin:$PATH"
+PATH="$(hab pkg path ci/dynamo)/bin:$PATH"
 export PATH
 echo "PATH is $PATH"
 

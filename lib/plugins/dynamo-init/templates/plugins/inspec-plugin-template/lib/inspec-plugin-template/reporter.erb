@@ -1,12 +1,12 @@
-module InspecPlugins::<%= module_name %>
+module DynamoPlugins::<%= module_name %>
   # This class will provide the actual Reporter implementation.
-  # Its superclass is provided by another call to Inspec.plugin,
+  # Its superclass is provided by another call to Dynamo.plugin,
   # this time with two args.  The first arg specifies we are requesting
   # version 2 of the Plugins API.  The second says we are making a
   # Reporter plugin component, so please make available any DSL needed
   # for that.
 
-  class Reporter < Inspec.plugin(2, :reporter)
+  class Reporter < Dynamo.plugin(2, :reporter)
 
     # All a Reporter *must* do is define a render() method that calls
     # output(). You should access the run_data accessor to read off the

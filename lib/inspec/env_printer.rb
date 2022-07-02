@@ -1,21 +1,21 @@
-require "inspec/shell_detector"
+require "dynamo/shell_detector"
 require "erb" unless defined?(Erb)
 require "shellwords" unless defined?(Shellwords)
 
-module Inspec
+module Dynamo
   class EnvPrinter
     attr_reader :shell
 
     EVAL_COMMANDS = {
-      "bash" => 'eval \"$(inspec env bash)\"',
-      "fish" => "inspec env fish > ~/.config/fish/completions/inspec.fish",
-      "zsh" => 'eval \"$(inspec env zsh)\"',
+      "bash" => 'eval \"$(dynamo env bash)\"',
+      "fish" => "dynamo env fish > ~/.config/fish/completions/dynamo.fish",
+      "zsh" => 'eval \"$(dynamo env zsh)\"',
     }.freeze
 
     def initialize(command_class, shell = nil)
       if !shell
         @detected = true
-        @shell = Inspec::ShellDetector.new.shell
+        @shell = Dynamo::ShellDetector.new.shell
       else
         @shell = shell
       end
@@ -75,7 +75,7 @@ module Inspec
         # The shell #{@shell} was auto-detected. If this is incorrect, please
         # specify a shell explicitly by running:
         #
-        #     inspec env SHELLNAME
+        #     dynamo env SHELLNAME
         #
         # Currently supported shells are: #{shells_with_completions.join(", ")}
         #
@@ -96,7 +96,7 @@ module Inspec
         #
         # Please provide the name of your shell via the command line:
         #
-        #    inspec env SHELLNAME
+        #    dynamo env SHELLNAME
         #
         # Currently supported shells are: #{shells_with_completions.join(", ")}
       EOF

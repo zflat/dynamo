@@ -28,22 +28,22 @@ Chef InSpec makes it easy to run your tests wherever you need. More options are 
 
 ```bash
 # run test locally
-inspec exec test.rb
+dynamo exec test.rb
 
 # run test on remote host via SSH
-inspec exec test.rb -t ssh://user@hostname -i /path/to/key
+dynamo exec test.rb -t ssh://user@hostname -i /path/to/key
 
-# run test on remote host using SSH agent private key authentication. Requires Chef InSpec 1.7.1
-inspec exec test.rb -t ssh://user@hostname
+# run test on remote host using SSH agent private key authentication. Requires Chef Dynamo 1.7.1
+dynamo exec test.rb -t ssh://user@hostname
 
 # run test on remote windows host via WinRM
-inspec exec test.rb -t winrm://Administrator@windowshost --password 'your-password'
+dynamo exec test.rb -t winrm://Administrator@windowshost --password 'your-password'
 
 # run test on remote windows host via WinRM as a domain user
-inspec exec test.rb -t winrm://windowshost --user 'UserName@domain' --password 'your-password'
+dynamo exec test.rb -t winrm://windowshost --user 'UserName@domain' --password 'your-password'
 
 # run test on docker container
-inspec exec test.rb -t docker://container_id
+dynamo exec test.rb -t docker://container_id
 ```
 
 # Features
@@ -78,7 +78,7 @@ curl https://omnitruck.chef.io/install.sh | sudo bash -s -- -P inspec
 
 ### Install it via rubygems.org
 
-Installing Chef InSpec from source may require installing ruby build tools to manage gem dependencies. (A compiler-free variant is available with reduced functionality; use `inspec-core-bin` and `inspec-core`.)
+Installing Chef InSpec from source may require installing ruby build tools to manage gem dependencies. (A compiler-free variant is available with reduced functionality; use `dynamo-core-bin` and `dynamo-core`.)
 
 To install build tools, use your package manager.
 
@@ -94,16 +94,16 @@ For Ubuntu:
 apt-get -y install ruby ruby-dev gcc g++ make
 ```
 
-To install the `inspec` executable, which requires accepting the [Chef License](https://docs.chef.io/chef_license_accept.html), run:
+To install the `dynamo` executable, which requires accepting the [Chef License](https://docs.chef.io/chef_license_accept.html), run:
 
 ```bash
-gem install inspec-bin
+gem install dynamo-bin
 ```
 
-You may also use `inspec` as a library, with no executable. This does not require accepting the license. To install the library as a gem, run:
+You may also use `dynamo` as a library, with no executable. This does not require accepting the license. To install the library as a gem, run:
 
 ```bash
-gem install inspec
+gem install dynamo
 ```
 
 
@@ -114,25 +114,25 @@ Download the image and define a function for convenience:
 For Linux:
 
 ```
-docker pull chef/inspec
-function inspec { docker run -it --rm -v $(pwd):/share chef/inspec "$@"; }
+docker pull chef/dynamo
+function dynamo { docker run -it --rm -v $(pwd):/share chef/dynamo "$@"; }
 ```
 
 For Windows (PowerShell):
 
 ```
 docker pull chef/inspec
-function inspec { docker run -it --rm -v "$(pwd):/share" chef/inspec $args; }
+function dynamo { docker run -it --rm -v "$(pwd):/share" chef/dynamo $args; }
 ```
 
-If you call `inspec` from your shell, it automatically mounts the current directory into the Docker container. Therefore you can easily use local tests and key files. Note: Only files in the current directory and sub-directories are available within the container.
+If you call `dynamo` from your shell, it automatically mounts the current directory into the Docker container. Therefore you can easily use local tests and key files. Note: Only files in the current directory and sub-directories are available within the container.
 
 ```
 $ ls -1
 vagrant
 test.rb
 
-$ inspec exec test.rb -t ssh://root@192.168.64.2:11022 -i vagrant
+$ dynamo exec test.rb -t ssh://root@192.168.64.2:11022 -i vagrant
 ..
 
 Finished in 0.04321 seconds (files took 0.54917 seconds to load)
@@ -148,14 +148,14 @@ That requires [bundler](http://bundler.io/):
 
 ```bash
 bundle install
-bundle exec inspec help
+bundle exec dynamo help
 ```
 
 To install it as a gem locally, run:
 
 ```bash
-gem build inspec.gemspec
-gem install inspec-*.gem
+gem build dynamo.gemspec
+gem install dynamo-*.gem
 ```
 
 On Windows, you need to install [Ruby](http://rubyinstaller.org/downloads/) with [Ruby Development Kit](https://github.com/oneclick/rubyinstaller/wiki/Development-Kit) to build dependencies with its native extensions.
@@ -167,9 +167,9 @@ Currently, this method of installation only supports Linux. See the [Chef Habita
 Download the `hab` binary from the [Chef Habitat](https://www.habitat.sh/docs/get-habitat/) site.
 
 ```bash
-hab pkg install chef/inspec --binlink
+hab pkg install chef/dynamo --binlink
 
-inspec
+dynamo
 ```
 
 ### Run Chef InSpec
@@ -177,20 +177,20 @@ inspec
 You should now be able to run:
 
 ```bash
-$ inspec --help
+$ dynamo --help
 Commands:
-  inspec archive PATH                                       # archive a profile to tar.gz (default) ...
-  inspec check PATH                                         # verify all tests at the specified PATH
-  inspec automate SUBCOMMAND ...                            # Chef Automate commands
-  inspec compliance SUBCOMMAND ...                          # Chef Automate commands (backwards compatible alias)
-  inspec detect                                             # detect the target OS
-  inspec exec PATH(S)                                       # run all test files at the specified PATH.
-  inspec help [COMMAND]                                     # Describe available commands or one spe...
-  inspec init TEMPLATE ...                                  # Scaffolds a new project
-  inspec json PATH                                          # read all tests in PATH and generate a ...
-  inspec shell                                              # open an interactive debugging shell
-  inspec supermarket SUBCOMMAND ...                         # Supermarket commands
-  inspec version                                            # prints the version of this tool
+  dynamo archive PATH                                       # archive a profile to tar.gz (default) ...
+  dynamo check PATH                                         # verify all tests at the specified PATH
+  dynamo automate SUBCOMMAND ...                            # Chef Automate commands
+  dynamo compliance SUBCOMMAND ...                          # Chef Automate commands (backwards compatible alias)
+  dynamo detect                                             # detect the target OS
+  dynamo exec PATH(S)                                       # run all test files at the specified PATH.
+  dynamo help [COMMAND]                                     # Describe available commands or one spe...
+  dynamo init TEMPLATE ...                                  # Scaffolds a new project
+  dynamo json PATH                                          # read all tests in PATH and generate a ...
+  dynamo shell                                              # open an interactive debugging shell
+  dynamo supermarket SUBCOMMAND ...                         # Supermarket commands
+  dynamo version                                            # prints the version of this tool
 
 Options:
   [--diagnose], [--no-diagnose]  # Show diagnostics (versions, configurations)
@@ -253,34 +253,34 @@ Run tests against different targets:
 
 ```bash
 # run test locally
-inspec exec test.rb
+dynamo exec test.rb
 
 # run test on remote host on SSH
-inspec exec test.rb -t ssh://user@hostname
+dynamo exec test.rb -t ssh://user@hostname
 
 # run test on remote windows host on WinRM
-inspec exec test.rb -t winrm://Administrator@windowshost --password 'your-password'
+dynamo exec test.rb -t winrm://Administrator@windowshost --password 'your-password'
 
 # run test on docker container
-inspec exec test.rb -t docker://container_id
+dynamo exec test.rb -t docker://container_id
 
 # run with sudo
-inspec exec test.rb --sudo [--sudo-password ...] [--sudo-options ...] [--sudo_command ...]
+dynamo exec test.rb --sudo [--sudo-password ...] [--sudo-options ...] [--sudo_command ...]
 
 # run in a subshell
-inspec exec test.rb --shell [--shell-options ...] [--shell-command ...]
+dynamo exec test.rb --shell [--shell-options ...] [--shell-command ...]
 
 # run a profile targeting AWS using env vars
-inspec exec test.rb -t aws://
+dynamo exec test.rb -t aws://
 
 # or store your AWS credentials in your ~/.aws/credentials profiles file
-inspec exec test.rb -t aws://us-east-2/my-profile
+dynamo exec test.rb -t aws://us-east-2/my-profile
 
 # run a profile targeting Azure using env vars
-inspec exec test.rb -t azure://
+dynamo exec test.rb -t azure://
 
 # or store your Azure credentials in your ~/.azure/credentials profiles file
-inspec exec test.rb -t azure://subscription_id
+dynamo exec test.rb -t azure://subscription_id
 ```
 
 ### detect
@@ -289,7 +289,7 @@ Verify your configuration and detect
 
 ```bash
 id=$( docker run -dti ubuntu:14.04 /bin/bash )
-inspec detect -t docker://$id
+dynamo detect -t docker://$id
 ```
 
 Which will provide you with:

@@ -5,8 +5,8 @@ require "bundler/gem_helper"
 require "rake/testtask"
 require "fileutils"
 
-Bundler::GemHelper.install_tasks name: "inspec-core"
-# Bundler::GemHelper.install_tasks name: "inspec"
+Bundler::GemHelper.install_tasks name: "dynamo-core"
+# Bundler::GemHelper.install_tasks name: "dynamo"
 
 def prompt(message)
   print(message)
@@ -17,7 +17,7 @@ end
 GLOBS = [
   "test/unit/**/*_test.rb",
   "test/functional/**/*_test.rb",
-  "lib/plugins/inspec-*/test/**/*_test.rb",
+  "lib/plugins/dynamo-*/test/**/*_test.rb",
 ].freeze
 
 # run tests
@@ -133,7 +133,7 @@ namespace :test do
     require "fileutils"
 
     # Only needed for local runs, not CI?
-    FileUtils.rm_rf File.expand_path "~/.inspec"
+    FileUtils.rm_rf File.expand_path "~/.dynamo"
     FileUtils.rm_rf File.expand_path "~/.chef"
 
     # 3 seems to be the magic number... (tho not by that much)
@@ -186,7 +186,7 @@ namespace :test do
     t.libs << "test"
     t.test_files = Dir.glob([
       "test/functional/**/*_test.rb",
-      "lib/plugins/inspec-*/test/functional/**/*_test.rb",
+      "lib/plugins/dynamo-*/test/functional/**/*_test.rb",
     ])
     t.warning = !!ENV["W"]
     t.verbose = !!ENV["V"] # default to off. the test commands are _huge_.
@@ -197,7 +197,7 @@ namespace :test do
     t.libs << "test"
     t.test_files = Dir.glob([
       "test/unit/**/*_test.rb",
-      "lib/plugins/inspec-*/test/unit/**/*_test.rb",
+      "lib/plugins/dynamo-*/test/unit/**/*_test.rb",
     ])
     t.warning = !!ENV["W"]
     t.verbose = !!ENV["V"] # default to off. the test commands are _huge_.
@@ -215,7 +215,7 @@ namespace :test do
     tests_path = File.join(File.dirname(__FILE__), "test", "integration", "test", "integration", "default")
     key_files = ENV["key_files"] || File.join(ENV["HOME"], ".ssh", "id_rsa")
 
-    sh_cmd =  "bin/inspec exec #{tests_path}/"
+    sh_cmd =  "bin/dynamo exec #{tests_path}/"
     sh_cmd += ENV["test"] ? "#{ENV["test"]}_spec.rb" : "*"
     sh_cmd += " --sudo" unless args[:target].split("@")[0] == "root"
     sh_cmd += " -t ssh://#{args[:target]}"
@@ -232,12 +232,12 @@ end
 # Print the current version of this gem or update it.
 #
 # @param [Type] target the new version you want to set, or nil if you only want to show
-def inspec_version(target = nil)
-  path = "lib/inspec/version.rb"
+def dynamo_version(target = nil)
+  path = "lib/dynamo/version.rb"
   require_relative path.sub(/.rb$/, "")
 
   nu_version = target.nil? ? "" : " -> #{target}"
-  puts "Inspec: #{Inspec::VERSION}#{nu_version}"
+  puts "Dynamo: #{Dynamo::VERSION}#{nu_version}"
 
   unless target.nil?
     raw = File.read(path)
@@ -279,5 +279,5 @@ end
 # Show the current version of this gem.
 desc "Show the version of this gem"
 task :version do
-  inspec_version
+  dynamo_version
 end

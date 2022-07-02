@@ -1,4 +1,4 @@
-# Represents InSpec configuration.  Merges defaults, config file options,
+# Represents Dynamo configuration.  Merges defaults, config file options,
 # and CLI arguments.
 
 require "pp" unless defined?(PP)
@@ -6,11 +6,11 @@ require "stringio" unless defined?(StringIO)
 require "forwardable" unless defined?(Forwardable)
 require "thor" unless defined?(Thor)
 require "base64" unless defined?(Base64)
-require "inspec/plugin/v2/filter"
+require "dynamo/plugin/v2/filter"
 
-module Inspec
+module Dynamo
   class Config
-    include Inspec::Plugin::V2::FilterPredicates
+    include Dynamo::Plugin::V2::FilterPredicates
 
     # These are options that apply to any transport
     GENERIC_CREDENTIALS = %w{
@@ -32,13 +32,13 @@ module Inspec
 
     extend Forwardable
 
-    # Many parts of InSpec expect to treat the Config as a Hash
+    # Many parts of Dynamo expect to treat the Config as a Hash
     def_delegators :@final_options, :each, :delete, :[], :[]=, :key?
     attr_reader :final_options
 
     # This makes it easy to make a config with a mock backend.
     def self.mock(opts = {})
-      Inspec::Config.new({ backend: :mock }.merge(opts), StringIO.new("{}"))
+      Dynamo::Config.new({ backend: :mock }.merge(opts), StringIO.new("{}"))
     end
 
     # Use this to get a cached version of the config.  This prevents you from
@@ -69,7 +69,7 @@ module Inspec
     def diagnose
       return unless self[:diagnose]
 
-      puts "InSpec version: #{Inspec::VERSION}"
+      puts "Dynamo version: #{Dynamo::VERSION}"
       puts "Command line configuration:"
       pp @cli_opts
       puts "JSON configuration file:"
@@ -118,7 +118,7 @@ module Inspec
 
     # Regardless of our situation, end up with a readable IO object
     def resolve_cfg_io(cli_opts, cfg_io)
-      raise(ArgumentError, "Inspec::Config must use an IO to read from") if cfg_io && !cfg_io.respond_to?(:read)
+      raise(ArgumentError, "Dynamo::Config must use an IO to read from") if cfg_io && !cfg_io.respond_to?(:read)
 
       cfg_io ||= check_for_piped_config(cli_opts)
       return cfg_io if cfg_io
@@ -131,23 +131,23 @@ module Inspec
 
     def check_for_piped_config(cli_opts)
       cli_opt = cli_opts[:config] || cli_opts[:json_config]
-      Inspec.deprecate(:cli_option_json_config) if cli_opts.key?(:json_config)
+      Dynamo.deprecate(:cli_option_json_config) if cli_opts.key?(:json_config)
 
       return nil unless cli_opt
       return nil unless cli_opt == "-"
 
-      # This warning is here so that if a user invokes inspec with --config=-,
+      # This warning is here so that if a user invokes dynamo with --config=-,
       # they will have an explanation for why it appears to hang.
-      Inspec::Log.warn "Reading JSON config from standard input" if STDIN.tty?
+      Dynamo::Log.warn "Reading JSON config from standard input" if STDIN.tty?
       STDIN
     end
 
     def determine_cfg_path(cli_opts)
       path = cli_opts[:config] || cli_opts[:json_config]
-      Inspec.deprecate(:cli_option_json_config) if cli_opts.key?(:json_config)
+      Dynamo.deprecate(:cli_option_json_config) if cli_opts.key?(:json_config)
 
       if path.nil?
-        default_path = File.join(Inspec.config_dir, "config.json")
+        default_path = File.join(Dynamo.config_dir, "config.json")
         path = default_path if File.exist?(default_path)
       elsif !File.exist?(path)
         raise ArgumentError, "Could not read configuration file at #{path}"
@@ -168,7 +168,7 @@ module Inspec
         @cfg_file_contents = JSON.parse(contents)
         validate_config_file_contents!
       rescue JSON::ParserError => e
-        raise Inspec::ConfigError::MalformedJson, "Failed to load JSON configuration: #{e}\nConfig was: #{contents}"
+        raise Dynamo::ConfigError::MalformedJson, "Failed to load JSON configuration: #{e}\nConfig was: #{contents}"
       end
       @cfg_file_contents
     end
@@ -206,7 +206,7 @@ module Inspec
       return unless version
 
       unless KNOWN_VERSIONS.include?(version)
-        raise Inspec::ConfigError::Invalid, "Unsupported config file version '#{version}' - currently supported versions: #{KNOWN_VERSIONS.join(",")}"
+        raise Dynamo::ConfigError::Invalid, "Unsupported config file version '#{version}' - currently supported versions: #{KNOWN_VERSIONS.join(",")}"
       end
 
       # Use Gem::Version for comparision operators
@@ -218,7 +218,7 @@ module Inspec
       valid_fields << "plugins" if cfg_version >= version_1_2
       @cfg_file_contents.keys.each do |seen_field|
         unless valid_fields.include?(seen_field)
-          raise Inspec::ConfigError::Invalid, "Unrecognized top-level configuration field #{seen_field}.  Recognized fields: #{valid_fields.join(", ")}"
+          raise Dynamo::ConfigError::Invalid, "Unrecognized top-level configuration field #{seen_field}.  Recognized fields: #{valid_fields.join(", ")}"
         end
       end
 
@@ -238,8 +238,8 @@ module Inspec
       }
 
       # These are true reporters, but have not been migrated to be plugins yet.
-      # Tracked on https://github.com/inspec/inspec/issues/3667
-      inspec_reporters_that_are_not_yet_plugins = %w{
+      # Tracked on https://github.com/dynamo/dynamo/issues/3667
+      dynamo_reporters_that_are_not_yet_plugins = %w{
         automate
         cli
         json
@@ -250,11 +250,11 @@ module Inspec
       # Additional reporters may be loaded via plugins. They will have already been detected at
       # this point (see v2_loader.load_all in cli.rb) but they may not (and need not) be
       # activated at this point. We only care about their existance and their name, for validation's sake.
-      plugin_reporters = Inspec::Plugin::V2::Registry.instance\
+      plugin_reporters = Dynamo::Plugin::V2::Registry.instance\
         .find_activators(plugin_type: :reporter)\
         .map(&:activator_name).map(&:to_s)
 
-      valid_types = rspec_built_in_formatters + inspec_reporters_that_are_not_yet_plugins + plugin_reporters
+      valid_types = rspec_built_in_formatters + dynamo_reporters_that_are_not_yet_plugins + plugin_reporters
 
       reporters.each do |reporter_name, reporter_config|
         raise NotImplementedError, "'#{reporter_name}' is not a valid reporter type." unless valid_types.include?(reporter_name)
@@ -262,7 +262,7 @@ module Inspec
         next unless reporter_name == "automate"
 
         %w{token url}.each do |option|
-          raise Inspec::ReporterError, "You must specify a automate #{option} via the config file." if reporter_config[option].nil?
+          raise Dynamo::ReporterError, "You must specify a automate #{option} via the config file." if reporter_config[option].nil?
         end
       end
 
@@ -287,18 +287,18 @@ module Inspec
 
       data = @cfg_file_contents["plugins"]
       unless data.is_a?(Hash)
-        raise Inspec::ConfigError::Invalid, "The 'plugin' field in your config file must be a hash (key-value list), not an array."
+        raise Dynamo::ConfigError::Invalid, "The 'plugin' field in your config file must be a hash (key-value list), not an array."
       end
 
       data.each do |plugin_name, plugin_settings|
         # Enforce that every key is a valid plugin name
         unless valid_plugin_name?(plugin_name)
-          raise Inspec::ConfigError::Invalid, "Plugin settings should ne named after the the InSpec plugin. Valid names must begin with dynamo-, not '#{plugin_name}' "
+          raise Dynamo::ConfigError::Invalid, "Plugin settings should ne named after the the Dynamo plugin. Valid names must begin with dynamo-, not '#{plugin_name}' "
         end
 
         # Enforce that every entry is hash-valued
         unless plugin_settings.is_a?(Hash)
-          raise Inspec::ConfigError::Invalid, "The plugin settings for '#{plugin_name}' in your config file should be a Hash (key-value list)."
+          raise Dynamo::ConfigError::Invalid, "The plugin settings for '#{plugin_name}' in your config file should be a Hash (key-value list)."
         end
       end
 
@@ -314,7 +314,7 @@ module Inspec
       }
       return if expected.include? option_value
 
-      raise Inspec::ConfigError::Invalid, "--sort-results-by must be one of #{expected.join(", ")}"
+      raise Dynamo::ConfigError::Invalid, "--sort-results-by must be one of #{expected.join(", ")}"
     end
 
     #-----------------------------------------------------------------------#
@@ -354,8 +354,8 @@ module Inspec
 
     def finalize_set_top_level_command(options)
       options[:type] = @command_name
-      require "inspec/base_cli"
-      Inspec::BaseCLI.inspec_cli_command = @command_name # TODO: move to a more relevant location
+      require "dynamo/base_cli"
+      Dynamo::BaseCLI.dynamo_cli_command = @command_name # TODO: move to a more relevant location
     end
 
     def finalize_parse_reporters(options) # rubocop:disable Metrics/AbcSize
@@ -409,7 +409,7 @@ module Inspec
       # Infer `--sudo` if using `--sudo-password` without `--sudo`
       if options["sudo_password"] && !options["sudo"]
         options["sudo"] = true
-        Inspec::Log.warn "`--sudo-password` used without `--sudo`. Adding `--sudo`."
+        Dynamo::Log.warn "`--sudo-password` used without `--sudo`. Adding `--sudo`."
       end
     end
 
@@ -417,8 +417,8 @@ module Inspec
       # check for compliance settings
       # This is always a hash, comes from config file, not CLI opts
       if options.key?("compliance")
-        require "plugins/inspec-compliance/lib/inspec-compliance/api"
-        InspecPlugins::Compliance::API.login(options["compliance"])
+        require "plugins/dynamo-compliance/lib/dynamo-compliance/api"
+        DynamoPlugins::Compliance::API.login(options["compliance"])
       end
     end
 

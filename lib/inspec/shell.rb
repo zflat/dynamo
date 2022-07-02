@@ -1,9 +1,9 @@
 autoload :Pry, "pry"
 
-module Inspec
-  # A pry based shell for inspec. Given a runner (with a configured backend and
+module Dynamo
+  # A pry based shell for dynamo. Given a runner (with a configured backend and
   # all that jazz), this shell will produce a pry shell from which you can run
-  # inspec/ruby commands that will be run within the context of the runner.
+  # dynamo/ruby commands that will be run within the context of the runner.
   class Shell
     def initialize(runner)
       @runner = runner
@@ -37,32 +37,32 @@ module Inspec
 
       # configure pry shell prompt
       Pry::Prompt.add(
-        :inspec,
-        "inspec custom prompt"
+        :dynamo,
+        "dynamo custom prompt"
       ) do |_context, _nesting, _pry_instance, _sep|
-        "#{readline_ignore("\e[1m\e[32m")}inspec> #{readline_ignore("\e[0m")}"
+        "#{readline_ignore("\e[1m\e[32m")}dynamo> #{readline_ignore("\e[0m")}"
       end
-      Pry.config.prompt = Pry::Prompt[:inspec]
+      Pry.config.prompt = Pry::Prompt[:dynamo]
 
       # Add a help menu as the default intro
-      Pry.hooks.add_hook(:before_session, "inspec_intro") do
+      Pry.hooks.add_hook(:before_session, "dynamo_intro") do
         intro
         print_target_info
       end
 
       # Track the rules currently registered and what their merge count is.
-      Pry.hooks.add_hook(:before_eval, "inspec_before_eval") do
+      Pry.hooks.add_hook(:before_eval, "dynamo_before_eval") do
         @runner.reset
       end
 
       # After pry has evaluated a commanding within the binding context of a
       # test file, register all the rules it discovered.
-      Pry.hooks.add_hook(:after_eval, "inspec_after_eval") do
+      Pry.hooks.add_hook(:after_eval, "dynamo_after_eval") do
         @runner.load
         @runner.run_tests unless @runner.all_rules.empty?
       end
 
-      # Don't print out control class inspection when the user uses DSL methods.
+      # Don't print out control class dynamotion when the user uses DSL methods.
       # Instead produce a result of evaluating their control.
       Pry.config.print = proc do |_output_, value, pry|
         next unless @runner.all_rules.empty?
@@ -83,7 +83,7 @@ module Inspec
     end
 
     def intro
-      puts "Welcome to the interactive InSpec Shell"
+      puts "Welcome to the interactive Dynamo Shell"
       puts "To find out how to use it, type: #{mark "help"}"
       puts
     end
@@ -93,7 +93,7 @@ module Inspec
       puts <<~EOF
         You are currently running on:
 
-        #{Inspec::BaseCLI.format_platform_info(params: ctx.platform.params, indent: 4, color: 39)}
+        #{Dynamo::BaseCLI.format_platform_info(params: ctx.platform.params, indent: 4, color: 39)}
       EOF
     end
 
@@ -107,7 +107,7 @@ module Inspec
               `help resources` - show all available resources that can be used as commands
               `help [resource]` - information about a specific resource
               `help matchers` - show information about common matchers
-              `exit` - exit the InSpec shell
+              `exit` - exit the Dynamo shell
 
           You can use resources in this environment to test the target machine. For example:
 
@@ -117,14 +117,14 @@ module Inspec
           #{print_target_info}
         EOF
       elsif topic == "resources"
-        require "inspec/resources"
+        require "dynamo/resources"
         resources.sort.each do |resource|
           puts " - #{resource}"
         end
       elsif topic == "matchers"
         print_matchers_help
-      elsif !Inspec::Resource.registry[topic].nil? # TODO: fix unnecessary logic
-        topic_info = Inspec::Resource.registry[topic]
+      elsif !Dynamo::Resource.registry[topic].nil? # TODO: fix unnecessary logic
+        topic_info = Dynamo::Resource.registry[topic]
         info = "#{mark "Name:"} #{topic}\n\n"
         unless topic_info.desc.nil?
           info += "#{mark "Description:"}\n\n"
@@ -137,11 +137,11 @@ module Inspec
         end
 
         info += "#{mark "Web Reference:"}\n\n"
-        info += "https://docs.chef.io/inspec/resources/#{topic}\n\n"
+        info += "https://docs.chef.io/dynamo/resources/#{topic}\n\n"
         puts info
       else
         begin
-          require "inspec/resources/#{topic}"
+          require "dynamo/resources/#{topic}"
           help topic
         rescue LoadError
           # TODO: stderr!
@@ -151,7 +151,7 @@ module Inspec
     end
 
     def resources
-      Inspec::Resource.registry.keys
+      Dynamo::Resource.registry.keys
     end
 
     def print_matchers_help
@@ -208,7 +208,7 @@ module Inspec
 
           its('content') { should_not match /^MyKey:\\s+some value/ }
 
-        For more examples, see: https://docs.chef.io/inspec/matchers/
+        For more examples, see: https://docs.chef.io/dynamo/matchers/
 
       EOL
     end

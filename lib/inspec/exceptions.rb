@@ -1,6 +1,6 @@
 # copyright: 2017, Chef Software Inc.
 
-module Inspec
+module Dynamo
   module Exceptions
     class InputsFileDoesNotExist < ArgumentError; end
     class InputsFileNotReadable < ArgumentError; end

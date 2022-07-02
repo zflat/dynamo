@@ -1,9 +1,9 @@
 require "thor" # rubocop:disable Chef/Ruby/UnlessDefinedRequire
-require "inspec/log"
-require "inspec/ui"
-require "inspec/config"
-require "inspec/dist"
-require "inspec/utils/deprecation/global_method"
+require "dynamo/log"
+require "dynamo/ui"
+require "dynamo/config"
+require "dynamo/dist"
+require "dynamo/utils/deprecation/global_method"
 
 # Allow end of options during array type parsing
 # https://github.com/erikhuda/thor/issues/631
@@ -23,10 +23,10 @@ class Thor::Arguments
   end
 end
 
-module Inspec
+module Dynamo
   class BaseCLI < Thor
     class << self
-      attr_accessor :inspec_cli_command
+      attr_accessor :dynamo_cli_command
     end
 
     def self.start(given_args = ARGV, config = {})
@@ -40,7 +40,7 @@ module Inspec
 
     def self.help(*args)
       super(*args)
-      puts "\nAbout #{Inspec::Dist::PRODUCT_NAME}: runs Thor generators"
+      puts "\nAbout #{Dynamo::Dist::PRODUCT_NAME}: runs Thor generators"
     end
 
     def self.format_platform_info(params: {}, indent: 0, color: 39, enable_color: true)
@@ -77,7 +77,7 @@ module Inspec
         # UI will probe for TTY if nil - just send the raw option value
         enable_interactivity = options[:interactive]
 
-        @ui = Inspec::UI.new(color: enable_color, interactive: enable_interactivity)
+        @ui = Dynamo::UI.new(color: enable_color, interactive: enable_interactivity)
       end
 
       # Rationale: converting this to attr_writer breaks Thor
@@ -86,28 +86,28 @@ module Inspec
       end
 
       def mark_text(text)
-        Inspec.deprecate(:inspec_ui_methods)
+        Dynamo.deprecate(:dynamo_ui_methods)
         # Note that this one doesn't automatically print
         ui.emphasis(text, print: false)
       end
 
       def headline(title)
-        Inspec.deprecate(:inspec_ui_methods)
+        Dynamo.deprecate(:dynamo_ui_methods)
         ui.headline(title)
       end
 
       def li(entry)
-        Inspec.deprecate(:inspec_ui_methods)
+        Dynamo.deprecate(:dynamo_ui_methods)
         ui.list_item(entry)
       end
 
       def plain_text(msg)
-        Inspec.deprecate(:inspec_ui_methods)
+        Dynamo.deprecate(:dynamo_ui_methods)
         ui.plain(msg + "\n")
       end
 
       def exit(code)
-        Inspec.deprecate(:inspec_ui_methods)
+        Dynamo.deprecate(:dynamo_ui_methods)
         ui.exit code
       end
     end
@@ -136,7 +136,7 @@ module Inspec
     end
 
     def config
-      @config ||= Inspec::Config.new(options) # 'options' here is CLI opts from Thor
+      @config ||= Dynamo::Config.new(options) # 'options' here is CLI opts from Thor
     end
 
     # get the log level
@@ -155,7 +155,7 @@ module Inspec
 
     def pretty_handle_exception(exception)
       case exception
-      when Inspec::Error
+      when Dynamo::Error
         $stderr.puts exception.message
         exit(1)
       else
@@ -166,7 +166,7 @@ module Inspec
     def configure_logger(o)
       #
       # TODO(ssd): This is a bit gross, but this configures the
-      # logging singleton Inspec::Log. Eventually it would be nice to
+      # logging singleton Dynamo::Log. Eventually it would be nice to
       # move internal debug logging to use this logging singleton.
       #
       loc = if o["log_location"]
@@ -177,8 +177,8 @@ module Inspec
               $stdout
             end
 
-      Inspec::Log.init(loc)
-      Inspec::Log.level = get_log_level(o["log_level"])
+      Dynamo::Log.init(loc)
+      Dynamo::Log.level = get_log_level(o["log_level"])
 
       o[:logger] = Logger.new(loc)
       # output json if we have activated the json formatter

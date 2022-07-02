@@ -1,15 +1,15 @@
 # Documentation available at https://expeditor.chef.io/docs/getting-started/
 ---
 
-product_key: inspec
+product_key: dynamo
 
 rubygems:
- - inspec
- - inspec-core
- - inspec-bin:
-    gemspec_path: ./inspec-bin/
- - inspec-core-bin:
-    gemspec_path: ./inspec-bin/
+ - dynamo
+ - dynamo-core
+ - dynamo-bin:
+    gemspec_path: ./dynamo-bin/
+ - dynamo-core-bin:
+    gemspec_path: ./dynamo-bin/
 
 pipelines:
  - habitat/build:
@@ -63,7 +63,7 @@ schedules:
    cronline: "0 8 * * *"
 
 slack:
- notify_channel: inspec-notify
+ notify_channel: dynamo-notify
 
 github:
  delete_branch_on_merge: true
@@ -103,7 +103,7 @@ subscriptions:
          - docs-chef-io/*
          - etc/*
          - habitat/*
-         - inspec-bin/*
+         - dynamo-bin/*
          - lib/*
          - omnibus/*
          - support/*
@@ -142,16 +142,16 @@ subscriptions:
      - built_in:build_gem:
         only_if:
          - built_in:bump_version
-  - workload: artifact_published:unstable:inspec:{{version_constraint}}
+  - workload: artifact_published:unstable:dynamo:{{version_constraint}}
     actions:
      - trigger_pipeline:docker/build
      - bash:.expeditor/buildkite/wwwrelease.sh:
         post_commit: true
-  - workload: artifact_published:current:inspec:{{version_constraint}}
+  - workload: artifact_published:current:dynamo:{{version_constraint}}
     actions:
      - built_in:promote_docker_images
      - built_in:promote_habitat_packages
-  - workload: artifact_published:stable:inspec:{{version_constraint}}
+  - workload: artifact_published:stable:dynamo:{{version_constraint}}
     actions:
      - bash:.expeditor/update_dockerfile.sh
      - built_in:rollover_changelog
@@ -161,7 +161,7 @@ subscriptions:
      - built_in:promote_habitat_packages
      - bash:.expeditor/publish-release-notes.sh:
         post_commit: true
-     - purge_packages_chef_io_fastly:{{target_channel}}/inspec/latest:
+     - purge_packages_chef_io_fastly:{{target_channel}}/dynamo/latest:
         post_commit: true
      - bash:.expeditor/announce-release.sh:
         post_commit: true
@@ -170,9 +170,9 @@ subscriptions:
     actions:
      - post_github_comment:.expeditor/templates/pull_request.mustache:
         ignore_team_members:
-         - inspec/owners
-         - inspec/inspec-core-team
+         - dynamo/owners
+         - dynamo/dynamo-core-team
      - built_in:github_auto_assign_author:
         only_if_team_member:
-         - inspec/owners
-         - inspec/inspec-core-team
+         - dynamo/owners
+         - dynamo/dynamo-core-team

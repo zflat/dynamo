@@ -1,5 +1,5 @@
 # Order is important. The last matching pattern has the most precedence.
 
-*                     @inspec/inspec-core-team
-docs-chef-io/**       @inspec/inspec-core-team @inspec/docs-team
-*.md                  @inspec/inspec-core-team @inspec/docs-team
+*                     @dynamo/dynamo-core-team
+docs-chef-io/**       @dynamo/dynamo-core-team @dynamo/docs-team
+*.md                  @dynamo/dynamo-core-team @dynamo/docs-team

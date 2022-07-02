@@ -1,12 +1,13 @@
+# coding: utf-8
 require_relative "../../../shared/core_plugin_test_helper"
 
 class InitPluginCli < Minitest::Test
   include CorePluginFunctionalHelper
 
-  def test_generating_inspec_plugin_correct_prefix_required
+  def test_generating_dynamo_plugin_correct_prefix_required
     Dir.mktmpdir do |dir|
       plugin = "wacky-name"
-      run_result = run_inspec_process("init plugin --no-prompt #{plugin} ", prefix: "cd #{dir} &&")
+      run_result = run_dynamo_process("init plugin --no-prompt #{plugin} ", prefix: "cd #{dir} &&")
 
       assert_includes run_result.stdout, "ERROR"
       assert_includes run_result.stdout, "Plugin names must begin with"
@@ -17,15 +18,15 @@ class InitPluginCli < Minitest::Test
     end
   end
 
-  def test_generating_inspec_plugin_with_default_options
+  def test_generating_dynamo_plugin_with_default_options
     Dir.mktmpdir do |dir|
-      plugin = "inspec-test-generated-plugin"
+      plugin = "dynamo-test-generated-plugin"
       snake_case = plugin.tr("-", "_")
-      module_name = plugin.sub(/^inspec\-/, "").split("-").map(&:capitalize).join("")
+      module_name = plugin.sub(/^dynamo\-/, "").split("-").map(&:capitalize).join("")
 
-      run_result = run_inspec_process("init plugin --no-prompt #{plugin}", prefix: "cd #{dir} &&")
+      run_result = run_dynamo_process("init plugin --no-prompt #{plugin}", prefix: "cd #{dir} &&")
 
-      assert_includes run_result.stdout, "Creating new inspec plugin at"
+      assert_includes run_result.stdout, "Creating new dynamo plugin at"
       assert_includes run_result.stdout, plugin
 
       assert_empty run_result.stderr
@@ -47,7 +48,7 @@ class InitPluginCli < Minitest::Test
         File.join(plugin, plugin + ".gemspec") => [
           %r{require "#{plugin}/version"},
           /spec\.name\s+=\s+"#{plugin}"/,
-          /spec\.version\s+=\s+InspecPlugins::#{module_name}::VERSION/,
+          /spec\.version\s+=\s+DynamoPlugins::#{module_name}::VERSION/,
           /README\.md\s+#{snake_case}\.gemspec\s+Gemfile/,
           /spec\.authors\s+=\s+\["Your Name"\]/,
           /spec\.email\s+=\s+\["you@example\.com"\]/,
@@ -67,18 +68,18 @@ class InitPluginCli < Minitest::Test
           # Default assumes one cli activator
           /cli_command :my_command/,
           %r{require\s"#{plugin}/cli_command"},
-          /InspecPlugins::#{module_name}::CliCommand/,
+          /DynamoPlugins::#{module_name}::CliCommand/,
         ],
         File.join(plugin, "lib", plugin, "version.rb") => [
           /module\s#{module_name}/,
         ],
         File.join(plugin, "lib", plugin, "cli_command.rb") => [
-          /module\sInspecPlugins::#{module_name}/,
-          /\#\smakes\s`inspec\smy-command\s\.\.\.`\swork\./,
+          /module\sDynamoPlugins::#{module_name}/,
+          /\#\smakes\s`dynamo\smy-command\s\.\.\.`\swork\./,
           /subcommand_desc\s"my_command\s\[COMMAND\]"/,
-          /\#\sas\s`inspec\smy-command\sdo-something`/,
-          /\#\sin\s`inspec\shelp\smy-command`/,
-          /\#\sruns\s`inspec\smy-command\sdo-something`./,
+          /\#\sas\s`dynamo\smy-command\sdo-something`/,
+          /\#\sin\s`dynamo\shelp\smy-command`/,
+          /\#\sruns\s`dynamo\smy-command\sdo-something`./,
           %r{Edit\slib/#{plugin}/cli_command\.rb\sto\smake\sit\sdo},
         ],
         File.join(plugin, "test", "helper.rb") => [], # No interpolation
@@ -88,13 +89,13 @@ class InitPluginCli < Minitest::Test
         ],
         File.join(plugin, "test", "unit", "plugin_def_test.rb") => [
           %r{require\s"#{plugin}/plugin"},
-          /describe InspecPlugins::#{module_name}::Plugin\sdo/,
+          /describe DynamoPlugins::#{module_name}::Plugin\sdo/,
           /let\(:plugin_name\) \{ \:"#{plugin}\" \}/,
         ],
         File.join(plugin, "test", "unit", "cli_args_test.rb") => [
           %r{require "#{plugin}/cli_command"},
-          /describe InspecPlugins::#{module_name}::CliCommand do/,
-          /let\(\:cli_class\) \{ InspecPlugins::#{module_name}::CliCommand \}/,
+          /describe DynamoPlugins::#{module_name}::CliCommand do/,
+          /let\(\:cli_class\) \{ DynamoPlugins::#{module_name}::CliCommand \}/,
         ],
         File.join(plugin, "test", "unit", "README.md") => [
           /cli_args_test\.rb/,
@@ -112,9 +113,9 @@ class InitPluginCli < Minitest::Test
     end
   end
 
-  def test_generating_inspec_plugin_with_custom_options
+  def test_generating_dynamo_plugin_with_custom_options
     Dir.mktmpdir do |dir|
-      plugin = "inspec-test-generated-plugin"
+      plugin = "dynamo-test-generated-plugin"
       snake_case = plugin.tr("-", "_")
 
       opts = ""
@@ -128,9 +129,9 @@ class InitPluginCli < Minitest::Test
       opts += " --homepage http://example.com "
       opts += " --module_name FunPlugin"
 
-      run_result = run_inspec_process("init plugin #{plugin} --no-prompt #{opts}", prefix: "cd #{dir} &&")
+      run_result = run_dynamo_process("init plugin #{plugin} --no-prompt #{opts}", prefix: "cd #{dir} &&")
 
-      assert_includes run_result.stdout, "Creating new inspec plugin at"
+      assert_includes run_result.stdout, "Creating new dynamo plugin at"
       assert_includes run_result.stdout, plugin
 
       assert_empty run_result.stderr
@@ -149,7 +150,7 @@ class InitPluginCli < Minitest::Test
         File.join(plugin, "Gemfile") => [],
         File.join(plugin, "Rakefile") => [],
         File.join(plugin, plugin + ".gemspec") => [
-          /spec\.version\s+=\s+InspecPlugins::FunPlugin::VERSION/,
+          /spec\.version\s+=\s+DynamoPlugins::FunPlugin::VERSION/,
           /spec\.authors\s+=\s+\["Bob"\]/,
           /spec\.email\s+=\s+\["bob@example\.com"\]/,
           /spec\.summary\s+=\s+"A fantastic plugin"/,

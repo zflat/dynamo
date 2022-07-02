@@ -1,4 +1,4 @@
-module Inspec
+module Dynamo
   class RequireLoader
     Item = Struct.new(:content, :ref, :line, :loaded)
 

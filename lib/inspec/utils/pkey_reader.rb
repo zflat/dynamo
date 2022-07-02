@@ -1,4 +1,4 @@
-require "inspec/input"
+require "dynamo/input"
 
 module PkeyReader
   def read_pkey(filecontent, passphrase)
@@ -6,12 +6,12 @@ module PkeyReader
 
     OpenSSL::PKey.read(filecontent, passphrase)
   rescue OpenSSL::PKey::PKeyError
-    raise Inspec::Exceptions::ResourceFailed, "passphrase error"
+    raise Dynamo::Exceptions::ResourceFailed, "passphrase error"
   end
 
   def raise_if_unset(passphrase)
-    if passphrase.is_a? Inspec::Input::NO_VALUE_SET
-      raise Inspec::Exceptions::ResourceFailed, "Please provide a value for input for openssl key passphrase"
+    if passphrase.is_a? Dynamo::Input::NO_VALUE_SET
+      raise Dynamo::Exceptions::ResourceFailed, "Please provide a value for input for openssl key passphrase"
     end
   end
 end

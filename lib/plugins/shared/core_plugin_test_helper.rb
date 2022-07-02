@@ -13,7 +13,7 @@ require "pathname" unless defined?(Pathname)
 require "forwardable" unless defined?(Forwardable)
 
 require "functional/helper"
-require "inspec/plugin/v2"
+require "dynamo/plugin/v2"
 
 # Configure Minitest to expose things like `let`
 class Module
@@ -26,29 +26,29 @@ module CorePluginBaseHelper
   let(:core_fixture_plugins_path) { File.join(mock_path, "plugins") }
   let(:core_config_dir_path) { File.join(mock_path, "config_dirs") }
 
-  let(:registry) { Inspec::Plugin::V2::Registry.instance }
+  let(:registry) { Dynamo::Plugin::V2::Registry.instance }
 end
 
 module CorePluginFunctionalHelper
   include CorePluginBaseHelper
   include FunctionalHelper
 
-  # This helper does some fancy footwork to make InSpec think a plugin
+  # This helper does some fancy footwork to make Dynamo think a plugin
   # under development is temporarily installed.
-  # @param String command_line Invocation, without the word 'inspec'
-  # @param Hash opts options as for run_inspec_process, with more options:
+  # @param String command_line Invocation, without the word 'dynamo'
+  # @param Hash opts options as for run_dynamo_process, with more options:
   #    :pre_run: Proc(plugin_statefile_data, tmp_dir_path) - optional setup block.
   #       Modify plugin_statefile_data as needed; it will be written to a plugins.json
   #       in tmp_dir_path.  You may also copy in other things to the tmp_dir_path. Your PWD
   #       will be in the tmp_dir, and it will exist and be empty.
   #    :post_run: Proc(CommandResult, tmp_dir_path) - optional result capture block.
   #       Your PWD will be the tmp_dir, and it will still exist (for a moment!)
-  def run_inspec_process_with_this_plugin(command_line, opts = {})
+  def run_dynamo_process_with_this_plugin(command_line, opts = {})
     plugin_path = __find_plugin_path_from_caller
 
     # If it looks like it is a core plugin under test, don't add it to the plugin file
     # since the loader will auto-load it anyway
-    if plugin_path.include?("lib/plugins/inspec-")
+    if plugin_path.include?("lib/plugins/dynamo-")
       plugin_file_data = __make_empty_plugin_file_data_structure
     else
       plugin_file_data = __make_plugin_file_data_structure_with_path(plugin_path)
@@ -60,8 +60,8 @@ module CorePluginFunctionalHelper
       # HACK: If the block cleared the hash, take that to mean it will provide a plugins.json file of its own.
       File.write(plugin_file_path, JSON.generate(plugin_file_data)) unless plugin_file_data.empty?
       opts[:env] ||= {}
-      opts[:env]["INSPEC_CONFIG_DIR"] = tmp_dir
-      run_result = run_inspec_process(command_line, opts)
+      opts[:env]["DYNAMO_CONFIG_DIR"] = tmp_dir
+      run_result = run_dynamo_process(command_line, opts)
 
       # Read the resulting plugins.json into memory, if any
       if File.exist?(plugin_file_path)
@@ -76,11 +76,11 @@ module CorePluginFunctionalHelper
   def __find_plugin_path_from_caller(frames_back = 2)
     caller_path = Pathname.new(caller_locations(frames_back, 1).first.absolute_path)
     # Typical caller path:
-    # /Users/cwolfe/sandbox/inspec-resource-lister/test/functional/inspec_resource_lister_test.rb
+    # /Users/cwolfe/sandbox/dynamo-resource-lister/test/functional/dynamo_resource_lister_test.rb
     # We want:
-    # /Users/cwolfe/sandbox/inspec-resource-lister/lib/inspec-resource-lister.rb
+    # /Users/cwolfe/sandbox/dynamo-resource-lister/lib/dynamo-resource-lister.rb
     cursor = caller_path
-    until cursor.basename.to_s == "test" && cursor.parent.basename.to_s =~ /^(inspec)-/
+    until cursor.basename.to_s == "test" && cursor.parent.basename.to_s =~ /^(dynamo)-/
       cursor = cursor.parent
       break if cursor.nil?
     end

@@ -1,6 +1,6 @@
-module Inspec::Plugin::V2::PluginType
+module Dynamo::Plugin::V2::PluginType
   # Test plugin type
-  class Mock < Inspec::Plugin::V2::PluginBase
+  class Mock < Dynamo::Plugin::V2::PluginBase
     register_plugin_type(:mock_plugin_type)
 
     # This is the API for the mock plugin type: when a mock plugin is

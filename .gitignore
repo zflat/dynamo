@@ -22,10 +22,10 @@ examples/**/*.lock
 examples/meta-profile/vendor/
 habitat/VERSION
 habitat/results
-inspec-aws-*.plan
-inspec-azure.plan
-inspec-deprecations-in-cfg.txt
-inspec-deprecations-in-lib.txt
+dynamo-aws-*.plan
+dynamo-azure.plan
+dynamo-deprecations-in-cfg.txt
+dynamo-deprecations-in-lib.txt
 kitchen.local.yml
 meta-profile-0.2.0.tar.gz
 omnibus/.cache

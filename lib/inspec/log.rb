@@ -1,6 +1,6 @@
 require "mixlib/log"
 
-module Inspec
+module Dynamo
   class Log
     extend Mixlib::Log
   end

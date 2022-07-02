@@ -1,39 +1,39 @@
 # Copyright 2015 Dominik Richter
 
-require "inspec/utils/deprecation/deprecator"
-require "inspec/dist"
-require "inspec/utils/json_profile_summary"
+require "dynamo/utils/deprecation/deprecator"
+require "dynamo/dist"
+require "dynamo/utils/json_profile_summary"
 
-module Inspec # TODO: move this somewhere "better"?
-  autoload :BaseCLI,       "inspec/base_cli"
-  autoload :Deprecation,   "inspec/utils/deprecation"
-  autoload :Exceptions,    "inspec/exceptions"
-  autoload :EnvPrinter,    "inspec/env_printer"
-  autoload :Fetcher,       "inspec/fetcher"
-  autoload :Formatters,    "inspec/formatters"
-  autoload :Globals,       "inspec/globals"
-  autoload :Impact,        "inspec/impact"
-  autoload :Impact,        "inspec/impact"
-  autoload :InputRegistry, "inspec/input_registry"
-  autoload :Profile,       "inspec/profile"
-  autoload :Reporters,     "inspec/reporters"
-  autoload :Resource,      "inspec/resource"
-  autoload :Rule,          "inspec/rule"
-  autoload :Runner,        "inspec/runner"
-  autoload :Runner,        "inspec/runner"
-  autoload :Shell,         "inspec/shell"
-  autoload :SourceReader,  "inspec/source_reader"
-  autoload :Telemetry,     "inspec/utils/telemetry"
-  autoload :V2,            "inspec/plugin/v2"
-  autoload :VERSION,       "inspec/version"
+module Dynamo # TODO: move this somewhere "better"?
+  autoload :BaseCLI,       "dynamo/base_cli"
+  autoload :Deprecation,   "dynamo/utils/deprecation"
+  autoload :Exceptions,    "dynamo/exceptions"
+  autoload :EnvPrinter,    "dynamo/env_printer"
+  autoload :Fetcher,       "dynamo/fetcher"
+  autoload :Formatters,    "dynamo/formatters"
+  autoload :Globals,       "dynamo/globals"
+  autoload :Impact,        "dynamo/impact"
+  autoload :Impact,        "dynamo/impact"
+  autoload :InputRegistry, "dynamo/input_registry"
+  autoload :Profile,       "dynamo/profile"
+  autoload :Reporters,     "dynamo/reporters"
+  autoload :Resource,      "dynamo/resource"
+  autoload :Rule,          "dynamo/rule"
+  autoload :Runner,        "dynamo/runner"
+  autoload :Runner,        "dynamo/runner"
+  autoload :Shell,         "dynamo/shell"
+  autoload :SourceReader,  "dynamo/source_reader"
+  autoload :Telemetry,     "dynamo/utils/telemetry"
+  autoload :V2,            "dynamo/plugin/v2"
+  autoload :VERSION,       "dynamo/version"
 end
 
-class Inspec::InspecCLI < Inspec::BaseCLI
+class Dynamo::DynamoCLI < Dynamo::BaseCLI
   class_option :log_level, aliases: :l, type: :string,
                desc: "Set the log level: info (default), debug, warn, error"
 
   class_option :log_location, type: :string,
-               desc: "Location to send diagnostic log messages to. (default: $stdout or Inspec::Log.error)"
+               desc: "Location to send diagnostic log messages to. (default: $stdout or Dynamo::Log.error)"
 
   class_option :diagnose, type: :boolean,
     desc: "Show diagnostics (versions, configurations)"
@@ -45,7 +45,7 @@ class Inspec::InspecCLI < Inspec::BaseCLI
     desc: "Allow or disable user interaction"
 
   class_option :disable_core_plugins, type: :string, banner: "", # Actually a boolean, but this suppresses the creation of a --no-disable...
-    desc: "Disable loading all plugins that are shipped in the lib/plugins directory of InSpec. Useful in development.",
+    desc: "Disable loading all plugins that are shipped in the lib/plugins directory of Dynamo. Useful in development.",
     hide: true
 
   class_option :disable_user_plugins, type: :string, banner: "",
@@ -53,7 +53,7 @@ class Inspec::InspecCLI < Inspec::BaseCLI
 
   desc "env", "Output shell-appropriate completion configuration"
   def env(shell = nil)
-    p = Inspec::EnvPrinter.new(self.class, shell)
+    p = Dynamo::EnvPrinter.new(self.class, shell)
     p.print_and_exit!
   rescue StandardError => e
     pretty_handle_exception(e)
@@ -63,10 +63,10 @@ class Inspec::InspecCLI < Inspec::BaseCLI
   option :format, type: :string
   def version
     if config["format"] == "json"
-      v = { version: Inspec::VERSION }
+      v = { version: Dynamo::VERSION }
       puts v.to_json
     else
-      puts Inspec::VERSION
+      puts Dynamo::VERSION
     end
   end
   map %w{-v --version} => :version
@@ -94,25 +94,25 @@ end
 #---------------------------------------------------------------------#
 # Plugin Loading
 #---------------------------------------------------------------------#
-require "inspec/plugin/v2"
+require "dynamo/plugin/v2"
 
 begin
   # Load v2 plugins.  Manually check for plugin disablement.
   omit_core = ARGV.delete("--disable-core-plugins")
   omit_user = ARGV.delete("--disable-user-plugins")
-  v2_loader = Inspec::Plugin::V2::Loader.new(omit_core_plugins: omit_core, omit_user_plugins: omit_user)
+  v2_loader = Dynamo::Plugin::V2::Loader.new(omit_core_plugins: omit_core, omit_user_plugins: omit_user)
   v2_loader.load_all
   v2_loader.exit_on_load_error
   v2_loader.activate_mentioned_cli_plugins
 
-rescue Inspec::Plugin::V2::Exception => v2ex
-  Inspec::Log.error v2ex.message
+rescue Dynamo::Plugin::V2::Exception => v2ex
+  Dynamo::Log.error v2ex.message
 
   if ARGV.include?("--debug")
-    Inspec::Log.error v2ex.class.name
-    Inspec::Log.error v2ex.backtrace.join("\n")
+    Dynamo::Log.error v2ex.class.name
+    Dynamo::Log.error v2ex.backtrace.join("\n")
   else
-    Inspec::Log.error "Run again with --debug for a stacktrace."
+    Dynamo::Log.error "Run again with --debug for a stacktrace."
   end
-  exit Inspec::UI::EXIT_PLUGIN_ERROR
+  exit Dynamo::UI::EXIT_PLUGIN_ERROR
 end

@@ -1,4 +1,4 @@
-module Inspec::Plugin::V2
+module Dynamo::Plugin::V2
   # Track loading status of each plugin.  These are the elements of the Registry.
   #
   # Lifecycle of an installed plugin:

@@ -1,6 +1,6 @@
 require "tty-table"
 
-module Inspec
+module Dynamo
   class UI
     class TableHelper < TTY::Table
       def header=(ary)

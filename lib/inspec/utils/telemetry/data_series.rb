@@ -1,11 +1,11 @@
 require "json" unless defined?(JSON)
 
-module Inspec; end
+module Dynamo; end
 
 # A minimal Dataseries Object
 # Stores the name of the data series and an array of data.
 # Stored data should be a object that supports #to_s
-module Inspec::Telemetry
+module Dynamo::Telemetry
   class DataSeries
     def initialize(name)
       @name = name
