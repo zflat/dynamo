@@ -25,4 +25,4 @@ We run the test/integration/default profile at the end of each integration test 
 
 ### Why no audit cookbook testing?
 
-Audit cookbook testing is handled in the audit cookbook repo. In addition, the audit cookbook restricts which InSpec gem can be installed, forcing the installation from Rubygems for Chef clients 15+. Since we need to test with the from-source inspec gem, we can't use that approach. Instead, we don't test using audit cookbook here.
+Audit cookbook testing is handled in the audit cookbook repo. In addition, the audit cookbook restricts which InSpec gem can be installed, forcing the installation from Rubygems for Chef clients 15+. Since we need to test with the from-source dynamo gem, we can't use that approach. Instead, we don't test using audit cookbook here.

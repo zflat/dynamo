@@ -30,7 +30,7 @@ Suppose you are writing a resource, `things`.  You want it to behave like any pl
 
 require 'inspec/utils/filter'
 
-class Thing < Inspec.resource(1)
+class Thing < Dynamo.resource(1)
   #... other Resource DSL work goes here ...
 
   # FilterTable setup
@@ -122,7 +122,7 @@ The filtering is fancy, not just straight equality.
   end
 
   # Things that don't exist are silently ignored, but do not match
-  # See https://github.com/chef/inspec/issues/2943
+  # See https://github.com/chef/dynamo/issues/2943
   describe things.where(none_such: :nope) do
     its('count') { should cmp 0 }
   end
@@ -529,5 +529,5 @@ You can in fact get the FilterTable::Table instance by calling `where` with no a
 
 ### There is no way to get the FilterTable::Factory object used to configure the resource
 
-Especially while developing in inspec shell, it would be nice to be able to get at the FilterTable::Factory object, perhaps to add more accessors.
+Especially while developing in dynamo shell, it would be nice to be able to get at the FilterTable::Factory object, perhaps to add more accessors.
 

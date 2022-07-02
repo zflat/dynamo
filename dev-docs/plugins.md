@@ -12,7 +12,7 @@ The software design of the Chef InSpec Plugin v2 API is deeply inspired by the V
 
 ### Design Goals
 
-* Load-on-demand. Improve `inspec` startup time by making plugins load heavy libraries only if they are being used.
+* Load-on-demand. Improve `dynamo` startup time by making plugins load heavy libraries only if they are being used.
 * Independent velocity. Enable passionate community members to contribute at their own pace by shifting core development into plugin development.
 * Increase dogfooding. Convert internal components into plugins to reduce core complexity and allow testing in isolation.
 
@@ -24,21 +24,21 @@ The software design of the Chef InSpec Plugin v2 API is deeply inspired by the V
 
 ### Plugins are usually gems
 
-The normal distribution and installation method is via gems, handled by the `inspec plugin` command.
+The normal distribution and installation method is via gems, handled by the `dynamo plugin` command.
 
-`inspec plugin install inspec-myplugin` will fetch `inspec-myplugin` from rubygems.org, and install it and its gemspec dependencies under the user's `.inspec` directory. You may also provide a local gemfile. For local development, however, path-to-source is usually most convenient.
+`dynamo plugin install dynamo-myplugin` will fetch `dynamo-myplugin` from rubygems.org, and install it and its gemspec dependencies under the user's `.dynamo` directory. You may also provide a local gemfile. For local development, however, path-to-source is usually most convenient.
 
-For more on the `plugin` CLI command, run `inspec plugin help`.
+For more on the `plugin` CLI command, run `dynamo plugin help`.
 
 ### Plugins may also be found by path to a source tree
 
-For local development or site-specific installations, you can also 'install' a plugin by path using `inspec plugin`, or edit `~/.inspec/plugins.json` directly to add a plugin.
+For local development or site-specific installations, you can also 'install' a plugin by path using `dynamo plugin`, or edit `~/.dynamo/plugins.json` directly to add a plugin.
 
 ### The plugins.json file
 
-Chef InSpec stores its list of known plugins in a file, `~/.inspec/plugins.json`. The purpose of this file is avoid having to do a gem path filesystem scan to locate plugins. When you install, update, or uninstall a plugin using `inspec plugin`, Chef InSpec updates this file.
+Chef InSpec stores its list of known plugins in a file, `~/.dynamo/plugins.json`. The purpose of this file is avoid having to do a gem path filesystem scan to locate plugins. When you install, update, or uninstall a plugin using `dynamo plugin`, Chef InSpec updates this file.
 
-You can tell Chef InSpec to use a different config directory using the INSPEC_CONFIG_DIR environment variable.
+You can tell Chef InSpec to use a different config directory using the DYNAMO_CONFIG_DIR environment variable.
 
 Top-level entries in the JSON file:
 
@@ -60,9 +60,9 @@ Putting this all together, here is a plugins.json file from the Chef InSpec test
   "plugins_config_version" : "1.0.0",
   "plugins": [
     {
-      "name": "inspec-meaning-of-life",
+      "name": "dynamo-meaning-of-life",
       "installation_type": "path",
-      "installation_path": "test/fixtures/plugins/meaning_of_life_path_mode/inspec-meaning-of-life"
+      "installation_path": "test/fixtures/plugins/meaning_of_life_path_mode/dynamo-meaning-of-life"
     }
   ]
 }
@@ -70,7 +70,7 @@ Putting this all together, here is a plugins.json file from the Chef InSpec test
 
 ### Plugin Runtime Configuration
 
-You can read runtime configuration data from your user using `Inspec::Config.cached.fetch_plugin_config("your-plugin-name")`, which will return a hash with indifferent access representing the user's config file `plugins` section pertaining to your plugin. See [the config file](https://docs.chef.io/inspec/config/) for more information.
+You can read runtime configuration data from your user using `Dynamo::Config.cached.fetch_plugin_config("your-plugin-name")`, which will return a hash with indifferent access representing the user's config file `plugins` section pertaining to your plugin. See [the config file](https://docs.chef.io/dynamo/config/) for more information.
 
 Do not store or read configuration information from plugins.json.
 
@@ -79,10 +79,10 @@ Do not store or read configuration information from plugins.json.
 ### A Typical Plugin File Layout
 
 ```
-inspec-my-plugin.gemspec
+dynamo-my-plugin.gemspec
 lib/
-  inspec-my-plugin.rb  # Entry point
-  inspec-my-plugin/
+  dynamo-my-plugin.rb  # Entry point
+  dynamo-my-plugin/
     cli.rb             # An implementation file
     plugin.rb          # Plugin definition file
     heavyweight.rb     # A support file
