@@ -293,7 +293,7 @@ module Inspec
       data.each do |plugin_name, plugin_settings|
         # Enforce that every key is a valid plugin name
         unless valid_plugin_name?(plugin_name)
-          raise Inspec::ConfigError::Invalid, "Plugin settings should ne named after the the InSpec plugin. Valid names must begin with inspec-, not '#{plugin_name}' "
+          raise Inspec::ConfigError::Invalid, "Plugin settings should ne named after the the InSpec plugin. Valid names must begin with dynamo-, not '#{plugin_name}' "
         end
 
         # Enforce that every entry is hash-valued
