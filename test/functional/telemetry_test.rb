@@ -5,7 +5,7 @@ describe "telemetry" do
   parallelize_me!
 
   describe "detecting CLI runtime context" do
-    let(:run_result) { run_inspec_process("run_context") }
+    let(:run_result) { run_dynamo_process("run_context") }
     it "should detect cli context" do
       _(run_result.stderr).must_equal ""
       _(run_result.stdout).must_include "cli"

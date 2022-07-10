@@ -8,7 +8,7 @@ describe "Deprecation Facility Behavior" do
   let(:profile) { File.join(profile_path, "deprecation", profile_name) }
   let(:invocation) { "exec #{profile} #{control_flag}" }
   # Running in JSON mode has the side-effect of sending log messages to $stderr
-  let(:run_result) { run_inspec_process(invocation, json: true) }
+  let(:run_result) { run_dynamo_process(invocation, json: true) }
 
   # Expect one control, 3 results
   let(:json_result) { run_result; @json["profiles"][0]["controls"][0]["results"] }
@@ -169,11 +169,11 @@ describe "Deprecation Facility Behavior" do
     end
   end
 
-  describe "when inspec check is used in json mode against a profile with a deprecation" do
-    describe "inspec check with json formatter" do
+  describe "when dynamo check is used in json mode against a profile with a deprecation" do
+    describe "dynamo check with json formatter" do
       let(:profile_name) { "check" }
       it "can check a profile and produce valid JSON" do
-        run_result = run_inspec_process("check " + profile + " --format json")
+        run_result = run_dynamo_process("check " + profile + " --format json")
         _(run_result.stdout).wont_include "DEPRECATION"
         _(run_result.stderr).must_include "DEPRECATION"
         JSON.parse(run_result.stdout) # No exception here

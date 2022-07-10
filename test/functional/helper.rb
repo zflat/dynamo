@@ -16,9 +16,9 @@ module FunctionalHelper
     path.gsub!("//vboxsvr", "C:") if is_windows?
     path
   end
-  let(:inspec_path) { File.join(repo_path, "bin", "dynamo-core") }
+  let(:dynamo_path) { File.join(repo_path, "bin", "dynamo-core") }
   libdir = File.expand_path "lib"
-  let(:exec_inspec) { [Gem.ruby, "-I#{libdir}", inspec_path].join " " }
+  let(:exec_dynamo) { [Gem.ruby, "-I#{libdir}", dynamo_path].join " " }
   let(:mock_path) { File.join(repo_path, "test", "fixtures") }
   let(:profile_path) { File.join(mock_path, "profiles") }
   let(:examples_path) { File.join(profile_path, "old-examples") }
@@ -28,7 +28,7 @@ module FunctionalHelper
   let(:dst) do
     # create a temporary path, but we only want an auto-clean helper
     # so remove the file and give back the path
-    res = Tempfile.new("inspec-shred")
+    res = Tempfile.new("dynamo-shred")
     res.close
     FileUtils.rm(res.path)
     TMP_CACHE[res.path] = res
@@ -85,27 +85,27 @@ module FunctionalHelper
     _(failed_tests).must_be_empty
   end
 
-  @inspec_mutex ||= Mutex.new
+  @dynamo_mutex ||= Mutex.new
 
-  def self.inspec_mutex
-    @inspec_mutex
+  def self.dynamo_mutex
+    @dynamo_mutex
   end
 
-  def self.inspec_cache
-    @inspec_cache ||= {}
+  def self.dynamo_cache
+    @dynamo_cache ||= {}
   end
 
-  def inspec_cache
-    FunctionalHelper.inspec_cache
+  def dynamo_cache
+    FunctionalHelper.dynamo_cache
   end
 
-  def inspec_mutex
-    FunctionalHelper.inspec_mutex
+  def dynamo_mutex
+    FunctionalHelper.dynamo_mutex
   end
 
   def run_cmd(commandline, prefix = nil)
-    inspec_mutex.synchronize { # rubocop:disable Style/BlockDelimiters
-      inspec_cache[[commandline, prefix]] ||=
+    dynamo_mutex.synchronize { # rubocop:disable Style/BlockDelimiters
+      dynamo_cache[[commandline, prefix]] ||=
         begin
           invocation = "#{prefix} #{commandline}"
           out, err, st = Open3.capture3(invocation)
@@ -114,16 +114,16 @@ module FunctionalHelper
     }
   end
 
-  def inspec(commandline, prefix = nil)
-    run_cmd "#{exec_inspec} #{commandline}", prefix
+  def dynamo(commandline, prefix = nil)
+    run_cmd "#{exec_dynamo} #{commandline}", prefix
   end
 
-  def inspec_with_env(commandline, env = {})
-    inspec(commandline, assemble_env_prefix(env))
+  def dynamo_with_env(commandline, env = {})
+    dynamo(commandline, assemble_env_prefix(env))
   end
 
   # This version allows additional options.
-  # @param String command_line Invocation, without the word 'inspec'
+  # @param String command_line Invocation, without the word 'dynamo'
   # @param Hash opts Additonal options, see below
   #    :env Hash A hash of environment vars to expose to the invocation.
   #    :prefix String A string to prefix to the invocation. Prefix + env + invocation is the order.
@@ -136,7 +136,7 @@ module FunctionalHelper
   #    :post_run: Proc(FuncTestRunResult, tmp_dir_path) - optional result capture block.
   #       tmp_dir will still exist (for a moment!)
   # @return Train::Extrans::CommandResult
-  def run_inspec_process(command_line, opts = {})
+  def run_dynamo_process(command_line, opts = {})
     raise "Do not use tmpdir and cwd in the same invocation" if opts[:cwd] && opts[:tmpdir]
 
     prefix = opts[:cwd] ? "cd " + opts[:cwd] + " && " : ""
@@ -153,16 +153,16 @@ module FunctionalHelper
         # test harness process, which will be multithreaded because we parallelize the tests.
         # Instead, make the spawned process change dirs using a cd prefix.
         prefix = "cd " + tmp_dir + " && " + prefix
-        run_result = inspec(command_line, prefix)
+        run_result = dynamo(command_line, prefix)
         opts[:post_run].call(run_result, tmp_dir) if opts[:post_run]
       end
     else
-      run_result = inspec(command_line, prefix)
+      run_result = dynamo(command_line, prefix)
     end
 
     if opts[:ignore_rspec_deprecations]
       # RSpec keeps issuing a deprecation count to stdout when .should is called explicitly
-      # See https://github.com/inspec/inspec/pull/3560
+      # See https://github.com/dynamo/dynamo/pull/3560
       run_result.stdout.sub!("\n1 deprecation warning total\n", "")
     end
 
@@ -217,7 +217,7 @@ end
 module PluginFunctionalHelper
   include FunctionalHelper
 
-  def run_inspec_with_plugin(command, opts)
+  def run_dynamo_with_plugin(command, opts)
     pre = Proc.new do |tmp_dir|
       content = JSON.generate(__make_plugin_file_data_structure_with_path(opts[:plugin_path]))
       File.write(File.join(tmp_dir, "plugins.json"), content)
@@ -231,7 +231,7 @@ module PluginFunctionalHelper
         "INSPEC_CONFIG_DIR" => ".", # We're in tmpdir
       },
     }.merge(opts)
-    run_inspec_process(command, opts)
+    run_dynamo_process(command, opts)
   end
 
   def __make_plugin_file_data_structure_with_path(path)

@@ -45,7 +45,7 @@ module Dynamo::Plugin::V2
       registry.plugin_names.dup.each do |plugin_name|
         plugin_details = registry[plugin_name]
 
-        # Under some conditions (kitchen-inspec with multiple test suites, for example), this may be
+        # Under some conditions (kitchen-dynamo with multiple test suites, for example), this may be
         # called multple times. Don't reload anything.
         next if plugin_details.loaded
 

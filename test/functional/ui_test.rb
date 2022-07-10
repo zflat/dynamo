@@ -1,3 +1,4 @@
+# coding: utf-8
 require "functional/helper"
 
 # NOTE: Trailing spaces are intentional and *required* in this file.
@@ -22,8 +23,8 @@ describe "InSpec UI behavior" do
 
   parallelize_me!
 
-  let(:plugin_path) { File.join(mock_path, "plugins", "inspec-test-ui", "lib", "inspec-test-ui") }
-  let(:run_result) { run_inspec_with_plugin("#{pre_opts} testui #{feature} #{post_opts}", plugin_path: plugin_path, json: false) }
+  let(:plugin_path) { File.join(mock_path, "plugins", "dynamo-test-ui", "lib", "dynamo-test-ui") }
+  let(:run_result) { run_dynamo_with_plugin("#{pre_opts} testui #{feature} #{post_opts}", plugin_path: plugin_path, json: false) }
   let(:pre_opts) { "" }
   let(:post_opts) { "" }
 
@@ -102,7 +103,7 @@ describe "InSpec UI behavior" do
     end
 
     describe "detect command" do
-      let(:result) { inspec("detect") }
+      let(:result) { dynamo("detect") }
 
       it "has a colorful output" do
         _(result.stdout).must_include("\e[")
@@ -141,7 +142,7 @@ describe "InSpec UI behavior" do
     end
 
     describe "detect command" do
-      let(:result) { inspec("detect --no-color") }
+      let(:result) { dynamo("detect --no-color") }
 
       it "has no color in the output" do
         _(result.stdout).wont_include("\e[")

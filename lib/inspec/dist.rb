@@ -5,8 +5,8 @@ module Inspec
     # When referencing a product directly, like InSpec
     PRODUCT_NAME = "Chef InSpec"
 
-    # The inspec executable
-    EXEC_NAME = "inspec"
+    # The dynamo executable
+    EXEC_NAME = "dynamo"
 
     # The name of the server product
     SERVER_PRODUCT_NAME = "Chef Server"

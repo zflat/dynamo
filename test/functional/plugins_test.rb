@@ -16,19 +16,19 @@ describe "plugins" do
 #=========================================================================================#
 describe "plugin loader" do
   it "handles an unloadable plugin correctly" do
-    outcome = inspec_with_env("version", INSPEC_CONFIG_DIR: File.join(config_dir_path, "plugin_error_on_load"))
+    outcome = dynamo_with_env("version", INSPEC_CONFIG_DIR: File.join(config_dir_path, "plugin_error_on_load"))
 
     _(outcome.stdout).must_include("ERROR", "Have an error on stdout")
-    _(outcome.stdout).must_include("Could not load plugin inspec-divide-by-zero", "Name the plugin in the stdout error")
+    _(outcome.stdout).must_include("Could not load plugin dynamo-divide-by-zero", "Name the plugin in the stdout error")
     _(outcome.stdout).wont_include("ZeroDivisionError", "No stacktrace in error by default")
     _(outcome.stdout).must_include("Errors were encountered while loading plugins", "Friendly message in error")
-    _(outcome.stdout).must_include("Plugin name: inspec-divide-by-zero", "Plugin named in error")
+    _(outcome.stdout).must_include("Plugin name: dynamo-divide-by-zero", "Plugin named in error")
     _(outcome.stdout).must_include("divided by 0", "Exception message in error")
 
     assert_exit_code 2, outcome
 
     # TODO: split
-    outcome = inspec_with_env("version --debug", INSPEC_CONFIG_DIR: File.join(config_dir_path, "plugin_error_on_load"))
+    outcome = dynamo_with_env("version --debug", INSPEC_CONFIG_DIR: File.join(config_dir_path, "plugin_error_on_load"))
 
     _(outcome.stdout).must_include("ZeroDivisionError", "Include stacktrace in error with --debug")
 
@@ -42,7 +42,7 @@ end
 describe "when disabling plugins" do
   describe "when disabling the core plugins" do
     it "should not be able to use core-provided commands" do
-      run_result = run_inspec_process("--disable-core-plugins habitat")
+      run_result = run_dynamo_process("--disable-core-plugins habitat")
       _(run_result.stderr).must_include 'Could not find command "habitat".'
 
       # One might think that this should be code 2 (plugin error)
@@ -54,7 +54,7 @@ describe "when disabling plugins" do
 
   describe "when disabling the user plugins" do
     it "should not be able to use user commands" do
-      run_result = run_inspec_process("--disable-user-plugins meaningoflife answer", env: { INSPEC_CONFIG_DIR: File.join(config_dir_path, "meaning_by_path") })
+      run_result = run_dynamo_process("--disable-user-plugins meaningoflife answer", env: { INSPEC_CONFIG_DIR: File.join(config_dir_path, "meaning_by_path") })
 
       _(run_result.stderr).must_include 'Could not find command "meaningoflife"'
 
@@ -68,7 +68,7 @@ end
 #=========================================================================================#
 describe "cli command plugins" do
   it "is able to respond to a plugin-based cli subcommand" do
-    outcome = inspec_with_env("meaningoflife answer", INSPEC_CONFIG_DIR: File.join(config_dir_path, "meaning_by_path"))
+    outcome = dynamo_with_env("meaningoflife answer", INSPEC_CONFIG_DIR: File.join(config_dir_path, "meaning_by_path"))
 
     _(outcome.stderr).wont_include 'Could not find command "meaningoflife"'
     _(outcome.stderr).must_equal ""
@@ -79,11 +79,11 @@ describe "cli command plugins" do
   end
 
   it "is able to respond to [help subcommand] invocations" do
-    outcome = inspec_with_env("help meaningoflife", INSPEC_CONFIG_DIR: File.join(config_dir_path, "meaning_by_path"))
+    outcome = dynamo_with_env("help meaningoflife", INSPEC_CONFIG_DIR: File.join(config_dir_path, "meaning_by_path"))
 
     _(outcome.stderr).must_equal ""
 
-    _(outcome.stdout).must_include "inspec meaningoflife answer"
+    _(outcome.stdout).must_include "dynamo meaningoflife answer"
     # Full text:
     # 'Exits immediately with an exit code reflecting the answer to life the universe, and everything.'
     # but Thor will ellipsify based on the terminal width
@@ -94,9 +94,9 @@ describe "cli command plugins" do
 
   # This is an important test; usually CLI plugins are only activated when their name is present in ARGV
   it "includes plugin-based cli commands in top-level help" do
-    outcome = inspec_with_env("help", INSPEC_CONFIG_DIR: File.join(config_dir_path, "meaning_by_path"))
+    outcome = dynamo_with_env("help", INSPEC_CONFIG_DIR: File.join(config_dir_path, "meaning_by_path"))
 
-    _(outcome.stdout).must_include "inspec meaningoflife"
+    _(outcome.stdout).must_include "dynamo meaningoflife"
 
     assert_exit_code 0, outcome
   end
@@ -110,7 +110,7 @@ describe "input plugins" do
   let(:profile) { "#{profile_path}/inputs/plugin" }
   def run_input_plugin_test_with_controls(controls)
     cmd = "exec #{profile} --controls #{controls}"
-    run_result = run_inspec_process(cmd, json: true, env: env)
+    run_result = run_dynamo_process(cmd, json: true, env: env)
     assert_json_controls_passing(run_result)
     _(run_result.stderr).must_be_empty
   end
@@ -147,16 +147,16 @@ describe "input plugins" do
 end
 
 #=========================================================================================#
-#                           inspec plugin command
+#                           dynamo plugin command
 #=========================================================================================#
-# See lib/plugins/inspec-plugin-manager-cli/test
+# See lib/plugins/dynamo-plugin-manager-cli/test
 
 #=========================================================================================#
 #                                Plugin Disable Messaging
 #=========================================================================================#
 describe "disable plugin usage message integration" do
   it "mentions the --disable-user-plugins option" do
-    outcome = inspec("help")
+    outcome = dynamo("help")
     _(outcome.stdout).must_include("--disable-user-plugins")
   end
 end
