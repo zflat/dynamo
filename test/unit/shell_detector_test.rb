@@ -1,7 +1,7 @@
 #
 require "helper"
 require "rbconfig"
-require "inspec/shell_detector"
+require "dynamo/shell_detector"
 
 module ShellDetectorTestHelpers
   def no_proc

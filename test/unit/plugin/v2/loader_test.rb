@@ -1,7 +1,7 @@
 # Unit tests for Inspec::PluginLoader and Registry
 
 require "helper"
-require "inspec/plugin/v2"
+require "dynamo/plugin/v2"
 
 class Inspec::Plugin::V2::Loader
   public :detect_system_plugins
@@ -28,7 +28,7 @@ class PluginLoaderTests < Minitest::Test
     @config_dir_path = File.expand_path "test/fixtures/config_dirs"
     @bundled_plugins = []
     @core_plugins = %i{
-     inspec-init
+     dynamo-init
     }
     @system_plugins = []
   end
@@ -37,7 +37,7 @@ class PluginLoaderTests < Minitest::Test
     reset_globals
 
     # Clean up any activated gems
-    Gem.loaded_specs.delete("inspec-test-fixture")
+    Gem.loaded_specs.delete("dynamo-test-fixture")
     Gem.loaded_specs.delete("ordinal_array")
   end
 
@@ -81,7 +81,7 @@ class PluginLoaderTests < Minitest::Test
     ENV["HOME"] = File.join(@config_dir_path, "fakehome")
     reg = Inspec::Plugin::V2::Registry.instance
     Inspec::Plugin::V2::Loader.new
-    assert reg.known_plugin?(:'inspec-test-home-marker'), "\ninspec-test-home-marker should be detected as a plugin"
+    assert reg.known_plugin?(:'dynamo-test-home-marker'), "\ndynamo-test-home-marker should be detected as a plugin"
   end
 
   #====================================================================#
@@ -132,7 +132,7 @@ class PluginLoaderTests < Minitest::Test
   def test_load_cli_plugin_by_path
     ENV["INSPEC_CONFIG_DIR"] = File.join(@config_dir_path, "meaning_by_path")
     reg = Inspec::Plugin::V2::Registry.instance
-    plugin_name = :'inspec-meaning-of-life'
+    plugin_name = :'dynamo-meaning-of-life'
     loader = Inspec::Plugin::V2::Loader.new(omit_bundles: true)
     assert reg.known_plugin?(plugin_name), "\n#{plugin_name} should be a known plugin"
     refute reg.loaded_plugin?(plugin_name), "\n#{plugin_name} should not be loaded yet"
@@ -153,8 +153,8 @@ class PluginLoaderTests < Minitest::Test
     ENV["INSPEC_CONFIG_DIR"] = File.join(@config_dir_path, "test-fixture-1-float")
     loader = Inspec::Plugin::V2::Loader.new(omit_bundles: true)
     gemspecs = loader.list_installed_plugin_gems
-    gem = gemspecs.detect { |spec| spec.name == "inspec-test-fixture" }
-    refute_nil gem, "loader.list_installed_plugin_gems should find inspec-test-fixture"
+    gem = gemspecs.detect { |spec| spec.name == "dynamo-test-fixture" }
+    refute_nil gem, "loader.list_installed_plugin_gems should find dynamo-test-fixture"
     assert_equal Gem::Version.new("0.1.0"), gem.version
   end
 
@@ -162,7 +162,7 @@ class PluginLoaderTests < Minitest::Test
     ENV["INSPEC_CONFIG_DIR"] = File.join(@config_dir_path, "test-fixture-2-float")
 
     reg = Inspec::Plugin::V2::Registry.instance
-    plugin_name = :'inspec-test-fixture'
+    plugin_name = :'dynamo-test-fixture'
 
     loader = Inspec::Plugin::V2::Loader.new(omit_bundles: true)
 
@@ -183,7 +183,7 @@ class PluginLoaderTests < Minitest::Test
     registry = Inspec::Plugin::V2::Registry.instance
     loader = Inspec::Plugin::V2::Loader.new(omit_bundles: true)
     loader.load_all
-    status = registry[:'inspec-meaning-of-life']
+    status = registry[:'dynamo-meaning-of-life']
 
     # Management methods for activation
     assert_respond_to status, :activators, "A plugin status should respond to `activators`"
@@ -219,7 +219,7 @@ class PluginLoaderTests < Minitest::Test
     assert_includes impl_class.ancestors, Inspec::Plugin::V2::PluginType::Mock, "impl_class should derive from PluginType::Mock"
     assert InspecPlugins::MeaningOfLife.const_defined?(:MockPlugin), "impl_class should now be defined"
 
-    assert_equal :'inspec-meaning-of-life', Inspec::Plugin::V2::PluginBase.find_name_by_implementation_class(impl_class), "find_name_by_implementation_class should work"
+    assert_equal :'dynamo-meaning-of-life', Inspec::Plugin::V2::PluginBase.find_name_by_implementation_class(impl_class), "find_name_by_implementation_class should work"
   end
 
   REG_INST = Inspec::Plugin::V2::Registry.instance
@@ -246,7 +246,7 @@ class PluginLoaderTests < Minitest::Test
   end
 
   def using_bundler?
-    Gem::Specification.find_by_name("inspec")
+    Gem::Specification.find_by_name("dynamo")
   rescue Gem::MissingSpecError
     nil
   end
@@ -275,17 +275,17 @@ class PluginLoaderTests < Minitest::Test
   def test_detect_system_plugins
     with_empty_registry do
       exp = []
-      exp_err = "inspec gem not found, skipping detecting of system plugins\n"
+      exp_err = "dynamo gem not found, skipping detecting of system plugins\n"
 
       assert_detect_system_plugins exp, exp_err do |loader|
-        def loader.find_inspec_gemspec(*)
+        def loader.find_dynamo_gemspec(*)
           nil
         end
       end
     end
   end
 
-  def test_detect_system_plugins_inspec
+  def test_detect_system_plugins_dynamo
     skip "not valid in this env" unless using_bundler?
 
     with_empty_registry do
@@ -293,8 +293,8 @@ class PluginLoaderTests < Minitest::Test
       exp_err = ""
 
       assert_detect_system_plugins exp, exp_err do |loader|
-        def loader.find_inspec_gemspec(name, version)
-          super if name == "inspec"
+        def loader.find_dynamo_gemspec(name, version)
+          super if name == "dynamo"
         end
       end
     end

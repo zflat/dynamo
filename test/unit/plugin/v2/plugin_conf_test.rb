@@ -1,7 +1,7 @@
 require "minitest/autorun"
 require "tmpdir"
 require "helpers/mock_loader"
-require_relative "../../../../lib/inspec/plugin/v2"
+require_relative "../../../../lib/dynamo/plugin/v2"
 
 # This file relies on setting environment variables for some
 # of its tests - it is NOT thread-safe.
@@ -27,7 +27,7 @@ describe "Inspec::Plugin::V2::ConfigFile" do
       let(:constructor_arg) { nil }
       it "defaults to the home directory" do
         ENV["HOME"] = File.join(config_fixtures_path, "fakehome")
-        expected_path = File.join(ENV["HOME"], ".inspec", "plugins.json")
+        expected_path = File.join(ENV["HOME"], ".dynamo", "plugins.json")
 
         _(config_file_obj.path).must_equal expected_path
       end
@@ -82,12 +82,12 @@ describe "Inspec::Plugin::V2::ConfigFile" do
         _(config_file_obj.count).must_equal 3
       end
       it "can look up plugins by name with a String" do
-        _(config_file_obj.plugin_by_name("inspec-test-fixture-01")).wont_be_nil
-        _(config_file_obj.plugin_by_name("inspec-test-fixture-99")).must_be_nil
+        _(config_file_obj.plugin_by_name("dynamo-test-fixture-01")).wont_be_nil
+        _(config_file_obj.plugin_by_name("dynamo-test-fixture-99")).must_be_nil
       end
       it "can look up plugins by name with a Symbol" do
-        _(config_file_obj.plugin_by_name(:'inspec-test-fixture-01')).wont_be_nil
-        _(config_file_obj.plugin_by_name(:'inspec-test-fixture-99')).must_be_nil
+        _(config_file_obj.plugin_by_name(:'dynamo-test-fixture-01')).wont_be_nil
+        _(config_file_obj.plugin_by_name(:'dynamo-test-fixture-99')).must_be_nil
       end
       it "symbolizes the keys of the entries" do
         config_file_obj.each do |entry|
@@ -97,7 +97,7 @@ describe "Inspec::Plugin::V2::ConfigFile" do
         end
       end
       it "implements Enumerable" do
-        _(config_file_obj.select { |entry| entry[:name].to_s.start_with?("inspec-test-fixture") }.count).must_equal 3
+        _(config_file_obj.select { |entry| entry[:name].to_s.start_with?("dynamo-test-fixture") }.count).must_equal 3
       end
     end
 
@@ -163,7 +163,7 @@ describe "Inspec::Plugin::V2::ConfigFile" do
           ex = assert_raises(Inspec::Plugin::V2::ConfigError) { config_file_obj }
           _(ex.message).must_include("Malformed")
           _(ex.message).must_include("duplicate")
-          _(ex.message).must_include("inspec-test-fixture-01")
+          _(ex.message).must_include("dynamo-test-fixture-01")
           _(ex.message).must_include("at index 1 and 3")
         end
       end
@@ -211,9 +211,9 @@ describe "Inspec::Plugin::V2::ConfigFile" do
       describe "when the conf is empty" do
         it "should add one valid entry" do
           _(config_file_obj.count).must_equal 0
-          config_file_obj.add_entry(name: "inspec-test-fixture")
+          config_file_obj.add_entry(name: "dynamo-test-fixture")
           _(config_file_obj.count).must_equal 1
-          _(config_file_obj.plugin_by_name(:'inspec-test-fixture')).wont_be_nil
+          _(config_file_obj.plugin_by_name(:'dynamo-test-fixture')).wont_be_nil
         end
       end
 
@@ -221,19 +221,19 @@ describe "Inspec::Plugin::V2::ConfigFile" do
         let(:fixture_name) { "basic" }
         it "should append one valid entry" do
           _(config_file_obj.count).must_equal 3
-          config_file_obj.add_entry(name: "inspec-test-fixture-03")
+          config_file_obj.add_entry(name: "dynamo-test-fixture-03")
           _(config_file_obj.count).must_equal 4
-          _(config_file_obj.plugin_by_name(:'inspec-test-fixture-03')).wont_be_nil
+          _(config_file_obj.plugin_by_name(:'dynamo-test-fixture-03')).wont_be_nil
         end
       end
 
       describe "when adding a gem entry" do
         it "should add a gem entry" do
           config_file_obj.add_entry(
-            name: "inspec-test-fixture-03",
+            name: "dynamo-test-fixture-03",
             installation_type: :gem
           )
-          entry = config_file_obj.plugin_by_name(:'inspec-test-fixture-03')
+          entry = config_file_obj.plugin_by_name(:'dynamo-test-fixture-03')
           _(entry).wont_be_nil
           _(entry[:installation_type]).must_equal :gem
         end
@@ -242,11 +242,11 @@ describe "Inspec::Plugin::V2::ConfigFile" do
       describe "when adding a path entry" do
         it "should add a path entry" do
           config_file_obj.add_entry(
-            name: "inspec-test-fixture-03",
+            name: "dynamo-test-fixture-03",
             installation_type: :path,
             installation_path: "/my/path.rb"
           )
-          entry = config_file_obj.plugin_by_name(:'inspec-test-fixture-03')
+          entry = config_file_obj.plugin_by_name(:'dynamo-test-fixture-03')
           _(entry).wont_be_nil
           _(entry[:installation_type]).must_equal :path
           _(entry[:installation_path]).must_equal "/my/path.rb"
@@ -256,17 +256,17 @@ describe "Inspec::Plugin::V2::ConfigFile" do
       describe "when adding a duplicate plugin name" do
         let(:fixture_name) { "basic" }
         it "should throw an exception" do
-          assert_raises(Inspec::Plugin::V2::ConfigError) { config_file_obj.add_entry(name: "inspec-test-fixture-02") }
+          assert_raises(Inspec::Plugin::V2::ConfigError) { config_file_obj.add_entry(name: "dynamo-test-fixture-02") }
         end
       end
 
       describe "when adding an invalid entry" do
         it "should throw an exception" do
           [
-            { name: "inspec-test-fixture", installation_type: :path },
+            { name: "dynamo-test-fixture", installation_type: :path },
             { installation_type: :gem },
-            { name: "inspec-test-fixture", installation_type: :invalid },
-            { "name" => "inspec-test-fixture" },
+            { name: "dynamo-test-fixture", installation_type: :invalid },
+            { "name" => "dynamo-test-fixture" },
           ].each do |proposed_entry|
             assert_raises(Inspec::Plugin::V2::ConfigError) { config_file_obj.add_entry(proposed_entry) }
           end
@@ -283,17 +283,17 @@ describe "Inspec::Plugin::V2::ConfigFile" do
       describe "when the entry exists" do
         it "should remove the entry by symbol name" do
           _(config_file_obj.count).must_equal 3
-          _(config_file_obj.plugin_by_name(:'inspec-test-fixture-01')).wont_be_nil
-          config_file_obj.remove_entry(:'inspec-test-fixture-01')
+          _(config_file_obj.plugin_by_name(:'dynamo-test-fixture-01')).wont_be_nil
+          config_file_obj.remove_entry(:'dynamo-test-fixture-01')
           _(config_file_obj.count).must_equal 2
-          _(config_file_obj.plugin_by_name(:'inspec-test-fixture-01')).must_be_nil
+          _(config_file_obj.plugin_by_name(:'dynamo-test-fixture-01')).must_be_nil
         end
         it "should remove the entry by String name" do
           _(config_file_obj.count).must_equal 3
-          _(config_file_obj.plugin_by_name("inspec-test-fixture-01")).wont_be_nil
-          config_file_obj.remove_entry("inspec-test-fixture-01")
+          _(config_file_obj.plugin_by_name("dynamo-test-fixture-01")).wont_be_nil
+          config_file_obj.remove_entry("dynamo-test-fixture-01")
           _(config_file_obj.count).must_equal 2
-          _(config_file_obj.plugin_by_name("inspec-test-fixture-01")).must_be_nil
+          _(config_file_obj.plugin_by_name("dynamo-test-fixture-01")).must_be_nil
         end
       end
 
@@ -301,10 +301,10 @@ describe "Inspec::Plugin::V2::ConfigFile" do
         let(:fixture_name) { "basic" }
         it "should throw an exception" do
           _(config_file_obj.count).must_equal 3
-          _(config_file_obj.plugin_by_name(:'inspec-test-fixture-99')).must_be_nil
-          ex = assert_raises(Inspec::Plugin::V2::ConfigError) { config_file_obj.remove_entry(:'inspec-test-fixture-99') }
+          _(config_file_obj.plugin_by_name(:'dynamo-test-fixture-99')).must_be_nil
+          ex = assert_raises(Inspec::Plugin::V2::ConfigError) { config_file_obj.remove_entry(:'dynamo-test-fixture-99') }
           _(ex.message).must_include "No such entry"
-          _(ex.message).must_include "inspec-test-fixture-99"
+          _(ex.message).must_include "dynamo-test-fixture-99"
           _(config_file_obj.count).must_equal 3
         end
       end
@@ -319,12 +319,12 @@ describe "Inspec::Plugin::V2::ConfigFile" do
             path = File.join(tmp_dir, "plugins.json")
             _(File.exist?(path)).must_equal false
             cfo_writer = Inspec::Plugin::V2::ConfigFile.new(path)
-            cfo_writer.add_entry(name: :'inspec-resource-lister')
+            cfo_writer.add_entry(name: :'dynamo-resource-lister')
             cfo_writer.save
 
             _(File.exist?(path)).must_equal true
             cfo_reader = Inspec::Plugin::V2::ConfigFile.new(path)
-            _(cfo_reader.existing_entry?(:'inspec-resource-lister')).must_equal true
+            _(cfo_reader.existing_entry?(:'dynamo-resource-lister')).must_equal true
           end
         end
       end
@@ -335,12 +335,12 @@ describe "Inspec::Plugin::V2::ConfigFile" do
             path = File.join(tmp_dir, "subdir", "plugins.json")
             _(File.exist?(path)).must_equal false
             cfo_writer = Inspec::Plugin::V2::ConfigFile.new(path)
-            cfo_writer.add_entry(name: :'inspec-resource-lister')
+            cfo_writer.add_entry(name: :'dynamo-resource-lister')
             cfo_writer.save
 
             _(File.exist?(path)).must_equal true
             cfo_reader = Inspec::Plugin::V2::ConfigFile.new(path)
-            _(cfo_reader.existing_entry?(:'inspec-resource-lister')).must_equal true
+            _(cfo_reader.existing_entry?(:'dynamo-resource-lister')).must_equal true
           end
         end
       end
@@ -350,19 +350,19 @@ describe "Inspec::Plugin::V2::ConfigFile" do
           Dir.mktmpdir do |tmp_dir|
             path = File.join(tmp_dir, "plugins.json")
             cfo_writer = Inspec::Plugin::V2::ConfigFile.new(path)
-            cfo_writer.add_entry(name: :'inspec-resource-lister')
+            cfo_writer.add_entry(name: :'dynamo-resource-lister')
             cfo_writer.save
 
             _(File.exist?(path)).must_equal true
 
             cfo_modifier = Inspec::Plugin::V2::ConfigFile.new(path)
-            cfo_modifier.remove_entry(:'inspec-resource-lister')
-            cfo_modifier.add_entry(name: :'inspec-test-fixture')
+            cfo_modifier.remove_entry(:'dynamo-resource-lister')
+            cfo_modifier.add_entry(name: :'dynamo-test-fixture')
             cfo_modifier.save
 
             cfo_reader = Inspec::Plugin::V2::ConfigFile.new(path)
-            _(cfo_reader.existing_entry?(:'inspec-resource-lister')).must_equal false
-            _(cfo_reader.existing_entry?(:'inspec-test-fixture')).must_equal true
+            _(cfo_reader.existing_entry?(:'dynamo-resource-lister')).must_equal false
+            _(cfo_reader.existing_entry?(:'dynamo-test-fixture')).must_equal true
           end
         end
       end

@@ -13,7 +13,7 @@
 # 3) override RSpec::Core::DSL.expose_globally! to do nothing.
 # 4) require rspec
 #
-# Explanation: eventually, our tests get around to inspec/runner_rspec
+# Explanation: eventually, our tests get around to dynamo/runner_rspec
 # (and a few others), and they load rspec. By default, when rspec
 # loads, it creates it's own global `describe` method, overwriting
 # minitest's.
@@ -50,7 +50,7 @@ require "rspec"
 
 require "webmock/minitest"
 require "mocha/minitest"
-require "inspec/log"
+require "dynamo/log"
 require "helpers/mock_loader"
 
 TMP_CACHE = {} # rubocop: disable Style/MutableConstant
@@ -137,12 +137,12 @@ class Minitest::Test
 
   def unmock(&blk)
     # eg: resource = unmock { group "staff" }
-    require "inspec/fetcher/mock"
-    require "inspec/runner"
+    require "dynamo/fetcher/mock"
+    require "dynamo/runner"
 
     # TODO: there is WAY too much magic going on in here
     runner = Inspec::Runner.new
-    runner.add_target("inspec.yml" => "name: inspec-shell")
+    runner.add_target("dynamo.yml" => "name: dynamo-shell")
     profile = runner.target_profiles.first
     ctx = profile.runner_context
 

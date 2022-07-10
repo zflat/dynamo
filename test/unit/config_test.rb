@@ -1,7 +1,7 @@
 require "helper"
 require "stringio"
 
-require "inspec/config"
+require "dynamo/config"
 require "thor" # For Thor::CoreExt::HashWithIndifferentAccess
 
 describe "Inspec::Config" do
@@ -140,7 +140,7 @@ describe "Inspec::Config" do
       it "should complain about the bad plugin name" do
         ex = _ { cfg }.must_raise(Inspec::ConfigError::Invalid)
         _(ex.message).must_include "names must begin with"
-        _(ex.message).must_include "inspec-"
+        _(ex.message).must_include "dynamo-"
       end
     end
 
@@ -149,7 +149,7 @@ describe "Inspec::Config" do
       it "should complain about the bad plugin value" do
         ex = _ { cfg }.must_raise(Inspec::ConfigError::Invalid)
         _(ex.message).must_include "should be a Hash"
-        _(ex.message).must_include "inspec-test-bad-settings"
+        _(ex.message).must_include "dynamo-test-bad-settings"
       end
     end
   end
@@ -307,7 +307,7 @@ describe "Inspec::Config" do
 
   describe "option finalization" do
     it "raises if `--password/--sudo-password` are used without value" do
-      # When you invoke `inspec shell --password`  (with no value for password,
+      # When you invoke `dynamo shell --password`  (with no value for password,
       # though it is setup to expect a string) Thor will set the key with value -1
       ex = _ { Inspec::Config.new("sudo_password" => -1) }.must_raise(ArgumentError)
       _(ex.message).must_match(/Please provide a value for --sudo-password/)
@@ -337,7 +337,7 @@ describe "Inspec::Config" do
       let(:fixture_name) { "basic_1_2" }
 
       it "returns an empty hash with indifferent access" do
-        settings = cfg.fetch_plugin_config("inspec-test-not-present")
+        settings = cfg.fetch_plugin_config("dynamo-test-not-present")
         assert_kind_of Thor::CoreExt::HashWithIndifferentAccess, settings
         assert_empty settings
       end
@@ -347,7 +347,7 @@ describe "Inspec::Config" do
       let(:fixture_name) { "basic_1_2" }
 
       it "returns the settings as a hash with indifferent access" do
-        settings = cfg.fetch_plugin_config("inspec-test-plugin")
+        settings = cfg.fetch_plugin_config("dynamo-test-plugin")
         refute_nil settings
         refute settings.empty?
         assert_kind_of Thor::CoreExt::HashWithIndifferentAccess, settings
@@ -366,8 +366,8 @@ describe "Inspec::Config" do
     let(:desired_settings) { { "test_key_01" => "test_value_02" } }
 
     it "overwrites current configuration" do
-      cfg.set_plugin_config("inspec-test-plugin", desired_settings)
-      actual_settings = cfg.fetch_plugin_config("inspec-test-plugin")
+      cfg.set_plugin_config("dynamo-test-plugin", desired_settings)
+      actual_settings = cfg.fetch_plugin_config("dynamo-test-plugin")
 
       assert_equal desired_settings, actual_settings
     end
@@ -382,29 +382,29 @@ describe "Inspec::Config" do
     let(:override_settings) { { test_key_01: "test_value_02" } }
 
     it "preserves current configuration" do
-      cfg.merge_plugin_config("inspec-test-plugin", additional_settings)
-      settings = cfg.fetch_plugin_config("inspec-test-plugin")
+      cfg.merge_plugin_config("dynamo-test-plugin", additional_settings)
+      settings = cfg.fetch_plugin_config("dynamo-test-plugin")
 
       assert_equal "test_value_01", settings[:test_key_01]
     end
 
     it "includes additional configuration" do
-      cfg.merge_plugin_config("inspec-test-plugin", additional_settings)
-      settings = cfg.fetch_plugin_config("inspec-test-plugin")
+      cfg.merge_plugin_config("dynamo-test-plugin", additional_settings)
+      settings = cfg.fetch_plugin_config("dynamo-test-plugin")
 
       assert_equal "test_value_02", settings[:test_key_02]
     end
 
     it "overwrites existing configuration" do
-      cfg.merge_plugin_config("inspec-test-plugin", override_settings)
-      settings = cfg.fetch_plugin_config("inspec-test-plugin")
+      cfg.merge_plugin_config("dynamo-test-plugin", override_settings)
+      settings = cfg.fetch_plugin_config("dynamo-test-plugin")
 
       assert_equal "test_value_02", settings[:test_key_01]
     end
 
     it "handles handles empty configuration correctly" do
-      cfg.merge_plugin_config("inspec-missing-plugin", additional_settings)
-      settings = cfg.fetch_plugin_config("inspec-missing-plugin")
+      cfg.merge_plugin_config("dynamo-missing-plugin", additional_settings)
+      settings = cfg.fetch_plugin_config("dynamo-missing-plugin")
 
       assert_equal "test_value_02", settings[:test_key_02]
     end
@@ -480,7 +480,7 @@ module ConfigTestHelper
   def fixture(fixture_name)
     case fixture_name.to_sym
     when :legacy
-      # TODO - this is dubious, but based on https://docs.chef.io/inspec/reporters/#automate-reporter
+      # TODO - this is dubious, but based on https://docs.chef.io/dynamo/reporters/#automate-reporter
       # Things that have 'compliance' as a toplevel have also been seen
       <<~EOJ1
         {
@@ -610,7 +610,7 @@ module ConfigTestHelper
             }
           },
           "plugins": {
-            "inspec-test-plugin": {
+            "dynamo-test-plugin": {
               "test_key_01":"test_value_01"
             }
           }
@@ -621,8 +621,8 @@ module ConfigTestHelper
         {
           "version": "1.2",
           "plugins": [
-            "inspec-test-plugin1",
-            "inspec-test-plugin2"
+            "dynamo-test-plugin1",
+            "dynamo-test-plugin2"
           ]
         }
       EOJ8
@@ -641,7 +641,7 @@ module ConfigTestHelper
         {
           "version": "1.2",
           "plugins": {
-            "inspec-test-bad-settings": 42
+            "dynamo-test-bad-settings": 42
           }
         }
       EOJ10

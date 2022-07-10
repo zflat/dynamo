@@ -1,5 +1,5 @@
 require "helper"
-require "inspec/utils/filter_array"
+require "dynamo/utils/filter_array"
 
 describe FilterArray do
   let(:data) do

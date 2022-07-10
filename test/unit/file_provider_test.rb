@@ -1,5 +1,5 @@
 require "helper"
-require "inspec/file_provider" # TODO: split
+require "dynamo/file_provider" # TODO: split
 
 describe Inspec::MockProvider do
   let(:subject) { Inspec::MockProvider.new(target) }
@@ -81,7 +81,7 @@ describe Inspec::ZipProvider do
     let(:target) { MockLoader.profile_zip("complete-profile") }
 
     it "must contain all files" do
-      _(subject.files.sort).must_equal %w{inspec.yml libraries libraries/testlib.rb
+      _(subject.files.sort).must_equal %w{dynamo.yml libraries libraries/testlib.rb
         controls controls/host_spec.rb files files/a_sub_dir
         files/a_sub_dir/sub_items.conf files/items.conf}.sort
     end
@@ -91,7 +91,7 @@ describe Inspec::ZipProvider do
     end
 
     it "must read the contents of the file" do
-      _(subject.read("inspec.yml")).must_match(/^name: complete$/)
+      _(subject.read("dynamo.yml")).must_match(/^name: complete$/)
     end
   end
 
@@ -151,7 +151,7 @@ describe Inspec::ZipProvider do
     let(:target) { MockLoader.profile_zip("complete-profile") }
 
     it "must contain all files" do
-      _(subject.files.sort).must_equal %w{inspec.yml libraries libraries/testlib.rb
+      _(subject.files.sort).must_equal %w{dynamo.yml libraries libraries/testlib.rb
         controls controls/host_spec.rb files files/a_sub_dir
         files/a_sub_dir/sub_items.conf files/items.conf}.sort
     end
@@ -161,7 +161,7 @@ describe Inspec::ZipProvider do
     end
 
     it "must read the contents of the file" do
-      _(subject.read("inspec.yml")).must_match(/^name: complete$/)
+      _(subject.read("dynamo.yml")).must_match(/^name: complete$/)
     end
   end
 end
@@ -173,7 +173,7 @@ describe Inspec::TarProvider do
     let(:target) { MockLoader.profile_tgz("complete-profile") }
 
     it "must contain all files" do
-      _(subject.files.sort).must_equal %w{inspec.yml libraries/testlib.rb
+      _(subject.files.sort).must_equal %w{dynamo.yml libraries/testlib.rb
         controls/host_spec.rb files/a_sub_dir/sub_items.conf
         files/items.conf}.sort
     end
@@ -183,7 +183,7 @@ describe Inspec::TarProvider do
     end
 
     it "must read the contents of the file" do
-      _(subject.read("inspec.yml")).must_match(/^name: complete$/)
+      _(subject.read("dynamo.yml")).must_match(/^name: complete$/)
     end
 
     it "deals with empty files in tarballs correctly" do

@@ -1,4 +1,4 @@
-This directory is the source code for the RubyGem inspec-test-fixture, which is published on rubygems.org for testing.
+This directory is the source code for the RubyGem dynamo-test-fixture, which is published on rubygems.org for testing.
 
 In version 0.1.0, it has no dependencies.
 In version 0.2.0, it depends on ordinal_array.

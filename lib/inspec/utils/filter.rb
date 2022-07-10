@@ -43,9 +43,9 @@ module FilterTable
     def to_s
       "#{@original_resource} (#{@original_exception.message})"
     end
-    alias inspect to_s
+    alias dynamot to_s
 
-    # Rspec is not able to convert FilterTable::ExceptionCatcher issue https://github.com/inspec/inspec/issues/5369
+    # Rspec is not able to convert FilterTable::ExceptionCatcher issue https://github.com/dynamo/dynamo/issues/5369
     # which result into not showing actual exception message this allows to convert it properly.
     def to_ary
       [ to_s ]
@@ -80,9 +80,9 @@ module FilterTable
         args = el[0].drop(1)
         nxt = to_ruby(el[1])
         next m.to_s + nxt if args.empty?
-        next m.to_s + " " + args[0].inspect + nxt if args.length == 1
+        next m.to_s + " " + args[0].dynamot + nxt if args.length == 1
 
-        m.to_s + "(" + args.map(&:inspect).join(", ") + ")" + nxt
+        m.to_s + "(" + args.map(&:dynamot).join(", ") + ")" + nxt
       end.join(" ")
     end
   end
@@ -114,7 +114,7 @@ module FilterTable
         raise(ArgumentError, "'#{decorate_symbols(raw_field_name)}' is not a recognized criterion - expected one of #{decorate_symbols(list_fields).join(", ")}'") unless field?(raw_field_name)
 
         populate_lazy_field(raw_field_name, desired_value) if is_field_lazy?(raw_field_name)
-        new_criteria_string += " #{raw_field_name} == #{desired_value.inspect}"
+        new_criteria_string += " #{raw_field_name} == #{desired_value.dynamot}"
         filtered_raw_data = filter_raw_data(filtered_raw_data, raw_field_name, desired_value)
       end
 
@@ -127,7 +127,7 @@ module FilterTable
         # Try to interpret the block for updating the stringification.
         src = Trace.new
         # Swallow any exceptions raised here.
-        # See https://github.com/chef/inspec/issues/2929
+        # See https://github.com/chef/dynamo/issues/2929
         begin
           src.instance_eval(&block)
         rescue # rubocop: disable Lint/HandleExceptions
@@ -196,7 +196,7 @@ module FilterTable
       resource.to_s + criteria_string
     end
 
-    alias inspect to_s
+    alias dynamot to_s
 
     def populate_lazy_field(field_name, criterion)
       return unless is_field_lazy?(field_name)

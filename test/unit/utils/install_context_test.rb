@@ -1,6 +1,6 @@
 require "helper"
-require "inspec/globals"
-require "inspec/utils/install_context"
+require "dynamo/globals"
+require "dynamo/utils/install_context"
 
 def assert_install_contexts(test_obj, test_expected_to_be_true, also_rubygem)
   should_be_false = %w{chef-workstation chefdk docker
@@ -41,7 +41,7 @@ describe Inspec::InstallContextHelpers do
   describe "when it looks like a Docker installation" do
     it "should properly detect a Docker install" do
       test_obj = InstallContextTester.new(
-        src_root: "/somewhere/gems/inspec-4.18.39", dummy_paths: [ "/etc/alpine-release", "/.dockerenv" ]
+        src_root: "/somewhere/gems/dynamo-4.18.39", dummy_paths: [ "/etc/alpine-release", "/.dockerenv" ]
       )
       assert_install_contexts(test_obj, "docker", true)
     end
@@ -49,21 +49,21 @@ describe Inspec::InstallContextHelpers do
 
   describe "when it looks like a Habitat installation" do
     it "should properly detect a habitat install" do
-      test_obj = InstallContextTester.new(src_root: "/hab/pkgs/chef/inspec/4.18.61/20200121194907/lib/gems/inspec-4.18.61")
+      test_obj = InstallContextTester.new(src_root: "/hab/pkgs/chef/dynamo/4.18.61/20200121194907/lib/gems/dynamo-4.18.61")
       assert_install_contexts(test_obj, "habitat", true)
     end
   end
 
   describe "when it looks like a gem installation" do
     it "should properly detect a rubygem install" do
-      test_obj = InstallContextTester.new(src_root: "/Users/alice/.rbenv/versions/2.6.5/lib/ruby/gems/2.6.0/gems/inspec-4.18.61")
+      test_obj = InstallContextTester.new(src_root: "/Users/alice/.rbenv/versions/2.6.5/lib/ruby/gems/2.6.0/gems/dynamo-4.18.61")
       assert_install_contexts(test_obj, "rubygem", true)
     end
   end
 
   describe "when it looks like a source installation" do
     it "should properly detect a source install" do
-      fake_root = "/Users/alice/src/inspec"
+      fake_root = "/Users/alice/src/dynamo"
       test_obj = InstallContextTester.new(
         src_root: fake_root,
         dummy_paths: [ "#{fake_root}/habitat", "#{fake_root}/test" ]
@@ -80,11 +80,11 @@ describe Inspec::InstallContextHelpers do
       {
         "chef-workstation" => "chef-workstation",
         "chefdk" => "chef-dk",
-        "omnibus" => "inspec",
+        "omnibus" => "dynamo",
       }.each do |inst_mode, inst_subdir|
         describe "when it looks like a #{inst_mode} installation" do
           it "should properly detect a #{os_name} #{inst_mode} install" do
-            test_obj = InstallContextTester.new(src_root: "#{inst_dir}/#{inst_subdir}/embedded/lib/ruby/gems/2.6.0/gems/inspec-4.18.39")
+            test_obj = InstallContextTester.new(src_root: "#{inst_dir}/#{inst_subdir}/embedded/lib/ruby/gems/2.6.0/gems/dynamo-4.18.39")
             assert_install_contexts(test_obj, inst_mode, true)
           end
         end

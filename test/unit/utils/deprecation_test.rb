@@ -1,7 +1,7 @@
 require "minitest/autorun"
 require "stringio"
 
-require "inspec/utils/deprecation"
+require "dynamo/utils/deprecation"
 
 #===========================================================================#
 #                           Mixins and Methods

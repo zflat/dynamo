@@ -1,9 +1,10 @@
+# coding: utf-8
 Encoding.default_external = Encoding::UTF_8
 
 require "minitest/autorun"
-require "inspec/ui"
-require "inspec/base_cli"
-require "inspec/errors"
+require "dynamo/ui"
+require "dynamo/base_cli"
+require "dynamo/errors"
 require "stringio"
 
 # https://gist.github.com/chrisopedia/8754917

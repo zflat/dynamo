@@ -1,4 +1,4 @@
-require "inspec/utils/telemetry"
+require "dynamo/utils/telemetry"
 require "helper"
 
 class TestTelemetryCollector < Minitest::Test

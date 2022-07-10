@@ -1,7 +1,7 @@
 # copyright: 2020, Chef Software Inc.
 
 require "helper"
-require "inspec/utils/json_profile_summary"
+require "dynamo/utils/json_profile_summary"
 
 describe "JsoneProfileSummary" do
   let(:profile_summary) { Inspec::Utils::JsonProfileSummary }
@@ -12,9 +12,9 @@ describe "JsoneProfileSummary" do
       Dir.mktmpdir do |dir|
         profile_summary.produce_json(
           info: info,
-          write_path: "#{dir}/inspec-test.json"
+          write_path: "#{dir}/dynamo-test.json"
         )
-        assert File.file?("#{dir}/inspec-test.json")
+        assert File.file?("#{dir}/dynamo-test.json")
       end
     end
 
@@ -23,7 +23,7 @@ describe "JsoneProfileSummary" do
         assert_output("") {
           profile_summary.produce_json(
             info: info,
-            write_path: "#{dir}/inspec-test.json",
+            write_path: "#{dir}/dynamo-test.json",
             suppress_output: true
           )
         }
@@ -32,7 +32,7 @@ describe "JsoneProfileSummary" do
 
     it "returns JSON to STDOUT if no dst" do
       assert_output(
-        "{\"test\":\"information\",\"generator\":{\"name\":\"inspec\",\""\
+        "{\"test\":\"information\",\"generator\":{\"name\":\"dynamo\",\""\
         "version\":\"#{Inspec::VERSION}\"}}\n"
       ) { profile_summary.produce_json(info: info) }
     end
