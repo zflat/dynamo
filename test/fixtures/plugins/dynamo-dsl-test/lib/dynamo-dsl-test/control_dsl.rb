@@ -1,8 +1,8 @@
-module InspecPlugins
+module DynamoPlugins
   module DslTest
     module ControlDslFavoriteFruit
       def favorite_fruit(fruit)
-        # Here, self is an instance of an anonymous class, derived from Inspec::Rule
+        # Here, self is an instance of an anonymous class, derived from Dynamo::Rule
 
         # Our behavior is to add our favorite fruit to the descriptions of the control.
         @descriptions[:favorite_fruit] = fruit

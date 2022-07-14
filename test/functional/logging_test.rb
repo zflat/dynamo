@@ -84,7 +84,7 @@ describe "Deprecation Facility Behavior" do
         # The reporter should not fire
         _(run_result.stdout).must_be_empty
 
-        # 3 is the FATAL_DEPRECATION value from Inspec::UI
+        # 3 is the FATAL_DEPRECATION value from Dynamo::UI
         assert_exit_code 3, run_result
       end
     end

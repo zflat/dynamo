@@ -1,4 +1,4 @@
-module InspecPlugins
+module DynamoPlugins
   module DslTest
     module ResourceDslFoodType
       def food_type(food)

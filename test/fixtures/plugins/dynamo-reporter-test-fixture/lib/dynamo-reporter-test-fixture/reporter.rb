@@ -1,5 +1,5 @@
-module InspecPlugins::ReporterTestFixture
-  class ReporterImplementation < Inspec.plugin(2, :reporter)
+module DynamoPlugins::ReporterTestFixture
+  class ReporterImplementation < Dynamo.plugin(2, :reporter)
 
     # The test reporter plugin returns a single line of output, like this:
     # pXX:cYY:tZZ

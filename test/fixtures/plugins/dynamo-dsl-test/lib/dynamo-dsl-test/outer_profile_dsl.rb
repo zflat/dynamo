@@ -1,4 +1,4 @@
-module InspecPlugins
+module DynamoPlugins
   module DslTest
     module OuterProfileDslFavoriteGrain
       def favorite_grain(grain)

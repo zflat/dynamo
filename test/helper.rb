@@ -55,7 +55,7 @@ require "helpers/mock_loader"
 
 TMP_CACHE = {} # rubocop: disable Style/MutableConstant
 
-Inspec::Log.logger = Logger.new(nil)
+Dynamo::Log.logger = Logger.new(nil)
 
 def load_resource(*args)
   MockLoader.new.load_resource(*args)
@@ -79,16 +79,16 @@ def handle_deprecations(opts_in, &block)
   expectations.merge!(opts)
 
   # Expand the list of deprecation groups given
-  known_group_names = Inspec::Deprecation::ConfigFile.new.groups.keys
+  known_group_names = Dynamo::Deprecation::ConfigFile.new.groups.keys
   known_group_names.each do |group_name|
     next if opts.key?(group_name)
 
     expectations[group_name] = expectations[:all_others]
   end
 
-  # Wire up Inspec.deprecator accordingly using mocha stubbing
+  # Wire up Dynamo.deprecator accordingly using mocha stubbing
   expectations.each do |group_name, expectation|
-    inst = Inspec::Deprecation::Deprecator.any_instance
+    inst = Dynamo::Deprecation::Deprecator.any_instance
     case expectation
     when :tolerate
       inst.stubs(:handle_deprecation).with(group_name, anything, anything)
@@ -141,7 +141,7 @@ class Minitest::Test
     require "dynamo/runner"
 
     # TODO: there is WAY too much magic going on in here
-    runner = Inspec::Runner.new
+    runner = Dynamo::Runner.new
     runner.add_target("dynamo.yml" => "name: dynamo-shell")
     profile = runner.target_profiles.first
     ctx = profile.runner_context
@@ -150,6 +150,6 @@ class Minitest::Test
   end
 end
 
-class InspecTest < Minitest::Test
+class DynamoTest < Minitest::Test
   # shared stuff here
 end

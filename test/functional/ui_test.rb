@@ -250,7 +250,7 @@ describe "InSpec UI behavior" do
     describe "prompting" do
       let(:feature) { "prompt" }
       it "should crash with stacktrace" do
-        _(run_result.stderr).must_include "Inspec::UserInteractionRequired"
+        _(run_result.stderr).must_include "Dynamo::UserInteractionRequired"
 
         assert_exit_code 1, run_result
       end

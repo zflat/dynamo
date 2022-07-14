@@ -18,7 +18,7 @@ def assert_install_contexts(test_obj, test_expected_to_be_true, also_rubygem)
 end
 
 class InstallContextTester
-  include Inspec::InstallContextHelpers
+  include Dynamo::InstallContextHelpers
   attr_accessor :src_root, :dummy_paths
   def initialize(src_root: "", dummy_paths: [])
     @src_root = src_root
@@ -34,7 +34,7 @@ class InstallContextTester
   end
 end
 
-describe Inspec::InstallContextHelpers do
+describe Dynamo::InstallContextHelpers do
 
   parallelize_me!
 

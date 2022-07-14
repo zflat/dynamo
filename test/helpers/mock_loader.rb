@@ -1,3 +1,4 @@
+# coding: utf-8
 class MockLoader
   # collects emulation operating systems
   OPERATING_SYSTEMS = { # rubocop:disable Style/MutableConstant
@@ -57,7 +58,7 @@ class MockLoader
     scriptpath = ::File.expand_path "..", __dir__
 
     # create mock backend
-    @backend = Inspec::Backend.create(Inspec::Config.mock)
+    @backend = Dynamo::Backend.create(Dynamo::Config.mock)
     mock = @backend.backend
 
     # create all mock files
@@ -653,7 +654,7 @@ class MockLoader
   # loads a resource class and instantiates the class with the given arguments
   def load_resource(resource, *args)
     # initialize resource with backend and parameters
-    @resource_class = Inspec::Resource.registry[resource]
+    @resource_class = Dynamo::Resource.registry[resource]
     raise ArgumentError, "No resource #{resource}" unless @resource_class
 
     @resource = @resource_class.new(backend, resource, *args)
@@ -683,9 +684,9 @@ class MockLoader
 
   def self.load_profile(name, opts = {})
     require "inspec/profile"
-    opts[:test_collector] = Inspec::RunnerMock.new
-    opts[:backend] = Inspec::Backend.create(Inspec::Config.mock(opts))
-    Inspec::Profile.for_target(profile_path(name), opts)
+    opts[:test_collector] = Dynamo::RunnerMock.new
+    opts[:backend] = Dynamo::Backend.create(Dynamo::Config.mock(opts))
+    Dynamo::Profile.for_target(profile_path(name), opts)
   end
 
   def self.profile_tgz(name)
@@ -697,7 +698,7 @@ class MockLoader
     relatives = files.map { |e| Pathname.new(e).relative_path_from(Pathname.new(path)).to_s }
 
     require "inspec/archive/tar"
-    tag = Inspec::Archive::TarArchiveGenerator.new
+    tag = Dynamo::Archive::TarArchiveGenerator.new
     tag.archive(path, relatives, dst)
 
     dst
@@ -712,7 +713,7 @@ class MockLoader
     relatives = files.map { |e| Pathname.new(e).relative_path_from(Pathname.new(path)).to_s }
 
     require "inspec/archive/zip"
-    zag = Inspec::Archive::ZipArchiveGenerator.new
+    zag = Dynamo::Archive::ZipArchiveGenerator.new
     zag.archive(path, relatives, dst)
 
     dst

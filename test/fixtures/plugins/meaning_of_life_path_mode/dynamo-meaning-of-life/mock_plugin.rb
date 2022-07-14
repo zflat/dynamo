@@ -1,6 +1,6 @@
-module InspecPlugins
+module DynamoPlugins
   module MeaningOfLife
-    class MockPlugin < Inspec.plugin(2, :mock_plugin_type)
+    class MockPlugin < Dynamo.plugin(2, :mock_plugin_type)
 
       # Do mockish things
       def execute(opts)

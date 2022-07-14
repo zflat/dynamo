@@ -1,6 +1,6 @@
-module InspecPlugins
+module DynamoPlugins
   module MeaningOfLife
-    class CliCommand < Inspec.plugin(2, :cli_command)
+    class CliCommand < Dynamo.plugin(2, :cli_command)
       # Need to tell my superclass about my group description
       subcommand_desc "meaningoflife answer", "Get answers once and for all."
 

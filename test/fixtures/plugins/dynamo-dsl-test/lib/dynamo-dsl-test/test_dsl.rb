@@ -1,4 +1,4 @@
-module InspecPlugins
+module DynamoPlugins
   module DslTest
     module TestDslFavoriteLegume
       def favorite_legume(legume)

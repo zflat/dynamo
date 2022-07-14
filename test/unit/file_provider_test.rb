@@ -1,8 +1,8 @@
 require "helper"
 require "dynamo/file_provider" # TODO: split
 
-describe Inspec::MockProvider do
-  let(:subject) { Inspec::MockProvider.new(target) }
+describe Dynamo::MockProvider do
+  let(:subject) { Dynamo::MockProvider.new(target) }
 
   describe "without data" do
     let(:target) { { mock: {} } }
@@ -26,8 +26,8 @@ describe Inspec::MockProvider do
   end
 end
 
-describe Inspec::DirProvider do
-  let(:subject) { Inspec::DirProvider.new(target) }
+describe Dynamo::DirProvider do
+  let(:subject) { Dynamo::DirProvider.new(target) }
 
   describe "applied to this file" do
     let(:target) { __FILE__ }
@@ -74,8 +74,8 @@ describe Inspec::DirProvider do
   end
 end
 
-describe Inspec::ZipProvider do
-  let(:subject) { Inspec::ZipProvider.new(target) }
+describe Dynamo::ZipProvider do
+  let(:subject) { Dynamo::ZipProvider.new(target) }
 
   describe "applied to a tar archive" do
     let(:target) { MockLoader.profile_zip("complete-profile") }
@@ -98,7 +98,7 @@ describe Inspec::ZipProvider do
   describe "applied to a zip with an empty filename" do
     # Just a placeholder, it will be ignored anyway:
     let(:cls) do
-      class MockZipProvider < Inspec::ZipProvider
+      class MockZipProvider < Dynamo::ZipProvider
         Entry = Struct.new(:name)
         class List < Array
           alias :get_next_entry :pop
@@ -122,7 +122,7 @@ describe Inspec::ZipProvider do
   describe "paths outside of the archive ignored" do
     # This is to test for the zipslip vulnerability
     let(:cls) do
-      class MockZipSlipZipProvider < Inspec::ZipProvider
+      class MockZipSlipZipProvider < Dynamo::ZipProvider
         Entry = Struct.new(:name)
         class List < Array
           alias :get_next_entry :pop
@@ -144,8 +144,8 @@ describe Inspec::ZipProvider do
   end
 end
 
-describe Inspec::ZipProvider do
-  let(:subject) { Inspec::ZipProvider.new(target) }
+describe Dynamo::ZipProvider do
+  let(:subject) { Dynamo::ZipProvider.new(target) }
 
   describe "applied to a tar archive" do
     let(:target) { MockLoader.profile_zip("complete-profile") }
@@ -166,8 +166,8 @@ describe Inspec::ZipProvider do
   end
 end
 
-describe Inspec::TarProvider do
-  let(:subject) { Inspec::TarProvider.new(target) }
+describe Dynamo::TarProvider do
+  let(:subject) { Dynamo::TarProvider.new(target) }
 
   describe "applied to a tar archive" do
     let(:target) { MockLoader.profile_tgz("complete-profile") }
@@ -188,7 +188,7 @@ describe Inspec::TarProvider do
 
     it "deals with empty files in tarballs correctly" do
       path = "test/fixtures/contains-empty-file-0.1.0.tar.gz"
-      f = Inspec::FileProvider.for_path(path)
+      f = Dynamo::FileProvider.for_path(path)
       _(f.files.grep(/empty/)).wont_be_empty
     end
   end
@@ -202,7 +202,7 @@ describe Inspec::TarProvider do
   describe "applied to a tar with an empty filename" do
     # Just a placeholder, it will be ignored anyway:
     let(:cls) do
-      class MockTarProvider < Inspec::TarProvider
+      class MockTarProvider < Dynamo::TarProvider
         def walk_tar(path, &callback)
           paths = ["", "tartar", ""]
           yield paths.map { |s| Entry.new s }
@@ -218,7 +218,7 @@ describe Inspec::TarProvider do
 
   describe "applied to a tar with paths above dir" do
     let(:cls) do
-      class MockZipSlipTarProvider < Inspec::TarProvider
+      class MockZipSlipTarProvider < Dynamo::TarProvider
         def walk_tar(path, &callback)
           paths = ["", "tartar", ""]
           yield paths.map { |s| Entry.new s }
@@ -234,10 +234,10 @@ describe Inspec::TarProvider do
 
 end
 
-describe Inspec::RelativeFileProvider do
+describe Dynamo::RelativeFileProvider do
   def fetcher
     src_fetcher.expects(:files).returns(in_files).at_least_once
-    Inspec::RelativeFileProvider.new(src_fetcher)
+    Dynamo::RelativeFileProvider.new(src_fetcher)
   end
 
   let(:src_fetcher) { mock }

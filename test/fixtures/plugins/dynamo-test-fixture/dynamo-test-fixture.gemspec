@@ -4,13 +4,13 @@ require "dynamo-test-fixture/version"
 
 Gem::Specification.new do |spec|
   spec.name          = "dynamo-test-fixture"
-  spec.version       = InspecPlugins::TestFixture::VERSION
+  spec.version       = DynamoPlugins::TestFixture::VERSION
   spec.authors       = ["test"]
   spec.email         = ["hello@test.test"]
 
-  spec.summary       = %q{A simple test plugin gem for InSpec}
-  spec.description   = %q{This gem is used to test the gem search and install capabilities of InSpec's plugin V2 system.  It is not a good example or starting point for plugin development.}
-  spec.homepage      = "https://github.com/inspec/inspec"
+  spec.summary       = "Test plugin. Not intended for use as an example.".freeze
+  spec.description   = "Test plugin. Not intended for use as an example.".freeze
+  spec.homepage      = "https://homepage.test"
 
   spec.files         = [
     "dynamo-test-fixture.gemspec",
@@ -23,7 +23,7 @@ Gem::Specification.new do |spec|
   spec.require_paths = ["lib"]
 
   spec.add_development_dependency "rake", "~> 10.0"
-  if InspecPlugins::TestFixture::VERSION == "0.2.0"
+  if DynamoPlugins::TestFixture::VERSION == "0.2.0"
     spec.add_dependency "ordinal_array", "~> 0.2.0"
   end
 end

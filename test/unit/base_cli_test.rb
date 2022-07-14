@@ -4,7 +4,7 @@ require "helper"
 require "thor"
 
 describe "BaseCLI" do
-  let(:cli) { Inspec::BaseCLI.new }
+  let(:cli) { Dynamo::BaseCLI.new }
 
   describe "formats the platfrom information" do
     it "verify platform formatting" do
@@ -14,14 +14,14 @@ describe "BaseCLI" do
   Families:  \e[1m\e[35maws, cloud\e[0m
   Release:   \e[1m\e[35maws-sdk-v1\e[0m
 EOF
-      _(Inspec::BaseCLI.format_platform_info(params: hash, indent: 2, color: 35)).must_equal expect
+      _(Dynamo::BaseCLI.format_platform_info(params: hash, indent: 2, color: 35)).must_equal expect
     end
   end
 
   describe "configure_logger" do
     after do
-      Inspec::Log.init
-      Inspec::Log.level = :fatal
+      Dynamo::Log.init
+      Dynamo::Log.level = :fatal
     end
 
     let(:options) do

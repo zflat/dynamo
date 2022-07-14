@@ -8,8 +8,8 @@ Gem::Specification.new do |spec|
   spec.email         = ["hello@test.test"]
   spec.license       = "Apache-2.0"
 
-  spec.summary = "Test plugin. Not intended for use as an example.".freeze
-  spec.description = "Test plugin. Not intended for use as an example.".freeze
+  spec.summary       = "Test plugin. Not intended for use as an example.".freeze
+  spec.description   = "Test plugin. Not intended for use as an example.".freeze
   spec.homepage      = "https://homepage.test"
 
   spec.files         = %w{

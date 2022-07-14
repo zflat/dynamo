@@ -1,7 +1,7 @@
 require "inspec/objects/input"
 
-module InspecPlugins::InputTestFixture
-  class InputImplementation < Inspec.plugin(2, :input)
+module DynamoPlugins::InputTestFixture
+  class InputImplementation < Dynamo.plugin(2, :input)
     def default_priority
       65
     end

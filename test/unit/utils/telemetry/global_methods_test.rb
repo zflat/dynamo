@@ -3,13 +3,13 @@ require "helper"
 
 class TestTelemetryGlobalMethods < Minitest::Test
   def setup
-    @collector = Inspec::Telemetry::Collector.instance
-    @collector.load_config(Inspec::Config.mock("enable_telemetry" => true))
+    @collector = Dynamo::Telemetry::Collector.instance
+    @collector.load_config(Dynamo::Config.mock("enable_telemetry" => true))
     @collector.reset!
   end
 
   def test_record_telemetry_data
-    assert Inspec.record_telemetry_data(:deprecation_group, "serverspec_compat")
+    assert Dynamo.record_telemetry_data(:deprecation_group, "serverspec_compat")
 
     depgrp = @collector.find_or_create_data_series(:deprecation_group)
     assert_equal ["serverspec_compat"], depgrp.data
@@ -17,7 +17,7 @@ class TestTelemetryGlobalMethods < Minitest::Test
   end
 
   def test_record_telemetry_data_with_block
-    Inspec.record_telemetry_data(:deprecation_group) do
+    Dynamo.record_telemetry_data(:deprecation_group) do
       "serverspec_compat"
     end
 
@@ -27,7 +27,7 @@ class TestTelemetryGlobalMethods < Minitest::Test
   end
 
   def test_telemetry_disabled
-    @collector.load_config(Inspec::Config.mock(telemetry: false))
-    refute Inspec.record_telemetry_data(:deprecation_group, "serverspec_compat")
+    @collector.load_config(Dynamo::Config.mock(telemetry: false))
+    refute Dynamo.record_telemetry_data(:deprecation_group, "serverspec_compat")
   end
 end
