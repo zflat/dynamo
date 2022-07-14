@@ -2,7 +2,7 @@
   "plugins_config_version" : "1.0.0",
   "plugins": [
     {
-      "name": "train-test-fixture",
+      "name": "dynamo-test-fixture",
       "version": "0.1.0"
     }
   ]

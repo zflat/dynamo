@@ -6,13 +6,13 @@ Gem::Specification.new do |s|
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0".freeze) if s.respond_to? :required_rubygems_version=
   s.require_paths = ["lib".freeze]
-  s.authors = ["InSpec Engineering Team".freeze]
+  s.authors = ["test".freeze]
   s.date = "2018-08-17"
-  s.description = "This gem is used to test the gem search and install capabilities of InSpec's plugin V2 system.  It is not a good example or starting point for plugin development.".freeze
-  s.email = ["hello@chef.io".freeze]
-  s.homepage = "https://github.com/inspec/inspec".freeze
+  s.description = "Test plugin. Not intended for use as an example.".freeze
+  s.summary = "Test plugin. Not intended for use as an example.".freeze
+  s.email = ["hello@test.test".freeze]
+  s.homepage = "https://homepage.test".freeze
   s.rubygems_version = "2.7.6".freeze
-  s.summary = "A simple test plugin gem for InSpec".freeze
 
   s.installed_by_version = "2.7.6" if s.respond_to? :installed_by_version
 

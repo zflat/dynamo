@@ -6,17 +6,17 @@ require_relative "../../../../lib/dynamo/plugin/v2"
 # This file relies on setting environment variables for some
 # of its tests - it is NOT thread-safe.
 
-describe "Inspec::Plugin::V2::ConfigFile" do
+describe "Dynamo::Plugin::V2::ConfigFile" do
   orig_home = ENV["HOME"]
 
   let(:repo_path) { MockLoader.home }
   let(:config_fixtures_path) { "#{repo_path}/test/fixtures/config_dirs" }
-  let(:config_file_obj) { Inspec::Plugin::V2::ConfigFile.new(constructor_arg) }
+  let(:config_file_obj) { Dynamo::Plugin::V2::ConfigFile.new(constructor_arg) }
   let(:constructor_arg) { "#{config_fixtures_path}/plugin_config_files/#{fixture_name}.json" }
 
   after do
     ENV["HOME"] = orig_home
-    ENV["INSPEC_CONFIG_DIR"] = nil
+    ENV["DYNAMO_CONFIG_DIR"] = nil
   end
 
   #----------------------------------------------------------#
@@ -36,8 +36,8 @@ describe "Inspec::Plugin::V2::ConfigFile" do
     describe "when an env var is set" do
       let(:constructor_arg) { nil }
       it "looks to the dir specified by the env var" do
-        ENV["INSPEC_CONFIG_DIR"] = File.join(config_fixtures_path, "meaning-by-path")
-        expected_path = File.join(ENV["INSPEC_CONFIG_DIR"], "plugins.json")
+        ENV["DYNAMO_CONFIG_DIR"] = File.join(config_fixtures_path, "meaning-by-path")
+        expected_path = File.join(ENV["DYNAMO_CONFIG_DIR"], "plugins.json")
 
         _(config_file_obj.path).must_equal expected_path
       end
@@ -69,7 +69,7 @@ describe "Inspec::Plugin::V2::ConfigFile" do
     describe "when the file is corrupt" do
       let(:fixture_name) { "corrupt" }
       it "throws an exception" do
-        ex = assert_raises(Inspec::Plugin::V2::ConfigError) { config_file_obj }
+        ex = assert_raises(Dynamo::Plugin::V2::ConfigError) { config_file_obj }
         _(ex.message).must_include("Failed to load")
         _(ex.message).must_include("JSON")
         _(ex.message).must_include("unexpected token")
@@ -109,7 +109,7 @@ describe "Inspec::Plugin::V2::ConfigFile" do
       describe "because the file version is wrong" do
         let(:fixture_name) { "bad_plugin_conf_version" }
         it "throws an exception" do
-          ex = assert_raises(Inspec::Plugin::V2::ConfigError) { config_file_obj }
+          ex = assert_raises(Dynamo::Plugin::V2::ConfigError) { config_file_obj }
           _(ex.message).must_include("Unsupported")
           _(ex.message).must_include("version")
           _(ex.message).must_include("99.99.9")
@@ -120,7 +120,7 @@ describe "Inspec::Plugin::V2::ConfigFile" do
       describe "because the file version is missing" do
         let(:fixture_name) { "missing_plugin_conf_version" }
         it "throws an exception" do
-          ex = assert_raises(Inspec::Plugin::V2::ConfigError) { config_file_obj }
+          ex = assert_raises(Dynamo::Plugin::V2::ConfigError) { config_file_obj }
           _(ex.message).must_include("Missing")
           _(ex.message).must_include("version")
           _(ex.message).must_include("1.0.0")
@@ -130,7 +130,7 @@ describe "Inspec::Plugin::V2::ConfigFile" do
       describe "because the plugins field is missing" do
         let(:fixture_name) { "missing_plugins_key" }
         it "throws an exception" do
-          ex = assert_raises(Inspec::Plugin::V2::ConfigError) { config_file_obj }
+          ex = assert_raises(Dynamo::Plugin::V2::ConfigError) { config_file_obj }
           _(ex.message).must_include("missing")
           _(ex.message).must_include("'plugins'")
           _(ex.message).must_include("array")
@@ -140,7 +140,7 @@ describe "Inspec::Plugin::V2::ConfigFile" do
       describe "because the plugins field is not an array" do
         let(:fixture_name) { "hash_plugins_key" }
         it "throws an exception" do
-          ex = assert_raises(Inspec::Plugin::V2::ConfigError) { config_file_obj }
+          ex = assert_raises(Dynamo::Plugin::V2::ConfigError) { config_file_obj }
           _(ex.message).must_include("Malformed")
           _(ex.message).must_include("'plugins'")
           _(ex.message).must_include("array")
@@ -150,7 +150,7 @@ describe "Inspec::Plugin::V2::ConfigFile" do
       describe "because a plugin entry is not a hash" do
         let(:fixture_name) { "entry_not_hash" }
         it "throws an exception" do
-          ex = assert_raises(Inspec::Plugin::V2::ConfigError) { config_file_obj }
+          ex = assert_raises(Dynamo::Plugin::V2::ConfigError) { config_file_obj }
           _(ex.message).must_include("Malformed")
           _(ex.message).must_include("Hash")
           _(ex.message).must_include("at index 2")
@@ -160,7 +160,7 @@ describe "Inspec::Plugin::V2::ConfigFile" do
       describe "because it contains duplicate plugin entries" do
         let(:fixture_name) { "entry_duplicate" }
         it "throws an exception" do
-          ex = assert_raises(Inspec::Plugin::V2::ConfigError) { config_file_obj }
+          ex = assert_raises(Dynamo::Plugin::V2::ConfigError) { config_file_obj }
           _(ex.message).must_include("Malformed")
           _(ex.message).must_include("duplicate")
           _(ex.message).must_include("dynamo-test-fixture-01")
@@ -171,7 +171,7 @@ describe "Inspec::Plugin::V2::ConfigFile" do
       describe "because a plugin entry does not have a name" do
         let(:fixture_name) { "entry_no_name" }
         it "throws an exception" do
-          ex = assert_raises(Inspec::Plugin::V2::ConfigError) { config_file_obj }
+          ex = assert_raises(Dynamo::Plugin::V2::ConfigError) { config_file_obj }
           _(ex.message).must_include("Malformed")
           _(ex.message).must_include("missing 'name'")
           _(ex.message).must_include("at index 1")
@@ -181,7 +181,7 @@ describe "Inspec::Plugin::V2::ConfigFile" do
       describe "because a plugin entry has an unrecognized installation type" do
         let(:fixture_name) { "entry_bad_installation_type" }
         it "throws an exception" do
-          ex = assert_raises(Inspec::Plugin::V2::ConfigError) { config_file_obj }
+          ex = assert_raises(Dynamo::Plugin::V2::ConfigError) { config_file_obj }
           _(ex.message).must_include("Malformed")
           _(ex.message).must_include("unrecognized installation_type")
           _(ex.message).must_include("one of 'gem' or 'path'")
@@ -192,7 +192,7 @@ describe "Inspec::Plugin::V2::ConfigFile" do
       describe "because a path plugin entry does not have a path" do
         let(:fixture_name) { "entry_no_path_for_path_type" }
         it "throws an exception" do
-          ex = assert_raises(Inspec::Plugin::V2::ConfigError) { config_file_obj }
+          ex = assert_raises(Dynamo::Plugin::V2::ConfigError) { config_file_obj }
           _(ex.message).must_include("Malformed")
           _(ex.message).must_include("missing installation path")
           _(ex.message).must_include("at index 2")
@@ -256,7 +256,7 @@ describe "Inspec::Plugin::V2::ConfigFile" do
       describe "when adding a duplicate plugin name" do
         let(:fixture_name) { "basic" }
         it "should throw an exception" do
-          assert_raises(Inspec::Plugin::V2::ConfigError) { config_file_obj.add_entry(name: "dynamo-test-fixture-02") }
+          assert_raises(Dynamo::Plugin::V2::ConfigError) { config_file_obj.add_entry(name: "dynamo-test-fixture-02") }
         end
       end
 
@@ -268,7 +268,7 @@ describe "Inspec::Plugin::V2::ConfigFile" do
             { name: "dynamo-test-fixture", installation_type: :invalid },
             { "name" => "dynamo-test-fixture" },
           ].each do |proposed_entry|
-            assert_raises(Inspec::Plugin::V2::ConfigError) { config_file_obj.add_entry(proposed_entry) }
+            assert_raises(Dynamo::Plugin::V2::ConfigError) { config_file_obj.add_entry(proposed_entry) }
           end
         end
       end
@@ -302,7 +302,7 @@ describe "Inspec::Plugin::V2::ConfigFile" do
         it "should throw an exception" do
           _(config_file_obj.count).must_equal 3
           _(config_file_obj.plugin_by_name(:'dynamo-test-fixture-99')).must_be_nil
-          ex = assert_raises(Inspec::Plugin::V2::ConfigError) { config_file_obj.remove_entry(:'dynamo-test-fixture-99') }
+          ex = assert_raises(Dynamo::Plugin::V2::ConfigError) { config_file_obj.remove_entry(:'dynamo-test-fixture-99') }
           _(ex.message).must_include "No such entry"
           _(ex.message).must_include "dynamo-test-fixture-99"
           _(config_file_obj.count).must_equal 3
@@ -318,12 +318,12 @@ describe "Inspec::Plugin::V2::ConfigFile" do
           Dir.mktmpdir do |tmp_dir|
             path = File.join(tmp_dir, "plugins.json")
             _(File.exist?(path)).must_equal false
-            cfo_writer = Inspec::Plugin::V2::ConfigFile.new(path)
+            cfo_writer = Dynamo::Plugin::V2::ConfigFile.new(path)
             cfo_writer.add_entry(name: :'dynamo-resource-lister')
             cfo_writer.save
 
             _(File.exist?(path)).must_equal true
-            cfo_reader = Inspec::Plugin::V2::ConfigFile.new(path)
+            cfo_reader = Dynamo::Plugin::V2::ConfigFile.new(path)
             _(cfo_reader.existing_entry?(:'dynamo-resource-lister')).must_equal true
           end
         end
@@ -334,12 +334,12 @@ describe "Inspec::Plugin::V2::ConfigFile" do
           Dir.mktmpdir do |tmp_dir|
             path = File.join(tmp_dir, "subdir", "plugins.json")
             _(File.exist?(path)).must_equal false
-            cfo_writer = Inspec::Plugin::V2::ConfigFile.new(path)
+            cfo_writer = Dynamo::Plugin::V2::ConfigFile.new(path)
             cfo_writer.add_entry(name: :'dynamo-resource-lister')
             cfo_writer.save
 
             _(File.exist?(path)).must_equal true
-            cfo_reader = Inspec::Plugin::V2::ConfigFile.new(path)
+            cfo_reader = Dynamo::Plugin::V2::ConfigFile.new(path)
             _(cfo_reader.existing_entry?(:'dynamo-resource-lister')).must_equal true
           end
         end
@@ -349,18 +349,18 @@ describe "Inspec::Plugin::V2::ConfigFile" do
         it "is overwritten" do
           Dir.mktmpdir do |tmp_dir|
             path = File.join(tmp_dir, "plugins.json")
-            cfo_writer = Inspec::Plugin::V2::ConfigFile.new(path)
+            cfo_writer = Dynamo::Plugin::V2::ConfigFile.new(path)
             cfo_writer.add_entry(name: :'dynamo-resource-lister')
             cfo_writer.save
 
             _(File.exist?(path)).must_equal true
 
-            cfo_modifier = Inspec::Plugin::V2::ConfigFile.new(path)
+            cfo_modifier = Dynamo::Plugin::V2::ConfigFile.new(path)
             cfo_modifier.remove_entry(:'dynamo-resource-lister')
             cfo_modifier.add_entry(name: :'dynamo-test-fixture')
             cfo_modifier.save
 
-            cfo_reader = Inspec::Plugin::V2::ConfigFile.new(path)
+            cfo_reader = Dynamo::Plugin::V2::ConfigFile.new(path)
             _(cfo_reader.existing_entry?(:'dynamo-resource-lister')).must_equal false
             _(cfo_reader.existing_entry?(:'dynamo-test-fixture')).must_equal true
           end

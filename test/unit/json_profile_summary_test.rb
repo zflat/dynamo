@@ -4,7 +4,7 @@ require "helper"
 require "dynamo/utils/json_profile_summary"
 
 describe "JsoneProfileSummary" do
-  let(:profile_summary) { Inspec::Utils::JsonProfileSummary }
+  let(:profile_summary) { Dynamo::Utils::JsonProfileSummary }
   let(:info) { { test: "information" } }
 
   describe "writes JSON to file" do
@@ -33,7 +33,7 @@ describe "JsoneProfileSummary" do
     it "returns JSON to STDOUT if no dst" do
       assert_output(
         "{\"test\":\"information\",\"generator\":{\"name\":\"dynamo\",\""\
-        "version\":\"#{Inspec::VERSION}\"}}\n"
+        "version\":\"#{Dynamo::VERSION}\"}}\n"
       ) { profile_summary.produce_json(info: info) }
     end
 

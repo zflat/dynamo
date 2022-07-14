@@ -1,4 +1,4 @@
-require 'train-test-fixture/connection'
+require 'dynamo-test-fixture/connection'
 
 module TrainPlugins
   module TestFixture

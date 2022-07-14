@@ -37,10 +37,10 @@ GLYPHS = {
 #=============================================================================#
 #                        Low-Level Formatting
 #=============================================================================#
-describe "Inspec::UI low-level Formatting" do
+describe "Dynamo::UI low-level Formatting" do
   let(:fixture_io) { StringIO.new }
   let(:output) { fixture_io.string }
-  let(:ui) { Inspec::UI.new(io: fixture_io) }
+  let(:ui) { Dynamo::UI.new(io: fixture_io) }
 
   describe "plain" do
     it "uses no ANSI markers" do
@@ -51,7 +51,7 @@ describe "Inspec::UI low-level Formatting" do
   end
 
   describe "when color is enabled" do
-    let(:ui) { Inspec::UI.new(color: true, io: fixture_io) }
+    let(:ui) { Dynamo::UI.new(color: true, io: fixture_io) }
 
     describe "bold" do
       it "uses ANSI bold markers" do
@@ -71,7 +71,7 @@ describe "Inspec::UI low-level Formatting" do
   end
 
   describe "when color is disabled" do
-    let(:ui) { Inspec::UI.new(color: false, io: fixture_io) }
+    let(:ui) { Dynamo::UI.new(color: false, io: fixture_io) }
     describe "bold" do
       it "uses no ANSI codes" do
         ui.bold("test")
@@ -94,12 +94,12 @@ end
 #=============================================================================#
 #                        High-Level Formatting
 #=============================================================================#
-describe "Inspec::UI High-Level Formatting" do
+describe "Dynamo::UI High-Level Formatting" do
   let(:fixture_io) { StringIO.new }
   let(:output) { fixture_io.string }
 
   describe "when color is enabled" do
-    let(:ui) { Inspec::UI.new(color: true, io: fixture_io) }
+    let(:ui) { Dynamo::UI.new(color: true, io: fixture_io) }
 
     describe "emphasis" do
       it "uses ANSI escapes" do
@@ -162,7 +162,7 @@ describe "Inspec::UI High-Level Formatting" do
   end
 
   describe "when color is disabled" do
-    let(:ui) { Inspec::UI.new(color: false, io: fixture_io) }
+    let(:ui) { Dynamo::UI.new(color: false, io: fixture_io) }
 
     describe "emphasis" do
       it "does not use ANSI escapes" do
@@ -221,12 +221,12 @@ end
 #=============================================================================#
 #                          Tables and Lists
 #=============================================================================#
-describe "Inspec::UI Tables and Lists" do
+describe "Dynamo::UI Tables and Lists" do
   let(:fixture_io) { StringIO.new }
   let(:output) { fixture_io.string }
 
   describe "when color is enabled" do
-    let(:ui) { Inspec::UI.new(color: true, io: fixture_io) }
+    let(:ui) { Dynamo::UI.new(color: true, io: fixture_io) }
 
     describe("line") do
       it "draws a line" do
@@ -279,7 +279,7 @@ describe "Inspec::UI Tables and Lists" do
   end
 
   describe "when color is disabled" do
-    let(:ui) { Inspec::UI.new(color: false, io: fixture_io) }
+    let(:ui) { Dynamo::UI.new(color: false, io: fixture_io) }
 
     describe("line") do
       it "draws a line without ANSI codes or special glyphs" do
@@ -337,10 +337,10 @@ end
 #=============================================================================#
 #                       CLI Integration
 #=============================================================================#
-describe "Inspec::UI CLI integration" do
+describe "Dynamo::UI CLI integration" do
   let(:fixture_io) { StringIO.new }
   let(:output) { fixture_io.string }
-  let(:cli) { Inspec::BaseCLI.new }
+  let(:cli) { Dynamo::BaseCLI.new }
 
   describe "ui method" do
     it "should respond to ui" do
@@ -351,19 +351,19 @@ describe "Inspec::UI CLI integration" do
 
   describe "backwards compatibility" do
     it "should support plain_text" do
-      cli.ui = Inspec::UI.new(io: fixture_io)
+      cli.ui = Dynamo::UI.new(io: fixture_io)
       cli.plain_text("test")
       _(output).must_equal "test\n"
     end
     it "should support mark_text" do
       # mark_text applies cyan and DOES NOT PRINT
-      cli.ui = Inspec::UI.new(io: fixture_io)
+      cli.ui = Dynamo::UI.new(io: fixture_io)
       result = cli.mark_text("test")
       _(result).must_equal ANSI_CODES[:color][:cyan] + "test" + ANSI_CODES[:reset]
       _(output).must_equal ""
     end
     it "should support headline" do
-      cli.ui = Inspec::UI.new(io: fixture_io)
+      cli.ui = Dynamo::UI.new(io: fixture_io)
       cli.headline("test")
       _(output).must_match(/^\n/) # Start with one newlines
       expected = ""
@@ -374,7 +374,7 @@ describe "Inspec::UI CLI integration" do
       _(output).must_match(/\n\n$/) # End with two newline
     end
     it "should support li" do
-      cli.ui = Inspec::UI.new(io: fixture_io)
+      cli.ui = Dynamo::UI.new(io: fixture_io)
       cli.li("test")
       expected = " "
       expected += ANSI_CODES[:bold] + ANSI_CODES[:color][:white]
@@ -393,15 +393,15 @@ describe "interactivity" do
   describe "when interactivity is disabled" do
     describe "interactive check" do
       it "should be false" do
-        ui = Inspec::UI.new(interactive: false)
+        ui = Dynamo::UI.new(interactive: false)
         _(ui.interactive?).must_equal false
       end
     end
 
     describe "prompt" do
       it "should throw an exception if interactivity is disabled" do
-        ui = Inspec::UI.new(interactive: false)
-        _(->() { ui.prompt }).must_raise Inspec::UserInteractionRequired
+        ui = Dynamo::UI.new(interactive: false)
+        _(->() { ui.prompt }).must_raise Dynamo::UserInteractionRequired
       end
     end
   end
@@ -411,7 +411,7 @@ end
 #                             Exit Codes
 #=============================================================================#
 # These are tested in functional tests
-describe "Inspec UI Exit Codes" do
+describe "Dynamo UI Exit Codes" do
   %i{
     EXIT_NORMAL
     EXIT_USAGE_ERROR
@@ -420,7 +420,7 @@ describe "Inspec UI Exit Codes" do
     EXIT_FAILED_TESTS
   }.each do |const_name|
     it "should define #{const_name}" do
-      _(Inspec::UI.const_defined?(const_name)).must_equal true
+      _(Dynamo::UI.const_defined?(const_name)).must_equal true
     end
   end
 end

@@ -1,9 +1,9 @@
-# Unit tests for Inspec::PluginLoader and Registry
+# Unit tests for Dynamo::PluginLoader and Registry
 
 require "helper"
 require "dynamo/plugin/v2"
 
-class Inspec::Plugin::V2::Loader
+class Dynamo::Plugin::V2::Loader
   public :detect_system_plugins
 end
 
@@ -13,10 +13,10 @@ class PluginLoaderTests < Minitest::Test
 
   def reset_globals
     ENV["HOME"] = @@orig_home
-    ENV["INSPEC_CONFIG_DIR"] = nil
-    Inspec::Plugin::V2::Registry.instance.__reset
-    if defined?(::InspecPlugins::TestFixture)
-      InspecPlugins.send :remove_const, :TestFixture
+    ENV["DYNAMO_CONFIG_DIR"] = nil
+    Dynamo::Plugin::V2::Registry.instance.__reset
+    if defined?(::DynamoPlugins::TestFixture)
+      DynamoPlugins.send :remove_const, :TestFixture
     end
     # forget all test fixture files
     $".reject! { |path| path =~ %r{test/fixtures} }
@@ -46,32 +46,32 @@ class PluginLoaderTests < Minitest::Test
   #====================================================================#
 
   def test_constructor_should_detect_bundled_plugins
-    reg = Inspec::Plugin::V2::Registry.instance
-    Inspec::Plugin::V2::Loader.new
+    reg = Dynamo::Plugin::V2::Registry.instance
+    Dynamo::Plugin::V2::Loader.new
     @bundled_plugins.each do |bundled_plugin_name|
       assert reg.known_plugin?(bundled_plugin_name), "\n#{bundled_plugin_name} should be detected as a bundled plugin"
     end
   end
 
   def test_constructor_should_detect_core_plugins
-    reg = Inspec::Plugin::V2::Registry.instance
-    Inspec::Plugin::V2::Loader.new
+    reg = Dynamo::Plugin::V2::Registry.instance
+    Dynamo::Plugin::V2::Loader.new
     @core_plugins.each do |core_plugin_name|
       assert reg.known_plugin?(core_plugin_name), "\n#{core_plugin_name} should be detected as a core plugin"
     end
   end
 
   def test_constructor_should_skip_bundles_when_option_is_set
-    reg = Inspec::Plugin::V2::Registry.instance
-    Inspec::Plugin::V2::Loader.new(omit_bundles: true)
+    reg = Dynamo::Plugin::V2::Registry.instance
+    Dynamo::Plugin::V2::Loader.new(omit_bundles: true)
     @bundled_plugins.each do |bundled_plugin_name|
       refute reg.known_plugin?(bundled_plugin_name), "\n#{bundled_plugin_name} should not be detected when omit_bundles is set"
     end
   end
 
   def test_constructor_should_skip_core_when_option_is_set
-    reg = Inspec::Plugin::V2::Registry.instance
-    Inspec::Plugin::V2::Loader.new(omit_core_plugins: true)
+    reg = Dynamo::Plugin::V2::Registry.instance
+    Dynamo::Plugin::V2::Loader.new(omit_core_plugins: true)
     @core_plugins.each do |core_plugin_name|
       refute reg.known_plugin?(core_plugin_name), "\n#{core_plugin_name} should not be detected when omit_core_plugins is set"
     end
@@ -79,8 +79,8 @@ class PluginLoaderTests < Minitest::Test
 
   def test_constructor_when_using_home_dir_detects_declared_plugins
     ENV["HOME"] = File.join(@config_dir_path, "fakehome")
-    reg = Inspec::Plugin::V2::Registry.instance
-    Inspec::Plugin::V2::Loader.new
+    reg = Dynamo::Plugin::V2::Registry.instance
+    Dynamo::Plugin::V2::Loader.new
     assert reg.known_plugin?(:'dynamo-test-home-marker'), "\ndynamo-test-home-marker should be detected as a plugin"
   end
 
@@ -89,9 +89,9 @@ class PluginLoaderTests < Minitest::Test
   #====================================================================#
 
   def test_constructor_when_the_plugin_config_is_absent_it_detects_bundled_plugins
-    ENV["INSPEC_CONFIG_DIR"] = File.join(@config_dir_path, "empty")
-    reg = Inspec::Plugin::V2::Registry.instance
-    Inspec::Plugin::V2::Loader.new
+    ENV["DYNAMO_CONFIG_DIR"] = File.join(@config_dir_path, "empty")
+    reg = Dynamo::Plugin::V2::Registry.instance
+    Dynamo::Plugin::V2::Loader.new
     @bundled_plugins.each do |bundled_plugin_name|
       assert reg.known_plugin?(bundled_plugin_name), "\n#{bundled_plugin_name} should be detected as a bundled plugin"
     end
@@ -102,8 +102,8 @@ class PluginLoaderTests < Minitest::Test
   #====================================================================#
 
   def test_load_no_plugins_should_load_no_plugins
-    reg = Inspec::Plugin::V2::Registry.instance
-    loader = Inspec::Plugin::V2::Loader.new(omit_bundles: true, omit_core_plugins: true, omit_user_plugins: true, omit_sys_plugins: true)
+    reg = Dynamo::Plugin::V2::Registry.instance
+    loader = Dynamo::Plugin::V2::Loader.new(omit_bundles: true, omit_core_plugins: true, omit_user_plugins: true, omit_sys_plugins: true)
     loader.load_all
     assert_equal 0, reg.loaded_count, "\nRegistry load count"
   end
@@ -117,8 +117,8 @@ class PluginLoaderTests < Minitest::Test
     # about it either. Neither of those things are intended to happen as
     # the plugin system is finished (the v1 plugins will be ported to v2, and registry
     # purging should never happen in real-world use)
-    reg = Inspec::Plugin::V2::Registry.instance
-    loader = Inspec::Plugin::V2::Loader.new
+    reg = Dynamo::Plugin::V2::Registry.instance
+    loader = Dynamo::Plugin::V2::Loader.new
     loader.load_all
     @bundled_plugins.each do |bundled_plugin_name|
       assert reg.loaded_plugin?(bundled_plugin_name), "\n#{bundled_plugin_name} should be loaded"
@@ -130,10 +130,10 @@ class PluginLoaderTests < Minitest::Test
   end
 
   def test_load_cli_plugin_by_path
-    ENV["INSPEC_CONFIG_DIR"] = File.join(@config_dir_path, "meaning_by_path")
-    reg = Inspec::Plugin::V2::Registry.instance
+    ENV["DYNAMO_CONFIG_DIR"] = File.join(@config_dir_path, "meaning_by_path")
+    reg = Dynamo::Plugin::V2::Registry.instance
     plugin_name = :'dynamo-meaning-of-life'
-    loader = Inspec::Plugin::V2::Loader.new(omit_bundles: true)
+    loader = Dynamo::Plugin::V2::Loader.new(omit_bundles: true)
     assert reg.known_plugin?(plugin_name), "\n#{plugin_name} should be a known plugin"
     refute reg.loaded_plugin?(plugin_name), "\n#{plugin_name} should not be loaded yet"
     loader.load_all
@@ -141,8 +141,8 @@ class PluginLoaderTests < Minitest::Test
   end
 
   def test_list_managed_gems
-    ENV["INSPEC_CONFIG_DIR"] = File.join(@config_dir_path, "test-fixture-2-float")
-    loader = Inspec::Plugin::V2::Loader.new(omit_bundles: true)
+    ENV["DYNAMO_CONFIG_DIR"] = File.join(@config_dir_path, "test-fixture-2-float")
+    loader = Dynamo::Plugin::V2::Loader.new(omit_bundles: true)
     gemspecs = loader.list_managed_gems
     gem = gemspecs.detect { |spec| spec.name == "ordinal_array" }
     refute_nil gem, "loader.list_managed_gems should find ordinal_array"
@@ -150,8 +150,8 @@ class PluginLoaderTests < Minitest::Test
   end
 
   def test_list_installed_plugin_gems
-    ENV["INSPEC_CONFIG_DIR"] = File.join(@config_dir_path, "test-fixture-1-float")
-    loader = Inspec::Plugin::V2::Loader.new(omit_bundles: true)
+    ENV["DYNAMO_CONFIG_DIR"] = File.join(@config_dir_path, "test-fixture-1-float")
+    loader = Dynamo::Plugin::V2::Loader.new(omit_bundles: true)
     gemspecs = loader.list_installed_plugin_gems
     gem = gemspecs.detect { |spec| spec.name == "dynamo-test-fixture" }
     refute_nil gem, "loader.list_installed_plugin_gems should find dynamo-test-fixture"
@@ -159,12 +159,12 @@ class PluginLoaderTests < Minitest::Test
   end
 
   def test_load_mock_plugin_by_gem
-    ENV["INSPEC_CONFIG_DIR"] = File.join(@config_dir_path, "test-fixture-2-float")
+    ENV["DYNAMO_CONFIG_DIR"] = File.join(@config_dir_path, "test-fixture-2-float")
 
-    reg = Inspec::Plugin::V2::Registry.instance
+    reg = Dynamo::Plugin::V2::Registry.instance
     plugin_name = :'dynamo-test-fixture'
 
-    loader = Inspec::Plugin::V2::Loader.new(omit_bundles: true)
+    loader = Dynamo::Plugin::V2::Loader.new(omit_bundles: true)
 
     assert_operator reg, :known_plugin?,  plugin_name
     refute_operator reg, :loaded_plugin?, plugin_name
@@ -179,9 +179,9 @@ class PluginLoaderTests < Minitest::Test
   #====================================================================#
   def test_activation
     # Setup
-    ENV["INSPEC_CONFIG_DIR"] = File.join(@config_dir_path, "meaning_by_path")
-    registry = Inspec::Plugin::V2::Registry.instance
-    loader = Inspec::Plugin::V2::Loader.new(omit_bundles: true)
+    ENV["DYNAMO_CONFIG_DIR"] = File.join(@config_dir_path, "meaning_by_path")
+    registry = Dynamo::Plugin::V2::Registry.instance
+    loader = Dynamo::Plugin::V2::Loader.new(omit_bundles: true)
     loader.load_all
     status = registry[:'dynamo-meaning-of-life']
 
@@ -192,7 +192,7 @@ class PluginLoaderTests < Minitest::Test
     # Finding an Activator
     assert_kind_of Array, status.activators, "status should have an array for activators"
     assert_kind_of Array, registry.find_activators, "find_activators should return an array"
-    assert_equal "Inspec::Plugin::V2::Activator", registry.find_activators[0].class.name, "find_activators should return an array of Activators"
+    assert_equal "Dynamo::Plugin::V2::Activator", registry.find_activators[0].class.name, "find_activators should return an array of Activators"
     activator = registry.find_activators(plugin_type: :mock_plugin_type, name: :'meaning-of-life-the-universe-and-everything')[0]
     refute_nil activator, "find_activators should find the test activator"
     %i{plugin_name plugin_type activator_name activated? exception activation_proc implementation_class}.each do |method_name|
@@ -203,7 +203,7 @@ class PluginLoaderTests < Minitest::Test
     refute activator.activated?, "Test activator should start out unactivated"
     assert_nil activator.exception, "Test activator should have no exception prior to activation"
     assert_nil activator.implementation_class, "Test activator should not know implementation class prior to activation"
-    refute InspecPlugins::MeaningOfLife.const_defined?(:MockPlugin), "impl_class should not be defined prior to activation"
+    refute DynamoPlugins::MeaningOfLife.const_defined?(:MockPlugin), "impl_class should not be defined prior to activation"
 
     activator.activate
 
@@ -215,14 +215,14 @@ class PluginLoaderTests < Minitest::Test
     impl_class = activator.implementation_class
     refute_nil impl_class, "Activation should set the implementation class"
     assert_kind_of Class, impl_class, "Should have a Class in the implementation class slot"
-    assert_includes impl_class.ancestors, Inspec::Plugin::V2::PluginBase, "impl_class should derive from PluginBase"
-    assert_includes impl_class.ancestors, Inspec::Plugin::V2::PluginType::Mock, "impl_class should derive from PluginType::Mock"
-    assert InspecPlugins::MeaningOfLife.const_defined?(:MockPlugin), "impl_class should now be defined"
+    assert_includes impl_class.ancestors, Dynamo::Plugin::V2::PluginBase, "impl_class should derive from PluginBase"
+    assert_includes impl_class.ancestors, Dynamo::Plugin::V2::PluginType::Mock, "impl_class should derive from PluginType::Mock"
+    assert DynamoPlugins::MeaningOfLife.const_defined?(:MockPlugin), "impl_class should now be defined"
 
-    assert_equal :'dynamo-meaning-of-life', Inspec::Plugin::V2::PluginBase.find_name_by_implementation_class(impl_class), "find_name_by_implementation_class should work"
+    assert_equal :'dynamo-meaning-of-life', Dynamo::Plugin::V2::PluginBase.find_name_by_implementation_class(impl_class), "find_name_by_implementation_class should work"
   end
 
-  REG_INST = Inspec::Plugin::V2::Registry.instance
+  REG_INST = Dynamo::Plugin::V2::Registry.instance
 
   def with_empty_registry
     old_reg = REG_INST.registry.dup
@@ -234,15 +234,15 @@ class PluginLoaderTests < Minitest::Test
   end
 
   def with_logger
-    old_logger = Inspec::Log.logger
+    old_logger = Dynamo::Log.logger
     io = StringIO.new
-    Inspec::Log.logger = Logger.new(io)
+    Dynamo::Log.logger = Logger.new(io)
 
     yield
 
     io.string
   ensure
-    Inspec::Log.logger = old_logger
+    Dynamo::Log.logger = old_logger
   end
 
   def using_bundler?
@@ -253,7 +253,7 @@ class PluginLoaderTests < Minitest::Test
 
   def assert_detect_system_plugins(exp_keys, exp_err)
     # rubocop:disable Style/HashSyntax
-    loader = Inspec::Plugin::V2::Loader.new(:omit_user_plugins => true,
+    loader = Dynamo::Plugin::V2::Loader.new(:omit_user_plugins => true,
                                             :omit_bundles      => true,
                                             :omit_core_plugins => true,
                                             :omit_sys_plugins  => true)

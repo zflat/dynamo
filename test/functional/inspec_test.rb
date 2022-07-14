@@ -7,7 +7,7 @@ describe "command tests" do
     it "provides the version number on stdout" do
       out = dynamo("version")
 
-      _(out.stdout).must_equal Inspec::VERSION + "\n"
+      _(out.stdout).must_equal Dynamo::VERSION + "\n"
       _(out.stderr).must_equal ""
 
       assert_exit_code 0, out
@@ -16,7 +16,7 @@ describe "command tests" do
     it "prints the version as JSON when the format is specified as JSON" do
       out = dynamo("version --format=json")
 
-      _(out.stdout).must_equal %({"version":"#{Inspec::VERSION}"}\n)
+      _(out.stdout).must_equal %({"version":"#{Dynamo::VERSION}"}\n)
 
       _(out.stderr).must_equal ""
 

@@ -9,10 +9,10 @@ Gem::Specification.new do |s|
   s.authors = ["Kevin Disneur".freeze]
   s.date = "2012-04-08"
   s.description = "You can access to the first element of an array by the 'first' method. Now you can access to the second element by 'second' and that until the 999th elements".freeze
+  s.summary = "You can access to the first element of an array by the 'first' method. Now you can access to the second element by 'second' and that until the 999th elements".freeze
   s.email = ["kevin.disneur@gmail.com".freeze]
   s.homepage = "https://github.com/kdisneur/ordinal_array".freeze
   s.rubygems_version = "3.0.3".freeze
-  s.summary = "You can access to the first element of an array by the 'first' method. Now you can access to the second element by 'second' and that until the 999th elements".freeze
 
   s.installed_by_version = "3.0.3" if s.respond_to? :installed_by_version
 end

@@ -21,10 +21,10 @@ module InstallerTestHelpers
 
   def reset_globals
     ENV["HOME"] = @@orig_home
-    ENV["INSPEC_CONFIG_DIR"] = nil
+    ENV["DYNAMO_CONFIG_DIR"] = nil
     @installer && @installer.__reset
-    if defined?(::InspecPlugins::TestFixture)
-      InspecPlugins.send :remove_const, :TestFixture
+    if defined?(::DynamoPlugins::TestFixture)
+      DynamoPlugins.send :remove_const, :TestFixture
     end
     # forget all test fixture files
     $".reject! { |path| path =~ %r{test/fixtures} }
@@ -51,9 +51,9 @@ module InstallerTestHelpers
     # This is unstable under CI; see https://github.com/dynamo/dynamo/issues/3355
     @ruby_abi_version = RbConfig::CONFIG["ruby_version"]
 
-    @installer = Inspec::Plugin::V2::Installer.instance
+    @installer = Dynamo::Plugin::V2::Installer.instance
 
-    ENV["INSPEC_CONFIG_DIR"] = File.join(@config_dir_path, "empty")
+    ENV["DYNAMO_CONFIG_DIR"] = File.join(@config_dir_path, "empty")
     ENV["HOME"] = File.join(@config_dir_path, "fakehome")
     Gem.paths = ENV
     @installer.__reset_loader
@@ -65,7 +65,7 @@ module InstallerTestHelpers
 
     # We use the 'empty' config dir for exercising a lot of installs.
     # Purge it after every test.
-    unless ENV["INSPEC_TEST_PRESERVE_PLUGIN"]
+    unless ENV["DYNAMO_TEST_PRESERVE_PLUGIN"]
       if @config_dir_path
         Dir.glob(File.join(@config_dir_path, "empty", "*")).each do |path|
           next if path.end_with? ".gitkeep"
@@ -89,15 +89,15 @@ class PluginInstallerBasicTests < Minitest::Test
 
   # it's a singleton
   def test_it_should_be_a_singleton
-    klass = Inspec::Plugin::V2::Installer
+    klass = Dynamo::Plugin::V2::Installer
     assert_equal klass.instance, klass.instance, "Calling instance on the Installer should always return the same object"
-    assert_kind_of Inspec::Plugin::V2::Installer, klass.instance, "Calling instance on the INstaller should return the right class"
+    assert_kind_of Dynamo::Plugin::V2::Installer, klass.instance, "Calling instance on the INstaller should return the right class"
     assert_raises(NoMethodError, "Installer should have a private constructor") { klass.new }
   end
 
   # it should know its gem path
   def test_it_should_know_its_gem_path_with_a_default_location
-    ENV.delete "INSPEC_CONFIG_DIR"
+    ENV.delete "DYNAMO_CONFIG_DIR"
     ENV["HOME"] = File.join(@config_dir_path, "fakehome")
 
     suffix = "fakehome/.dynamo/gems/#{@ruby_abi_version}"
@@ -122,7 +122,7 @@ class PluginInstallerInstallationTests < Minitest::Test
     # Here, ordinal_array is the name of a simple, small gem available on rubygems.org
     # There is no significance in choosing that gem over any other.
     # Main point here is that its name does not begin with 'dynamo-'.
-    assert_raises(Inspec::Plugin::V2::InstallError) { @installer.install("ordinal_array") }
+    assert_raises(Dynamo::Plugin::V2::InstallError) { @installer.install("ordinal_array") }
   end
 
   def test_install_a_gem_from_local_file
@@ -132,7 +132,7 @@ class PluginInstallerInstallationTests < Minitest::Test
 
     assert_operator File, :exist?, gem_file
 
-    reg = Inspec::Plugin::V2::Registry.instance
+    reg = Dynamo::Plugin::V2::Registry.instance
     plugin_name = :'dynamo-test-fixture'
     refute_operator reg, :known_plugin?,  plugin_name
     refute_operator reg, :loaded_plugin?, plugin_name
@@ -156,7 +156,7 @@ class PluginInstallerInstallationTests < Minitest::Test
     gem_file = File.join(@plugin_fixture_pkg_path, "dynamo-test-fixture-nonesuch-0.0.0.gem")
 
     refute File.exist?(gem_file), "The non-existent gem should not exist prior to install attempt"
-    ex = assert_raises(Inspec::Plugin::V2::InstallError) { @installer.install("dynamo-test-fixture-nonesuch", gem_file: gem_file) }
+    ex = assert_raises(Dynamo::Plugin::V2::InstallError) { @installer.install("dynamo-test-fixture-nonesuch", gem_file: gem_file) }
     assert_includes ex.message, "Could not find local gem file"
   end
 
@@ -169,9 +169,9 @@ class PluginInstallerInstallationTests < Minitest::Test
     end
 
     # Should now be present in plugin.json
-    plugin_json_path = File.join(ENV["INSPEC_CONFIG_DIR"], "plugins.json")
+    plugin_json_path = File.join(ENV["DYNAMO_CONFIG_DIR"], "plugins.json")
     assert File.exist?(plugin_json_path), "plugins.json should now exist"
-    config_file = Inspec::Plugin::V2::ConfigFile.new(plugin_json_path)
+    config_file = Dynamo::Plugin::V2::ConfigFile.new(plugin_json_path)
 
     assert_equal 1, config_file.count, "plugins.json should have one entry"
     assert config_file.existing_entry?(:'dynamo-test-fixture')
@@ -214,7 +214,7 @@ class PluginInstallerInstallationTests < Minitest::Test
     skip_slow_tests
     skip_live_net_tests
 
-    assert_raises(Inspec::Plugin::V2::InstallError) { @installer.install("dynamo-test-fixture-nonesuch") }
+    assert_raises(Dynamo::Plugin::V2::InstallError) { @installer.install("dynamo-test-fixture-nonesuch") }
   end
 
   # Should be able to install a plugin while pinning the version
@@ -232,7 +232,7 @@ class PluginInstallerInstallationTests < Minitest::Test
     spec_path = File.join(@installer.gem_path, "specifications", "dynamo-test-fixture-0.2.0.gemspec")
     refute File.exist?(spec_path), "After pinned installation from rubygems.org, the wrong gemspec version should be absent"
 
-    config_file = Inspec::Plugin::V2::ConfigFile.new
+    config_file = Dynamo::Plugin::V2::ConfigFile.new
     entry = config_file.plugin_by_name(:'dynamo-test-fixture')
     assert_includes entry.keys, :version, "plugins.json should include version pinning key"
     assert_equal "= 0.1.0", entry[:version], "plugins.json should include version pinning value"
@@ -244,7 +244,7 @@ class PluginInstallerInstallationTests < Minitest::Test
     spec = Gem::Specification._all.find { |s| s.name == "rake" }
     spec.activate
 
-    ex = assert_raises(Inspec::Plugin::V2::InstallError) do
+    ex = assert_raises(Dynamo::Plugin::V2::InstallError) do
       @installer.install("dynamo-test-fixture", version: "= 0.1.1")
     end
     assert_includes ex.message, "can't activate rake-0.4.8, already activated rake-"
@@ -254,7 +254,7 @@ class PluginInstallerInstallationTests < Minitest::Test
     skip_slow_tests
     skip_live_net_tests
 
-    ex = assert_raises(Inspec::Plugin::V2::InstallError) do
+    ex = assert_raises(Dynamo::Plugin::V2::InstallError) do
       @installer.install("dynamo-test-fixture", version: "= 0.1.2")
     end
     assert_includes ex.message, "Could not find 'fake_plugin_dependency' (>= 0)"
@@ -267,7 +267,7 @@ class PluginInstallerInstallationTests < Minitest::Test
     specs = Dir.glob(File.join(@installer.gem_path, "specifications", "*.gemspec"))
     assert_empty specs, "After install-from-path, no gemspecs should be installed"
 
-    config_file = Inspec::Plugin::V2::ConfigFile.new
+    config_file = Dynamo::Plugin::V2::ConfigFile.new
     entry = config_file.plugin_by_name(:'dynamo-test-fixture')
     assert_includes entry.keys, :installation_type, "plugins.json should include installation_type key"
     assert_equal :path, entry[:installation_type], "plugins.json should include path installation_type"
@@ -278,7 +278,7 @@ class PluginInstallerInstallationTests < Minitest::Test
 
   def test_refuse_to_install_gem_whose_name_is_on_the_reject_list
     # Here, 'dynamo-core', 'dynamo-multi-server', and 'train-tax-collector'
-    # are the names of real rubygems.  They are not InSpec/Train plugins, though,
+    # are the names of real rubygems.  They are not Dynamo/Train plugins, though,
     # and installing them would be a jam-up.
     # This is configured in 'etc/plugin-filter.json'.
     %w{
@@ -286,7 +286,7 @@ class PluginInstallerInstallationTests < Minitest::Test
       dynamo-multi-server
       train-tax-calculator
     }.each do |plugin_name|
-      ex = assert_raises(Inspec::Plugin::V2::InstallError) { @installer.install(plugin_name) }
+      ex = assert_raises(Dynamo::Plugin::V2::InstallError) { @installer.install(plugin_name) }
       assert_includes(ex.message, "on the Plugin Exclusion List")
       assert_includes(ex.message, "Rationale:")
     end
@@ -300,7 +300,7 @@ class PluginInstallerUpdaterTests < Minitest::Test
   include InstallerTestHelpers
 
   def test_update_using_path_not_allowed
-    assert_raises(Inspec::Plugin::V2::UpdateError) do
+    assert_raises(Dynamo::Plugin::V2::UpdateError) do
       @installer.update("dynamo-test-fixture", path: @plugin_fixture_src_path)
     end
   end
@@ -308,7 +308,7 @@ class PluginInstallerUpdaterTests < Minitest::Test
   def test_update_existing_plugin_at_same_version_not_allowed
     copy_in_config_dir("test-fixture-1-float")
 
-    assert_raises(Inspec::Plugin::V2::UpdateError) do
+    assert_raises(Dynamo::Plugin::V2::UpdateError) do
       @installer.update("dynamo-test-fixture", version: "0.1.0")
     end
   end
@@ -316,7 +316,7 @@ class PluginInstallerUpdaterTests < Minitest::Test
   def test_install_plugin_at_existing_version_not_allowed
     copy_in_config_dir("test-fixture-1-float")
 
-    assert_raises(Inspec::Plugin::V2::InstallError) do
+    assert_raises(Dynamo::Plugin::V2::InstallError) do
       @installer.install("dynamo-test-fixture", version: "0.1.0")
     end
   end
@@ -324,7 +324,7 @@ class PluginInstallerUpdaterTests < Minitest::Test
   def test_install_existing_plugin_not_allowed
     copy_in_config_dir("test-fixture-1-float")
 
-    ex = assert_raises(Inspec::Plugin::V2::InstallError) do
+    ex = assert_raises(Dynamo::Plugin::V2::InstallError) do
       @installer.install("dynamo-test-fixture")
     end
     assert_includes ex.message, "Use 'dynamo plugin update'"
@@ -348,7 +348,7 @@ class PluginInstallerUpdaterTests < Minitest::Test
     assert File.exist?(spec_path), "After update, the 0.1.0 gemspec should remain"
 
     # Plugins file entry should now be version pinned to latest
-    plugin_json_path = File.join(ENV["INSPEC_CONFIG_DIR"], "plugins.json")
+    plugin_json_path = File.join(ENV["DYNAMO_CONFIG_DIR"], "plugins.json")
     plugin_json_data = JSON.parse(File.read(plugin_json_path))
     entry = plugin_json_data["plugins"].detect { |e| e["name"] == "dynamo-test-fixture" }
     assert_equal "= 0.2.0", entry["version"]
@@ -374,7 +374,7 @@ class PluginInstallerUpdaterTests < Minitest::Test
     assert File.exist?(spec_path), "After update, the 0.1.0 gemspec should remain"
 
     # Plugins file entry should be version pinned
-    config_file = Inspec::Plugin::V2::ConfigFile.new
+    config_file = Dynamo::Plugin::V2::ConfigFile.new
     entry = config_file.plugin_by_name(:'dynamo-test-fixture')
     assert_includes entry.keys, :version, "plugins.json should include version pinning key"
     assert_equal "= 0.2.0", entry[:version], "plugins.json should include version pinning value"
@@ -398,13 +398,13 @@ class PluginInstallerUninstallTests < Minitest::Test
 
   def test_uninstalling_a_nonexistent_plugin_is_an_error
     # Try a mythical one
-    ex = assert_raises(Inspec::Plugin::V2::UnInstallError) do
+    ex = assert_raises(Dynamo::Plugin::V2::UnInstallError) do
       @installer.uninstall("dynamo-test-fixture-nonesuch")
     end
     assert_includes ex.message, "'dynamo-test-fixture-nonesuch' is not installed, refusing to uninstall."
 
     # Try a real plugin that is not installed
-    ex = assert_raises(Inspec::Plugin::V2::UnInstallError) do
+    ex = assert_raises(Dynamo::Plugin::V2::UnInstallError) do
       @installer.uninstall("dynamo-test-fixture")
     end
     assert_includes ex.message, "'dynamo-test-fixture' is not installed, refusing to uninstall."
@@ -417,7 +417,7 @@ class PluginInstallerUninstallTests < Minitest::Test
     @installer.uninstall("dynamo-meaning-of-life")
 
     # Plugins file entry should be removed
-    plugin_json_path = File.join(ENV["INSPEC_CONFIG_DIR"], "plugins.json")
+    plugin_json_path = File.join(ENV["DYNAMO_CONFIG_DIR"], "plugins.json")
     plugin_json_data = JSON.parse(File.read(plugin_json_path))
     entries = plugin_json_data["plugins"].select { |e| e["name"] == "dynamo-meaning-of-life" }
     assert_empty entries, "After path-based uninstall, plugin name should be removed from plugins.json"
@@ -446,7 +446,7 @@ class PluginInstallerUninstallTests < Minitest::Test
     assert_raises(Gem::UnsatisfiableDependencyError) { request_set.resolve(universe_set) }
 
     # Plugins file entry should be removed
-    config_file = Inspec::Plugin::V2::ConfigFile.new
+    config_file = Dynamo::Plugin::V2::ConfigFile.new
     refute config_file.existing_entry?(:'dynamo-test-fixture'), "After gem-based uninstall, plugin name should be removed from plugins.json"
   end
 
@@ -541,7 +541,7 @@ class PluginInstallerSearchTests < Minitest::Test
     assert results.key?("dynamo-test-fixture")
 
     # Here, 'dynamo-core', 'dynamo-multi-server'
-    # are the names of real rubygems.  They are not InSpec/Train plugins, though,
+    # are the names of real rubygems.  They are not Dynamo/Train plugins, though,
     # and installing them would be a jam-up.
     # This is configured in 'etc/plugin_filters.json'.
     %w{
@@ -556,10 +556,10 @@ class PluginInstallerSearchTests < Minitest::Test
     skip_live_net_tests
 
     results = @installer.search("train-")
-    assert results.key?("train-test-fixture")
+    assert results.key?("dynamo-test-fixture")
 
     # Here, train-tax-calculator'
-    # is the name of a real rubygem.  It is not a InSpec/Train plugin, though,
+    # is the name of a real rubygem.  It is not a Dynamo/Train plugin, though,
     # and installing it would be a jam-up.
     # This is configured in 'etc/plugin_filters.json'.
     [

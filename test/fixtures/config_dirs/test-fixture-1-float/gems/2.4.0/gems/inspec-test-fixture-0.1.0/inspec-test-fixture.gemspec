@@ -6,7 +6,7 @@ Gem::Specification.new do |spec|
   spec.name          = "dynamo-test-fixture"
   spec.version       = "0.1.0"
   spec.authors       = ["Dynamo Engineering Team"]
-  spec.email         = ["hello@chef.io"]
+  spec.email         = ["hello@test.test"]
 
   spec.summary       = %q{A simple test plugin gem for InSpec}
   spec.description   = %q{This gem is used to test the gem search and install capabilities of InSpec's plugin V2 system.  It is not a good example or starting point for plugin development.}

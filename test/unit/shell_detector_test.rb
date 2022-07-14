@@ -29,10 +29,10 @@ module ShellDetectorTestHelpers
   end
 end
 
-describe Inspec::ShellDetector do
+describe Dynamo::ShellDetector do
   include ShellDetectorTestHelpers
 
-  let(:subject) { Inspec::ShellDetector.new }
+  let(:subject) { Dynamo::ShellDetector.new }
   let(:ppid) { Process.ppid }
 
   # Small hack to ensure we can test on windows

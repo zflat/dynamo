@@ -4,7 +4,7 @@ require "stringio"
 require "dynamo/config"
 require "thor" # For Thor::CoreExt::HashWithIndifferentAccess
 
-describe "Inspec::Config" do
+describe "Dynamo::Config" do
 
   # ========================================================================== #
   #                                Constructor
@@ -12,14 +12,14 @@ describe "Inspec::Config" do
   describe "the constructor" do
     describe "when no args are provided" do
       it "should initialize properly" do
-        cfg = Inspec::Config.new
+        cfg = Dynamo::Config.new
         _(cfg).must_respond_to :final_options
       end
     end
 
     describe "when CLI args are provided" do
       it "should initialize properly" do
-        cfg = Inspec::Config.new({ color: true, log_level: "warn" })
+        cfg = Dynamo::Config.new({ color: true, log_level: "warn" })
         _(cfg).must_respond_to :final_options
       end
     end
@@ -36,19 +36,19 @@ describe "Inspec::Config" do
     # Note that since unit tests are randomized, we have no idea what is in
     # the cache.  We just want to validate that we get the same thing.
     it "should cache the config object" do
-      Inspec::Config.new # in the unlikely event we are the first unit test
+      Dynamo::Config.new # in the unlikely event we are the first unit test
 
       # Type check
-      cfg_cached = Inspec::Config.cached
-      _(cfg_cached).must_be_kind_of Inspec::Config
+      cfg_cached = Dynamo::Config.cached
+      _(cfg_cached).must_be_kind_of Dynamo::Config
 
       # Multiple calls to cached should return the same thing
-      cfg_2 = Inspec::Config.cached
+      cfg_2 = Dynamo::Config.cached
       _(cfg_2).must_equal cfg_cached
 
       # Cached value unaffected by later instance creation
-      Inspec::Config.new(shoe_size: 9)
-      cfg_4 = Inspec::Config.cached
+      Dynamo::Config.new(shoe_size: 9)
+      cfg_4 = Dynamo::Config.cached
       _(cfg_4).must_equal cfg_cached
     end
   end
@@ -57,7 +57,7 @@ describe "Inspec::Config" do
   #                              File Validation
   # ========================================================================== #
   describe "when validating a file" do
-    let(:cfg) { Inspec::Config.new({}, cfg_io) }
+    let(:cfg) { Dynamo::Config.new({}, cfg_io) }
     let(:cfg_io) { StringIO.new(ConfigTestHelper.fixture(fixture_name)) }
     let(:seen_fields) { cfg.final_options.keys.sort }
 
@@ -96,7 +96,7 @@ describe "Inspec::Config" do
     describe "when the file has malformed json" do
       let(:fixture_name) { "malformed_json" }
       it "should throw an exception" do
-        ex = _ { cfg }.must_raise(Inspec::ConfigError::MalformedJson)
+        ex = _ { cfg }.must_raise(Dynamo::ConfigError::MalformedJson)
         # Failed to load JSON configuration: 765: unexpected token at '{ "hot_garbage": "a", "version": "1.1",
         # '
         # Config was: "{ \"hot_garbage\": \"a\", \"version\": \"1.1\", \n"
@@ -109,7 +109,7 @@ describe "Inspec::Config" do
     describe "when the file has a bad file version" do
       let(:fixture_name) { "bad_version" }
       it "should throw an exception" do
-        ex = _ { cfg }.must_raise(Inspec::ConfigError::Invalid)
+        ex = _ { cfg }.must_raise(Dynamo::ConfigError::Invalid)
         _(ex.message).must_include "Unsupported config file version"
         _(ex.message).must_include "99.99"
         _(ex.message).must_include "1.1"
@@ -119,7 +119,7 @@ describe "Inspec::Config" do
     describe "when a 1.1 file has an invalid top-level entry" do
       let(:fixture_name) { "bad_top_level" }
       it "should throw an exception" do
-        ex = _ { cfg }.must_raise(Inspec::ConfigError::Invalid)
+        ex = _ { cfg }.must_raise(Dynamo::ConfigError::Invalid)
         _(ex.message).must_include "Unrecognized top-level"
         _(ex.message).must_include "unsupported_field"
         _(ex.message).must_include "compliance"
@@ -129,7 +129,7 @@ describe "Inspec::Config" do
     describe "when a 1.2 file has an array for the plugins list" do
       let(:fixture_name) { "bad_1_2_array" }
       it "should complain about the array" do
-        ex = _ { cfg }.must_raise(Inspec::ConfigError::Invalid)
+        ex = _ { cfg }.must_raise(Dynamo::ConfigError::Invalid)
         _(ex.message).must_include "'plugin' field"
         _(ex.message).must_include "must be a hash"
       end
@@ -138,7 +138,7 @@ describe "Inspec::Config" do
     describe "when a 1.2 file has an invalid name for a plugin" do
       let(:fixture_name) { "bad_1_2_bad_name" }
       it "should complain about the bad plugin name" do
-        ex = _ { cfg }.must_raise(Inspec::ConfigError::Invalid)
+        ex = _ { cfg }.must_raise(Dynamo::ConfigError::Invalid)
         _(ex.message).must_include "names must begin with"
         _(ex.message).must_include "dynamo-"
       end
@@ -147,7 +147,7 @@ describe "Inspec::Config" do
     describe "when a 1.2 file has a bad value for a setting tree" do
       let(:fixture_name) { "bad_1_2_bad_value" }
       it "should complain about the bad plugin value" do
-        ex = _ { cfg }.must_raise(Inspec::ConfigError::Invalid)
+        ex = _ { cfg }.must_raise(Dynamo::ConfigError::Invalid)
         _(ex.message).must_include "should be a Hash"
         _(ex.message).must_include "dynamo-test-bad-settings"
       end
@@ -158,7 +158,7 @@ describe "Inspec::Config" do
   #                                 Defaults
   # ========================================================================== #
   describe "reading defaults" do
-    let(:cfg) { Inspec::Config.new({}, nil, command) }
+    let(:cfg) { Dynamo::Config.new({}, nil, command) }
     let(:final_options) { cfg.final_options }
     let(:seen_fields) { cfg.final_options.keys.sort }
 
@@ -198,7 +198,7 @@ describe "Inspec::Config" do
   # in the config file with the same name as the CLI options, which is
   # tested under 'CLI Options Stored in File'
   describe "reading CLI options" do
-    let(:cfg) { Inspec::Config.new(cli_opts) }
+    let(:cfg) { Dynamo::Config.new(cli_opts) }
     let(:final_options) { cfg.final_options }
     let(:seen_fields) { cfg.final_options.keys.sort }
 
@@ -228,7 +228,7 @@ describe "Inspec::Config" do
   #                          CLI Options Stored in File
   # ========================================================================== #
   describe "reading CLI options stored in the config file" do
-    let(:cfg) { Inspec::Config.new({}, cfg_io) }
+    let(:cfg) { Dynamo::Config.new({}, cfg_io) }
     let(:final_options) { cfg.final_options }
     let(:cfg_io) { StringIO.new(ConfigTestHelper.fixture(fixture_name)) }
     let(:seen_fields) { cfg.final_options.keys.sort }
@@ -261,7 +261,7 @@ describe "Inspec::Config" do
 
   # TODO: this should be moved into plugins for the reporters
   describe "when parsing reporters" do
-    let(:cfg) { Inspec::Config.new(cli_opts) }
+    let(:cfg) { Dynamo::Config.new(cli_opts) }
     let(:seen_reporters) { cfg["reporter"] }
 
     describe "when paring CLI reporter" do
@@ -283,7 +283,7 @@ describe "Inspec::Config" do
 
   describe "when validating reporters" do
     # validate_reporters is private, so we use .send
-    let(:cfg) { Inspec::Config.new }
+    let(:cfg) { Dynamo::Config.new }
     it "valid reporter" do
       reporters = { "json" => { "stdout" => true } }
       cfg.send(:validate_reporters!, reporters)
@@ -309,15 +309,15 @@ describe "Inspec::Config" do
     it "raises if `--password/--sudo-password` are used without value" do
       # When you invoke `dynamo shell --password`  (with no value for password,
       # though it is setup to expect a string) Thor will set the key with value -1
-      ex = _ { Inspec::Config.new("sudo_password" => -1) }.must_raise(ArgumentError)
+      ex = _ { Dynamo::Config.new("sudo_password" => -1) }.must_raise(ArgumentError)
       _(ex.message).must_match(/Please provide a value for --sudo-password/)
     end
 
     it "assumes `--sudo` if `--sudo-password` is used without it" do
       @mock_logger = Minitest::Mock.new
       @mock_logger.expect(:warn, nil, [/Adding `--sudo`./])
-      Inspec::Log.stub(:warn, proc { |message| @mock_logger.warn(message) }) do
-        cfg = Inspec::Config.new("sudo_password" => "somepass")
+      Dynamo::Log.stub(:warn, proc { |message| @mock_logger.warn(message) }) do
+        cfg = Dynamo::Config.new("sudo_password" => "somepass")
         _(cfg.key?("sudo")).must_equal true
       end
       @mock_logger.verify
@@ -329,7 +329,7 @@ describe "Inspec::Config" do
   #                        Handling Plugin Config
   # ========================================================================== #
   describe "when fetching plugin config" do
-    let(:cfg) { Inspec::Config.new({}, cfg_io) }
+    let(:cfg) { Dynamo::Config.new({}, cfg_io) }
     let(:cfg_io) { StringIO.new(ConfigTestHelper.fixture(fixture_name)) }
     let(:fixture_name) { "basic_1_2" }
 
@@ -359,7 +359,7 @@ describe "Inspec::Config" do
   end
 
   describe "when setting plugin config" do
-    let(:cfg) { Inspec::Config.new({}, cfg_io) }
+    let(:cfg) { Dynamo::Config.new({}, cfg_io) }
     let(:cfg_io) { StringIO.new(ConfigTestHelper.fixture(fixture_name)) }
     let(:fixture_name) { "basic_1_2" }
 
@@ -374,7 +374,7 @@ describe "Inspec::Config" do
   end
 
   describe "when merging plugin config" do
-    let(:cfg) { Inspec::Config.new({}, cfg_io) }
+    let(:cfg) { Dynamo::Config.new({}, cfg_io) }
     let(:cfg_io) { StringIO.new(ConfigTestHelper.fixture(fixture_name)) }
     let(:fixture_name) { "basic_1_2" }
 
@@ -414,7 +414,7 @@ describe "Inspec::Config" do
   #                             Merging Options
   # ========================================================================== #
   describe "when merging options" do
-    let(:cfg) { Inspec::Config.new(cli_opts, cfg_io, command) }
+    let(:cfg) { Dynamo::Config.new(cli_opts, cfg_io, command) }
     let(:cfg_io) { StringIO.new(ConfigTestHelper.fixture(file_fixture_name)) }
     let(:seen_fields) { cfg.final_options.keys.sort }
     let(:command) { nil }
@@ -423,7 +423,7 @@ describe "Inspec::Config" do
       let(:file_fixture_name) { :override_check }
       let(:cli_opts) { {} }
       it "the config file setting should prevail" do
-        Inspec::Config::Defaults.stubs(:default_for_command).returns("target_id" => "value_from_default")
+        Dynamo::Config::Defaults.stubs(:default_for_command).returns("target_id" => "value_from_default")
         expected = %w{reporter target_id type}.sort
         _(seen_fields).must_equal expected
         _(cfg.final_options["target_id"]).must_equal "value_from_config_file"
@@ -435,7 +435,7 @@ describe "Inspec::Config" do
       let(:cli_opts) { { target_id: "value_from_cli_opts" } }
       let(:cfg_io) { nil }
       it "the CLI option should prevail" do
-        Inspec::Config::Defaults.stubs(:default_for_command).returns("target_id" => "value_from_default")
+        Dynamo::Config::Defaults.stubs(:default_for_command).returns("target_id" => "value_from_default")
         expected = %w{reporter target_id type}.sort
         _(seen_fields).must_equal expected
         _(cfg.final_options["target_id"]).must_equal "value_from_cli_opts"

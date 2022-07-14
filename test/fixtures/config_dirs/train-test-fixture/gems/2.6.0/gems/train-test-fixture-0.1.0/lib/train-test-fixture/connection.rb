@@ -1,4 +1,4 @@
-require 'train-test-fixture/platform'
+require 'dynamo-test-fixture/platform'
 require 'train/transports/local'
 
 module TrainPlugins

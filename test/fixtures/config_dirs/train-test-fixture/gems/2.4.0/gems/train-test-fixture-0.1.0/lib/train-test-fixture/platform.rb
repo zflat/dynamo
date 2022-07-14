@@ -1,4 +1,4 @@
-require 'train-test-fixture/version'
+require 'dynamo-test-fixture/version'
 
 module TrainPlugins
   module TestFixture

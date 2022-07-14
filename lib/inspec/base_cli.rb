@@ -40,7 +40,7 @@ module Dynamo
 
     def self.help(*args)
       super(*args)
-      puts "\nAbout #{Dynamo::Dist::PRODUCT_NAME}: runs Thor generators"
+      puts "\nAbout #{Dynamo::Dist::EXEC_NAME}: runs Thor generators"
     end
 
     def self.format_platform_info(params: {}, indent: 0, color: 39, enable_color: true)
